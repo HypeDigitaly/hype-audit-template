@@ -1,0 +1,102 @@
+---
+import { translations, type Language } from '../../scripts/translations';
+
+interface Props {
+  lang?: Language;
+}
+
+const { lang = 'cs' } = Astro.props;
+const t = translations[lang];
+---
+
+<!-- Scroll Navigation Buttons - Right Center -->
+<div id="scroll-buttons" class="scroll-buttons-container">
+  <!-- Scroll to Top -->
+  <button 
+    id="scroll-to-top" 
+    class="scroll-btn scroll-btn-hidden" 
+    aria-label={t.scroll_to_top || 'Přejít nahoru'}
+    title={t.scroll_to_top || 'Přejít nahoru'}
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="scroll-btn-icon">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+  
+  <!-- Scroll to Bottom -->
+  <button 
+    id="scroll-to-bottom" 
+    class="scroll-btn scroll-btn-hidden" 
+    aria-label={t.scroll_to_bottom || 'Přejít dolů'}
+    title={t.scroll_to_bottom || 'Přejít dolů'}
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="scroll-btn-icon">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+</div>
+
+<script>
+  (function() {
+    const scrollToTopBtn = document.getElementById('scroll-to-top');
+    const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
+    
+    if (!scrollToTopBtn || !scrollToBottomBtn) return;
+    
+    const SCROLL_THRESHOLD = 200;
+    const BOTTOM_THRESHOLD = 100;
+    
+    function updateVisibility() {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const isScrollable = documentHeight > windowHeight + 100;
+      
+      // Show scroll-to-top after scrolling down
+      if (scrollY > SCROLL_THRESHOLD) {
+        scrollToTopBtn.classList.remove('scroll-btn-hidden');
+      } else {
+        scrollToTopBtn.classList.add('scroll-btn-hidden');
+      }
+      
+      // Show scroll-to-bottom when not near bottom
+      const distanceFromBottom = documentHeight - (scrollY + windowHeight);
+      if (isScrollable && distanceFromBottom > BOTTOM_THRESHOLD) {
+        scrollToBottomBtn.classList.remove('scroll-btn-hidden');
+      } else {
+        scrollToBottomBtn.classList.add('scroll-btn-hidden');
+      }
+    }
+    
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function scrollToBottom() {
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+    }
+    
+    // Event listeners
+    scrollToTopBtn.addEventListener('click', scrollToTop);
+    scrollToBottomBtn.addEventListener('click', scrollToBottom);
+    
+    // Throttled scroll listener
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          updateVisibility();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+    
+    // Initial check
+    updateVisibility();
+    
+    // Re-check after page transitions (Astro)
+    document.addEventListener('astro:page-load', updateVisibility);
+  })();
+</script>
+

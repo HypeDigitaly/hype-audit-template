@@ -1,0 +1,329 @@
+---
+import { translations, type Language, getLocalizedHref } from '../../scripts/translations';
+import { site } from '../../config/site';
+
+export interface Props {
+  lang?: Language;
+  simple?: boolean;
+  showCalendar?: boolean;
+}
+
+const { lang = 'cs', simple = false, showCalendar = true } = Astro.props;
+const t = translations[lang];
+
+// Helper for localized links
+const href = (path: string) => getLocalizedHref(path, lang);
+
+// Generate unique ID for this footer's calendar
+const calendarId = `footer-cal-${Math.random().toString(36).substring(7)}`;
+
+// Strip https://cal.com/ prefix from calendarUrl so Cal.com embed gets only the path
+const calendarPath = (site.primaryContact.calendarUrl || '').replace(/^https?:\/\/cal\.com\//, '');
+---
+
+{/* Contact Section with Calendar - Before Footer */}
+{!simple && showCalendar && (
+  <section id="kontakt" class="bg-[#050505] border-t border-white/5 py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 text-[10px] md:text-xs font-mono text-neutral-400 uppercase tracking-[0.2em] gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-white">●</span>
+          <span class="w-12 h-px bg-white/10"></span>
+        </div>
+        <div class="text-white/40">{t.cta_tag}</div>
+        <div class="hidden md:block text-right">{t.cta_label}</div>
+      </div>
+
+      <div class="text-center max-w-5xl mx-auto mb-16">
+        <h2 class="animate-on-scroll [animation:animationIn_0.8s_ease-out_0.2s_both] leading-[0.95] md:text-6xl lg:text-7xl text-3xl font-medium text-white tracking-tighter mb-8">
+          <span>{t.cta_headline_1}</span>
+          <span class="text-neutral-500 transition-colors hover:text-primary duration-500">{t.cta_headline_2}</span>
+        </h2>
+        <p class="animate-on-scroll [animation:animationIn_0.8s_ease-out_0.3s_both] text-lg text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
+          {t.cta_subheadline}
+        </p>
+      </div>
+
+      <!-- Cal.com Widget -->
+      <div class="animate-on-scroll [animation:animationIn_0.8s_ease-out_0.4s_both] max-w-4xl mx-auto mb-12">
+        <div class="bg-[#0A0A0A] border border-white/5 rounded-2xl p-8">
+          <div class="text-center mb-8">
+            <h3 class="text-2xl font-bold text-white mb-2">{t.cal_title}</h3>
+            <p class="text-neutral-500">{t.cal_desc}</p>
+          </div>
+      <!-- Cal inline embed with lazy loading -->
+      <div class="cal-embed-container" style="width:100%;min-height:500px;height:auto;overflow:auto" id={calendarId} data-cal-lazy>
+        <!-- Loading placeholder -->
+        <div class="flex items-center justify-center h-full min-h-[500px]">
+          <div class="text-center">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+            <p class="text-neutral-400 text-sm">{t.cal_title}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      <!-- Alternative Contact -->
+      <div class="animate-on-scroll [animation:animationIn_0.8s_ease-out_0.5s_both] text-center">
+        <p class="text-neutral-500 mb-6">{t.contact_alt}</p>
+        <div class="flex flex-wrap items-center justify-center gap-6">
+          <a href={`mailto:${site.email}`} class="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-300 hover:text-white hover:border-white/20 transition-colors">
+            <iconify-icon icon="solar:letter-bold" class="text-primary"></iconify-icon>
+            <span>{site.email}</span>
+          </a>
+          <a href={`tel:${site.phone.replace(/\s/g, '')}`} class="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-300 hover:text-white hover:border-white/20 transition-colors">
+            <iconify-icon icon="solar:phone-bold" class="text-primary"></iconify-icon>
+            <span>{site.phone}</span>
+          </a>
+          <a href={site.social.linkedin || ''} target="_blank" class="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-300 hover:text-white hover:border-white/20 transition-colors">
+            <iconify-icon icon="mdi:linkedin" class="text-primary"></iconify-icon>
+            <span>LinkedIn</span>
+          </a>
+        </div>
+        
+        <!-- Trust badges -->
+        <div class="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-neutral-500">
+          <span class="flex items-center gap-2">
+            <iconify-icon icon="solar:shield-check-bold" class="text-primary"></iconify-icon>
+            <span>{t.cta_trust_1}</span>
+          </span>
+          <span class="flex items-center gap-2">
+            <iconify-icon icon="solar:clock-circle-bold" class="text-primary"></iconify-icon>
+            <span>{t.cta_trust_2}</span>
+          </span>
+          <span class="flex items-center gap-2">
+            <iconify-icon icon="solar:map-point-bold" class="text-primary"></iconify-icon>
+            <span>{t.cta_trust_3}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ calendarId, calendarPath }}>
+    // Lazy-load Cal.com embed using Intersection Observer
+    (function() {
+      const calContainer = document.getElementById(calendarId);
+      if (!calContainer) return;
+
+      const observer = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          // Element is visible, load Cal.com
+          observer.disconnect();
+          
+          // Remove placeholder
+          calContainer.innerHTML = '';
+          
+          // Load Cal.com script and initialize
+          (function (C, A, L) { 
+            let p = function (a, ar) { a.q.push(ar); }; 
+            let d = C.document; 
+            C.Cal = C.Cal || function () { 
+              let cal = C.Cal; 
+              let ar = arguments; 
+              if (!cal.loaded) { 
+                cal.ns = {}; 
+                cal.q = cal.q || []; 
+                d.head.appendChild(d.createElement("script")).src = A; 
+                cal.loaded = true; 
+              } 
+              if (ar[0] === L) { 
+                const api = function () { p(api, arguments); }; 
+                const namespace = ar[1]; 
+                api.q = api.q || []; 
+                if(typeof namespace === "string"){ 
+                  cal.ns[namespace] = cal.ns[namespace] || api; 
+                  p(cal.ns[namespace], ar); 
+                  p(cal, ["initNamespace", namespace]); 
+                } else p(cal, ar); 
+                return;
+              } 
+              p(cal, ar); 
+            }; 
+          })(window, "https://app.cal.com/embed/embed.js", "init");
+          
+          const nsName = "footer-cal-ns";
+          Cal("init", nsName, {origin:"https://app.cal.com"});
+          Cal.ns[nsName]("inline", {
+            elementOrSelector: "#" + calendarId,
+            config: {"layout":"month_view","theme":"light"},
+            calLink: calendarPath,
+          });
+          Cal.ns[nsName]("ui", {"theme":"light","cssVarsPerTheme":{"light":{"cal-brand":"#00A39A"}},"hideEventTypeDetails":false,"layout":"month_view"});
+        }
+      }, {
+        rootMargin: '50px' // Start loading 50px before it becomes visible
+      });
+
+      observer.observe(calContainer);
+    })();
+  </script>
+)}
+
+<footer class="bg-[#050505] border-t border-white/5">
+  <div class="max-w-7xl mx-auto relative">
+    {!simple && (
+      <>
+        <!-- Top Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 border-b border-white/5">
+          <!-- Brand & Socials -->
+          <div class="p-8 md:p-12 md:border-r border-white/5">
+            <a href={href("/")} class="flex items-center gap-2 mb-6">
+              <img src="/assets/images/logo.png" alt={site.name} width="225" height="40" class="h-10">
+            </a>
+            <p class="text-neutral-400 text-sm leading-relaxed mb-8">
+              {t.footer_desc}
+            </p>
+            <div class="flex items-center gap-4">
+              {site.social.linkedin && (
+                <a href={site.social.linkedin} target="_blank" class="w-10 h-10 border border-white/10 rounded-lg flex items-center justify-center text-white hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all" aria-label="LinkedIn">
+                  <iconify-icon icon="mdi:linkedin" class="text-xl" aria-hidden="true"></iconify-icon>
+                </a>
+              )}
+              {site.social.instagram && (
+                <a href={site.social.instagram} target="_blank" class="w-10 h-10 border border-white/10 rounded-lg flex items-center justify-center text-white hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all" aria-label="Instagram">
+                  <iconify-icon icon="mdi:instagram" class="text-xl" aria-hidden="true"></iconify-icon>
+                </a>
+              )}
+              {site.social.facebook && (
+                <a href={site.social.facebook} target="_blank" class="w-10 h-10 border border-white/10 rounded-lg flex items-center justify-center text-white hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all" aria-label="Facebook">
+                  <iconify-icon icon="mdi:facebook" class="text-xl" aria-hidden="true"></iconify-icon>
+                </a>
+              )}
+            </div>
+          </div>
+
+          <!-- Company Info -->
+          <div class="p-8 md:p-12 md:border-r border-white/5 text-neutral-300 text-sm">
+            <h4 class="text-white font-medium mb-6 uppercase tracking-wider text-xs">{t.footer_company_title}</h4>
+            <div class="space-y-4">
+              <div>
+                <p class="text-white font-medium mb-2">{site.legalName}</p>
+                <div class="grid grid-cols-[auto_1fr] gap-x-3 text-xs leading-relaxed">
+                  <span class="text-neutral-400">{t.footer_label_street}</span>
+                  <span class="text-neutral-300">{site.address.street}</span>
+
+                  <span class="text-neutral-400">{t.footer_label_zip}</span>
+                  <span class="text-neutral-300">{site.address.postalCode}</span>
+
+                  <span class="text-neutral-400">{t.footer_label_city}</span>
+                  <span class="text-neutral-300">{site.address.city}</span>
+
+                  <span class="text-neutral-400">{t.footer_label_country}</span>
+                  <span class="text-neutral-300">{site.address.country}</span>
+                </div>
+              </div>
+              {(site.ico || site.dic) && (
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  {site.ico && (
+                    <div>
+                      <span class="text-neutral-400 block">{t.footer_ico_label}</span>
+                      <span class="text-neutral-300">{site.ico}</span>
+                    </div>
+                  )}
+                  {site.dic && (
+                    <div>
+                      <span class="text-neutral-400 block">{t.footer_dic_label}</span>
+                      <span class="text-neutral-300">{site.dic}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div class="pt-4 border-t border-white/5">
+                <span class="text-neutral-400 block text-xs uppercase mb-2">{t.footer_executives}</span>
+                <div class="space-y-4">
+                  {site.team.map((member) => (
+                    <div>
+                      <p class="text-neutral-300 leading-tight mb-1">{member.name}</p>
+                      <p class="text-neutral-400 text-[10px] uppercase tracking-wider mb-2">{member.title}</p>
+                      <div class="space-y-1 text-xs">
+                        <a href={`mailto:${member.email}`} class="block text-neutral-300 hover:text-primary transition-colors flex items-center gap-2">
+                          <iconify-icon icon="mdi:email-outline" aria-hidden="true"></iconify-icon>
+                          {member.email}
+                        </a>
+                        {member.phone && (
+                          <a href={`tel:${member.phone.replace(/\s/g, '')}`} class="block text-neutral-300 hover:text-primary transition-colors flex items-center gap-2">
+                            <iconify-icon icon="mdi:phone-outline" aria-hidden="true"></iconify-icon>
+                            {member.phone}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Map with lazy loading -->
+          <div class="h-[300px] md:h-auto min-h-[300px] relative" id="map-container">
+            <div class="absolute inset-0 bg-neutral-900/50 flex items-center justify-center" id="map-placeholder">
+              <div class="text-center">
+                <iconify-icon icon="solar:map-point-bold" class="text-4xl text-primary mb-2"></iconify-icon>
+                <p class="text-neutral-400 text-sm">{t.footer_company_title}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="grid grid-cols-2 md:grid-cols-7 border-b border-white/5 text-sm">
+          <a href={href("/sluzby")} class="px-6 py-6 border-r border-b md:border-b-0 border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_services}</a>
+          <a href={href("/#reference")} class="px-6 py-6 border-r border-b md:border-b-0 border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_references}</a>
+          <a href={href("/blog")} class="px-6 py-6 border-r border-b md:border-b-0 border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.nav_case_studies}</a>
+          <a href={href("/#priprava-dat")} class="px-6 py-6 border-r border-b md:border-b-0 border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">RAGus.ai</a>
+          <a href={href("/kontakt")} class="px-6 py-6 border-r border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_contact}</a>
+          <a href={href("/privacy-policy")} class="px-6 py-6 border-r border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_privacy}</a>
+          <a href={href("/recommendation")} class="px-6 py-6 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_recommendation}</a>
+        </div>
+      </>
+    )}
+
+    <!-- Bottom -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 md:p-8 text-xs text-neutral-500">
+      <div>
+        &copy; {new Date().getFullYear()} {site.legalName}
+      </div>
+      <div class="md:text-right">
+        <span>{t.footer_rights}</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script is:inline define:vars={{ mapsEmbedUrl: site.mapsEmbedUrl }}>
+  // Lazy-load Google Maps iframe
+  (function() {
+    if (!mapsEmbedUrl) return;
+    const mapContainer = document.getElementById('map-container');
+    const mapPlaceholder = document.getElementById('map-placeholder');
+    if (!mapContainer || !mapPlaceholder) return;
+
+    const observer = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        // Element is visible, load Google Maps
+        observer.disconnect();
+
+        // Create and insert iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = mapsEmbedUrl;
+        iframe.width = '100%';
+        iframe.height = '100%';
+        iframe.style.cssText = 'border:0; filter: invert(0.9) hue-rotate(180deg) saturate(1.3) contrast(1.1);';
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+
+        // Remove placeholder and add iframe
+        mapPlaceholder.remove();
+        mapContainer.appendChild(iframe);
+      }
+    }, {
+      rootMargin: '100px' // Start loading 100px before it becomes visible
+    });
+
+    observer.observe(mapContainer);
+  })();
+</script>
+

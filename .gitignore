@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+astro-src/dist/
+astro-src/.netlify/
+astro-src/.astro/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Netlify
+.netlify/
+
+# Package lock (optional - remove if you want to lock deps)
+package-lock.json

@@ -1,0 +1,4 @@
+# AI Audit Report Routing
+# Force redirect /report/* to the audit-report Netlify function
+# The ! suffix ensures this takes precedence over Astro's SSR handler
+/report/*  /.netlify/functions/audit-report/:splat  200!

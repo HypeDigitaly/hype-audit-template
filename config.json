@@ -1,0 +1,66 @@
+{
+  "_comment": "Audit Template Configuration — copy this file to config.json, fill in all fields, then run /setup-audit. Fields ending in _comment are documentation only and are stripped at runtime.",
+
+  "company": {
+    "_comment": "Company identity — used in headings, meta tags, email copy, and report footers.",
+    "name": "",
+    "legalName": "",
+    "description": "",
+    "industry": "",
+    "audience": "",
+    "ico": "",
+    "dic": ""
+  },
+
+  "domain": {
+    "_comment": "URLs — siteUrl is required. reportBaseUrl and corsOrigin are derived from siteUrl automatically if left empty.",
+    "siteUrl": "https://",
+    "reportBaseUrl": "",
+    "corsOrigin": ""
+  },
+
+  "branding": {
+    "_comment": "Brand colors must be valid CSS hex values (3 or 6 digits). logoUrl can be a relative path from /public or a full URL.",
+    "colorPrimary": "#0ea5e9",
+    "colorAccent": "#f59e0b",
+    "logoUrl": "/assets/images/logo.svg",
+    "faviconUrl": "/favicon.svg"
+  },
+
+  "contact": {
+    "_comment": "Primary contact details shown in the footer and email templates. Only email is required; all other fields are optional.",
+    "email": "",
+    "phone": "",
+    "street": "",
+    "city": "",
+    "postalCode": "",
+    "country": "Česká republika",
+    "mapsEmbedUrl": ""
+  },
+
+  "team": [
+    {
+      "_comment": "Add one object per team member. At least one entry is required. calendarUrl accepts any booking link (cal.com, Calendly, etc.).",
+      "name": "",
+      "title": "",
+      "email": "",
+      "phone": "",
+      "calendarUrl": ""
+    }
+  ],
+
+  "social": {
+    "_comment": "All social links are optional. Provide full URLs including https://.",
+    "linkedin": "",
+    "instagram": "",
+    "facebook": "",
+    "googleReviews": ""
+  },
+
+  "notifications": {
+    "_comment": "Email notification settings. recipients receives a copy of every new lead. fromEmail must be a sender address verified in your Resend account.",
+    "recipients": [],
+    "fromEmail": "",
+    "fromName": ""
+  }
+}

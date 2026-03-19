@@ -1,0 +1,18 @@
+---
+// Digital Rain Background Component - Pure CSS animated particles
+// Reduced particle count for better performance (20 total, 15 on mobile)
+
+export interface Props {
+  variant?: 'default' | 'gold';
+}
+
+const { variant = 'default' } = Astro.props;
+---
+
+<div class={`digital-rain${variant === 'gold' ? ' digital-rain--gold' : ''}`} aria-hidden="true">
+  <div class="rain-particles">
+    {Array.from({ length: 20 }).map(() => (
+      <div class="rain-particle"></div>
+    ))}
+  </div>
+</div>

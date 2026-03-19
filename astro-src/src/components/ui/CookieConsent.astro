@@ -1,0 +1,175 @@
+---
+import { translations, type Language, getLocalizedHref } from '../../scripts/translations';
+import '../../styles/cookie-consent.css';
+
+interface Props {
+  lang?: Language;
+}
+
+const { lang = 'cs' } = Astro.props;
+const t = translations[lang];
+
+// Helper for localized links
+const href = (path: string) => getLocalizedHref(path, lang);
+---
+
+<!-- Cookie Consent Banner - Bottom LEFT Popup -->
+<div 
+  id="cookie-consent-banner" 
+  class="cookie-banner hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cookie-title"
+>
+  <div class="cookie-banner-inner">
+    <!-- Header -->
+    <div class="cookie-header">
+      <h3 id="cookie-title" class="cookie-title">{t.cookie_title || 'Nastavení cookies'}</h3>
+      <p class="cookie-subtitle">{t.cookie_subtitle || 'Respektujeme vaše soukromí'}</p>
+    </div>
+
+    <!-- Description -->
+    <p class="cookie-description">
+      {t.cookie_description || 'Používáme cookies k zajištění správného fungování webu a ke zlepšení vašeho zážitku.'}
+    </p>
+
+    <!-- Cookie Categories (Collapsed by default) -->
+    <div id="cookie-details" class="cookie-details hidden">
+      <!-- Necessary Cookies -->
+      <div class="cookie-category">
+        <div class="cookie-category-header">
+          <div class="cookie-category-info">
+            <div class="cookie-category-icon necessary" aria-hidden="true">
+              <iconify-icon icon="solar:shield-check-bold" class="text-lg"></iconify-icon>
+            </div>
+            <div>
+              <h4 class="cookie-category-title" id="cat-necessary-title">{t.cookie_necessary_title || 'Nezbytné'}</h4>
+              <span class="cookie-category-badge necessary">{t.cookie_always_active || 'Vždy aktivní'}</span>
+            </div>
+          </div>
+          <label class="cookie-toggle disabled" for="cookie-necessary">
+            <span class="sr-only">{t.cookie_necessary_title || 'Nezbytné'}</span>
+            <input type="checkbox" id="cookie-necessary" checked disabled aria-labelledby="cat-necessary-title">
+            <span class="cookie-toggle-slider"></span>
+          </label>
+        </div>
+        <p class="cookie-category-desc">
+          {t.cookie_necessary_desc || 'Tyto cookies jsou nezbytné pro správné fungování webu. Bez nich by web nefungoval správně. Zahrnují cookies pro správu relace, jazykové preference a základní bezpečnostní funkce.'}
+        </p>
+      </div>
+
+      <!-- Functional Cookies -->
+      <div class="cookie-category">
+        <div class="cookie-category-header">
+          <div class="cookie-category-info">
+            <div class="cookie-category-icon functional" aria-hidden="true">
+              <iconify-icon icon="solar:settings-bold" class="text-lg"></iconify-icon>
+            </div>
+            <div>
+              <h4 class="cookie-category-title" id="cat-functional-title">{t.cookie_functional_title || 'Funkční'}</h4>
+              <span class="cookie-category-badge">{t.cookie_optional || 'Volitelné'}</span>
+            </div>
+          </div>
+          <label class="cookie-toggle" for="cookie-functional">
+            <span class="sr-only">{t.cookie_functional_title || 'Funkční'}</span>
+            <input type="checkbox" id="cookie-functional" aria-labelledby="cat-functional-title">
+            <span class="cookie-toggle-slider"></span>
+          </label>
+        </div>
+        <p class="cookie-category-desc">
+          {t.cookie_functional_desc || 'Funkční cookies umožňují rozšířené funkce webu, jako je personalizace obsahu, ukládání vašich preferencí a zapamatování vašich voleb na webu.'}
+        </p>
+      </div>
+
+      <!-- Analytics Cookies -->
+      <div class="cookie-category">
+        <div class="cookie-category-header">
+          <div class="cookie-category-info">
+            <div class="cookie-category-icon analytics" aria-hidden="true">
+              <iconify-icon icon="solar:chart-2-bold" class="text-lg"></iconify-icon>
+            </div>
+            <div>
+              <h4 class="cookie-category-title" id="cat-analytics-title">{t.cookie_analytics_title || 'Analytické'}</h4>
+              <span class="cookie-category-badge">{t.cookie_optional || 'Volitelné'}</span>
+            </div>
+          </div>
+          <label class="cookie-toggle" for="cookie-analytics">
+            <span class="sr-only">{t.cookie_analytics_title || 'Analytické'}</span>
+            <input type="checkbox" id="cookie-analytics" aria-labelledby="cat-analytics-title">
+            <span class="cookie-toggle-slider"></span>
+          </label>
+        </div>
+        <p class="cookie-category-desc">
+          {t.cookie_analytics_desc || 'Analytické cookies nám pomáhají pochopit, jak návštěvníci používají web. Shromažďují anonymizované informace o počtu návštěvníků, zdrojích návštěvnosti a chování na webu.'}
+        </p>
+      </div>
+
+      <!-- Marketing Cookies -->
+      <div class="cookie-category">
+        <div class="cookie-category-header">
+          <div class="cookie-category-info">
+            <div class="cookie-category-icon marketing" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                <path d="M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM7 11a4 4 0 0 0-4 4v5h8v-5a4 4 0 0 0-4-4Zm11-1a3 3 0 0 0-3 3v7h6v-7a3 3 0 0 0-3-3Z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="cookie-category-title" id="cat-marketing-title">{t.cookie_marketing_title || 'Marketingové'}</h4>
+              <span class="cookie-category-badge">{t.cookie_optional || 'Volitelné'}</span>
+            </div>
+          </div>
+          <label class="cookie-toggle" for="cookie-marketing">
+            <span class="sr-only">{t.cookie_marketing_title || 'Marketingové'}</span>
+            <input type="checkbox" id="cookie-marketing" aria-labelledby="cat-marketing-title">
+            <span class="cookie-toggle-slider"></span>
+          </label>
+        </div>
+        <p class="cookie-category-desc">
+          {t.cookie_marketing_desc || 'Marketingové cookies sledují vaši aktivitu na webu a pomáhají zobrazovat relevantní reklamy. Mohou být využity třetími stranami k vytvoření profilu vašich zájmů.'}
+        </p>
+      </div>
+    </div>
+
+    <!-- Buttons - Simplified Layout -->
+    <div class="cookie-buttons">
+      <div class="cookie-btn-row">
+        <button 
+          id="cookie-show-details" 
+          class="cookie-btn-details" 
+          data-show-text={t.cookie_customize || 'Přizpůsobit'} 
+          data-hide-text={t.cookie_hide_details || 'Skrýt detaily'}
+          aria-expanded="false"
+          aria-controls="cookie-details"
+        >
+          <iconify-icon icon="solar:settings-minimalistic-bold" class="text-base" aria-hidden="true"></iconify-icon>
+          <span>{t.cookie_customize || 'Přizpůsobit'}</span>
+        </button>
+        <button id="cookie-reject-all" class="cookie-btn-reject">
+          {t.cookie_reject_all || 'Odmítnout vše'}
+        </button>
+        <button id="cookie-accept-all" class="cookie-btn-accept">
+          {t.cookie_accept_all || 'Přijmout vše'}
+        </button>
+      </div>
+      <button id="cookie-accept-selected" class="cookie-btn-selected hidden">
+        {t.cookie_accept_selected || 'Uložit výběr'}
+      </button>
+    </div>
+
+    <!-- Link -->
+    <div class="cookie-links">
+      <a href={href("/privacy-policy")} class="cookie-link">
+        {t.cookie_privacy_policy || 'Zásady ochrany osobních údajů'}
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Cookie Settings Button (Always visible after consent) - LEFT BOTTOM -->
+<button id="cookie-settings-btn" class="cookie-settings-btn hidden" aria-label="{t.cookie_settings || 'Nastavení cookies'}">
+  <svg class="cookie-icon-svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10c0-.34-.017-.676-.05-1.008a1 1 0 0 0-1.143-.883 2.5 2.5 0 0 1-2.957-2.957 1 1 0 0 0-.883-1.143A10.02 10.02 0 0 0 12 2Zm-1.5 5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm-3 6a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.5 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm-2-4a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/>
+  </svg>
+</button>
+
+<script src="../../scripts/cookie-consent.ts"></script>

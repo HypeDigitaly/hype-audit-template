@@ -1,0 +1,92 @@
+[build]
+  base = "astro-src"
+  # Fetch full git history for accurate sitemap lastmod dates, then run build
+  command = "git fetch --unshallow 2>/dev/null || true && npm run build"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+  # Sync functions timeout (fallback)
+  timeout = 60
+
+# Background function for audit processing (15-min timeout)
+# The audit-background.ts function processes audits asynchronously:
+# - Returns 202 Accepted immediately
+# - Continues processing in background for up to 15 minutes
+# - Frontend polls audit-status endpoint for progress updates
+# This solves the Claude Sonnet timeout issue (slow but high-quality LLM)
+
+[build.environment]
+  NODE_VERSION = "18"
+  # Ensure git commands work properly in the build environment
+  GIT_LFS_SKIP_SMUDGE = "1"
+
+# Enable automatic compression
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
+
+# Headers for better caching, security, and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    # Enable compression
+    Content-Encoding = "br, gzip"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"
+
+# API proxy redirects for clean URLs
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# AI Audit Report routing — must come after /api/* proxy
+# Force redirect /report/* to the audit-report Netlify function
+[[redirects]]
+  from = "/report/*"
+  to = "/.netlify/functions/audit-report/:splat"
+  status = 200
+  force = true

@@ -1,0 +1,3315 @@
+---
+// Admin Leads Dashboard - Password Protected
+// Server-side rendered page
+export const prerender = false;
+
+import { site } from '../../config/site';
+const SITE_URL = site.url;
+---
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin - Přehled leadů | {site.name}</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" integrity="sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC" crossorigin="anonymous"></script>
+  <style is:global>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #ffffff;
+      color: #1f2937;
+      min-height: 100vh;
+    }
+    
+    /* Login Screen */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .login-box {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+    }
+    .login-box h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #111827;
+    }
+    .login-box p {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      color: #111827;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    .login-box input:focus {
+      outline: none;
+      border-color: #00A39A;
+    }
+    .login-box button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #00A39A;
+      border: none;
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .login-box button:hover {
+      background: #00b8ad;
+    }
+    .login-error {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    
+    /* Dashboard */
+    .dashboard { display: none; }
+    .dashboard.active { display: block; }
+    
+    /* Header */
+    .header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary {
+      background: #00A39A;
+      color: white;
+    }
+    .btn-primary:hover { background: #00b8ad; }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+    .btn-secondary:hover {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    .btn-danger:disabled {
+      background: #fca5a5;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      padding: 1.5rem 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+    }
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .stat-card.audit .value { color: #f97316; }
+    .stat-card.contact .value { color: #00A39A; }
+    .stat-card.survey .value { color: #8b5cf6; }
+    .stat-card.gc-event .stat-value { color: #D4A017; }
+    .stat-card.active-tab {
+      border-color: #00A39A;
+      box-shadow: 0 0 0 2px rgba(0,163,154,0.2);
+    }
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    
+    /* Filters */
+    .filters {
+      padding: 0 2rem 1rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .filter-group label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .filter-group input,
+    .filter-group select {
+      padding: 0.5rem 0.75rem;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      color: #111827;
+      font-size: 0.875rem;
+      min-width: 150px;
+    }
+    .filter-group input:focus,
+    .filter-group select:focus {
+      outline: none;
+      border-color: #00A39A;
+    }
+    .search-input {
+      min-width: 250px !important;
+    }
+    
+    /* Table Container */
+    .table-container {
+      padding: 0 2rem 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.875rem;
+    }
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    tr:hover {
+      background: #f9fafb;
+    }
+    td {
+      color: #374151;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .badge-audit {
+      background: rgba(249,115,22,0.1);
+      color: #f97316;
+    }
+    .badge-contact {
+      background: rgba(0,163,154,0.1);
+      color: #00A39A;
+    }
+    .badge-survey {
+      background: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+    }
+    .badge-pricing {
+      background: rgba(236, 72, 153, 0.1);
+      color: #ec4899;
+    }
+    .stat-card.pricing .stat-value { color: #ec4899; }
+    .link {
+      color: #00A39A;
+      text-decoration: none;
+    }
+    .link:hover {
+      text-decoration: underline;
+    }
+    .truncate {
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .text-muted {
+      color: #6b7280;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+    }
+    .empty-state iconify-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+    }
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Checkboxes */
+    .lead-checkbox, #select-all {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    
+    /* Selected row highlight */
+    tr.selected {
+      background: rgba(239, 68, 68, 0.05);
+    }
+    
+    /* Delete Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+    .modal-content h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 1rem;
+    }
+    .modal-content p {
+      color: #6b7280;
+      margin-bottom: 1rem;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+    
+    /* GC Analytics: Google Forms-style layout */
+    .gc-analytics-container { max-width: 860px; margin: 0 auto; padding: 0.5rem 1rem 2rem; }
+
+    .gc-summary-bar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem 1.375rem; margin-bottom: 1.5rem; }
+    .gc-summary-stat { font-size: 0.8125rem; color: #6b7280; }
+    .gc-summary-stat strong { font-size: 1.125rem; font-weight: 700; color: #111827; }
+    .gc-summary-divider { color: #d1d5db; margin: 0 0.5rem; user-select: none; }
+    .gc-summary-value--truncate { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+
+    .gc-section-header { display: flex; align-items: center; gap: 0.75rem; margin-top: 3rem; margin-bottom: 1.25rem; padding: 0.75rem 1rem; border-radius: 0.5rem; background: #f9fafb; }
+    .gc-section-header h3 { font-size: 1rem; font-weight: 700; color: #111827; margin: 0; flex: 1; letter-spacing: -0.005em; }
+    .gc-section-header--first { margin-top: 0; }
+    .gc-section-header--a { border-left: 5px solid #00C4B4; background: rgba(0,196,180,0.06); }
+    .gc-section-header--b { border-left: 5px solid #f97316; background: rgba(249,115,22,0.06); }
+    .gc-section-header--c { border-left: 5px solid #6366f1; background: rgba(99,102,241,0.06); }
+    .gc-section-header--d { border-left: 5px solid #22d3ee; background: rgba(34,211,238,0.06); }
+
+    .gc-question-block { background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem 1.75rem; margin-bottom: 2.5rem; transition: box-shadow 0.15s, transform 0.15s; border-top: 4px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 6px rgba(0,0,0,0.03); }
+    .gc-question-block:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.07), 0 8px 24px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .gc-question-block--required { border-top-color: #D4A017; background: rgba(212,160,23,0.03); }
+    .gc-question-block--section-a { border-top-color: #00C4B4; }
+    .gc-question-block--section-b { border-top-color: #f97316; }
+    .gc-question-block--section-c { border-top-color: #6366f1; }
+    .gc-question-block--section-d { border-top-color: #22d3ee; }
+    .gc-question-block--conditional {
+      border-top-style: dashed;
+      border-top-width: 2px;
+      border-top-color: #9ca3af;
+      background: rgba(209,213,219,0.08);
+    }
+
+    .gc-question-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+    .gc-q-badge { font-size: 0.75rem; padding: 0.1875rem 0.625rem; border-radius: 9999px; font-weight: 600; flex-shrink: 0; min-width: 2.25rem; text-align: center; display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+    .gc-q-badge--required { background: rgba(212,160,23,0.12); color: #9A6F0C; }
+    .gc-q-badge--optional { background: #e5e7eb; color: #4b5563; }
+    .gc-question-title { font-size: 1.125rem; font-weight: 700; color: #111827; line-height: 1.4; margin: 0; flex: 1; letter-spacing: -0.01em; }
+    .gc-type-badge { font-size: 0.6875rem; padding: 3px 9px; border-radius: 4px; background: #f3f4f6; color: #374151; flex-shrink: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .gc-type-badge--single { background: #EFF6FF; color: #2563EB; }
+    .gc-type-badge--multi  { background: #ECFDF5; color: #059669; }
+    .gc-type-badge--text   { background: #fef3c7; color: #b45309; }
+    .gc-response-count { font-size: 0.8125rem; color: #6b7280; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .gc-question-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .gc-question-divider { height: 1px; background: #e2e8f0; margin: 0 0 1rem; }
+
+    .gc-response-bar { width: 100%; height: 6px; background: #e5e7eb; border-radius: 9999px; margin: 0 0 0.25rem; overflow: hidden; }
+    .gc-response-bar-fill { height: 100%; background: #D4A017; border-radius: 9999px; transition: width 0.3s ease; }
+    .gc-question-block--section-a .gc-response-bar-fill { background: #00C4B4; }
+    .gc-question-block--section-b .gc-response-bar-fill { background: #f97316; }
+    .gc-question-block--section-c .gc-response-bar-fill { background: #6366f1; }
+    .gc-question-block--section-d .gc-response-bar-fill { background: #22d3ee; }
+    .gc-response-bar-label { font-size: 0.8125rem; color: #6b7280; text-align: right; margin-top: 0.25rem; margin-bottom: 0.625rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+    .gc-chart-wrapper { position: relative; width: 100%; margin-top: 0; margin-bottom: 0; }
+
+    .gc-freetext-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0.5rem 0 0;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .gc-freetext-item { border-left: 3px solid #00C4B4; padding: 0.75rem 1rem; font-size: 0.875rem; color: #374151; font-style: normal; margin-bottom: 0.75rem; max-height: 6em; overflow: hidden; background: #f9fafb; border-radius: 0 0.375rem 0.375rem 0; line-height: 1.6; }
+    .gc-freetext-item.expanded { max-height: none; }
+    .gc-freetext-item--clamped { position: relative; }
+    .gc-freetext-item--clamped::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2em;
+      background: linear-gradient(transparent, #f9fafb);
+      pointer-events: none;
+    }
+    .gc-freetext-author { font-size: 0.75rem; color: #6b7280; font-style: normal; margin-top: 0.375rem; }
+    .gc-freetext-toggle { color: #00A39A; cursor: pointer; font-size: 0.8125rem; border: none; background: #f3f4f6; padding: 0.375rem 0.875rem; border-radius: 9999px; font-weight: 500; margin-top: 0.5rem; }
+    .gc-conditional-note { font-size: 0.75rem; color: #9ca3af; margin-top: 0.75rem; font-style: italic; }
+
+    /* Section badge (circular letter) */
+    .gc-section-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #f3f4f6;
+      color: #111827;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      flex-shrink: 0;
+    }
+    .gc-section-header--a .gc-section-badge { border: 2px solid #00C4B4; }
+    .gc-section-header--b .gc-section-badge { border: 2px solid #f97316; }
+    .gc-section-header--c .gc-section-badge { border: 2px solid #6366f1; }
+    .gc-section-header--d .gc-section-badge { border: 2px solid #22d3ee; }
+
+    /* Section count */
+    .gc-section-count { font-size: 0.75rem; color: #6b7280; font-weight: 400; margin-left: auto; }
+
+    /* Respondent panel family */
+    .gc-respondent-panel { margin-top: 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.5rem; overflow: hidden; }
+    .gc-respondent-panel__header { display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem; background: #f3f4f6; border-bottom: 1px solid #e5e7eb; }
+    .gc-respondent-panel__title { font-size: 0.8125rem; font-weight: 600; color: #111827; flex: 1; }
+    .gc-respondent-panel__count { font-size: 0.75rem; color: #6b7280; font-variant-numeric: tabular-nums; }
+    .gc-respondent-panel__close { background: none; border: none; cursor: pointer; color: #6b7280; font-size: 1rem; padding: 0 0.25rem; line-height: 1; }
+    .gc-respondent-panel__close:hover { color: #111827; }
+    .gc-respondent-list { list-style: none; padding: 0.5rem 0; margin: 0; max-height: 240px; overflow-y: auto; }
+    .gc-respondent-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.375rem 1rem; font-size: 0.8125rem; border-bottom: 1px solid #f3f4f6; flex-wrap: wrap; }
+    .gc-respondent-item:last-child { border-bottom: none; }
+    .gc-respondent-email { font-weight: 600; color: #374151; }
+    .gc-respondent-name { color: #6b7280; }
+    .gc-respondent-date { color: #6b7280; font-size: 0.75rem; margin-left: auto; font-variant-numeric: tabular-nums; }
+
+    /* 2-column question grid */
+    .gc-question-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
+    .gc-question-grid-2col .gc-question-block { margin-bottom: 0; }
+    @media (max-width: 640px) { .gc-question-grid-2col { grid-template-columns: 1fr; } }
+
+    /* Canvas focus indicator */
+    canvas:focus-visible { outline: 3px solid #00A39A; outline-offset: 3px; }
+
+    .gc-empty-field { text-align: center; color: #9ca3af; padding: 2rem; font-size: 0.875rem; }
+
+    .gc-empty-state {
+      background: #f9fafb;
+      border: 1px dashed #d1d5db;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    .badge-gc-event {
+      background: rgba(212,160,23,0.12);
+      color: #D4A017;
+    }
+
+    /* View Toggle Bar */
+    .view-toggle-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 2rem;
+      margin: 0.75rem 0;
+      max-width: 1600px;
+    }
+    .view-toggle {
+      display: flex;
+      background: #f3f4f6;
+      border-radius: 0.625rem;
+      padding: 0.25rem;
+      gap: 0.25rem;
+    }
+    .view-toggle-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: transparent;
+      color: #6b7280;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    .view-toggle-btn:hover {
+      color: #374151;
+    }
+    .view-toggle-btn.active {
+      background: #ffffff;
+      color: #111827;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .qv-form-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .qv-form-selector select {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 0.8125rem;
+      font-family: inherit;
+      color: #374151;
+      background: #ffffff;
+      cursor: pointer;
+      min-width: 180px;
+    }
+    .qv-form-selector select:focus {
+      border-color: #00A39A;
+    }
+    #question-view-panel {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 3rem;
+    }
+    .qv-empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+    .qv-filter-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+    }
+    /* Screen-reader-only utility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Focus indicators for interactive elements in QV */
+    .gc-freetext-toggle:focus-visible,
+    .view-toggle-btn:focus-visible,
+    .qv-form-selector select:focus-visible {
+      outline: 2px solid #00A39A;
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .gc-question-block { transition: none; }
+      .gc-question-block:hover { transform: none; }
+      .gc-response-bar-fill { transition: none; }
+      .btn, .view-toggle-btn { transition: none; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header { padding: 1rem; }
+      .stats-grid { padding: 1rem; }
+      .filters { padding: 0 1rem 1rem; }
+      .table-container { padding: 0 1rem 1rem; }
+      .filters-row { flex-direction: column; }
+      .filter-group input,
+      .filter-group select {
+        min-width: 100% !important;
+      }
+      .gc-analytics-container { max-width: 100%; padding: 0.5rem 0 2rem; }
+      .gc-summary-bar { flex-direction: column; gap: 0.5rem; }
+      .gc-summary-divider { display: none; }
+      .gc-question-header { align-items: flex-start; }
+      .gc-question-meta { padding-left: 0; }
+      .view-toggle-bar { flex-direction: column; align-items: flex-end; gap: 0.75rem; padding: 0 1rem; }
+      .view-toggle {
+        width: 100%;
+      }
+      .view-toggle-btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .qv-form-selector {
+        width: 100%;
+      }
+      .qv-form-selector select {
+        flex: 1;
+        min-width: 0;
+      }
+      #question-view-panel {
+        padding: 1rem 1rem 2rem;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="login-screen" class="login-container">
+    <div class="login-box">
+      <h1>Admin Dashboard</h1>
+      <p>Zadejte heslo pro přístup k přehledu leadů</p>
+      <div id="login-error" class="login-error">Nesprávné heslo</div>
+      <input type="password" id="password-input" placeholder="Heslo..." autofocus />
+      <button id="login-btn" type="button">
+        <iconify-icon icon="solar:lock-keyhole-bold"></iconify-icon>
+        Přihlásit se
+      </button>
+    </div>
+  </div>
+
+  <!-- Dashboard (hidden until authenticated) -->
+  <div id="dashboard" class="dashboard">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <a href="/" class="link">
+          <img src="/assets/images/HD_color_black.svg" alt={site.name} style="height: 32px;" />
+        </a>
+        <h1>Přehled leadů</h1>
+      </div>
+      <div class="header-actions">
+        <button id="delete-selected-btn" class="btn btn-danger" disabled>
+          <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+          Smazat vybrané (<span id="selected-count">0</span>)
+        </button>
+        <button id="refresh-btn" class="btn btn-secondary">
+          <iconify-icon icon="solar:refresh-bold"></iconify-icon>
+          Obnovit
+        </button>
+        <button id="export-btn" class="btn btn-primary">
+          <iconify-icon icon="solar:download-bold"></iconify-icon>
+          Export CSV
+        </button>
+        <button id="logout-btn" class="btn btn-secondary">
+          <iconify-icon icon="solar:logout-2-bold"></iconify-icon>
+          Odhlásit
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Celkem leadů</div>
+        <div class="value" id="stat-total">-</div>
+      </div>
+      <div class="stat-card audit">
+        <div class="label">AI Audit</div>
+        <div class="value" id="stat-audit">-</div>
+      </div>
+      <div class="stat-card contact">
+        <div class="label">Kontakt</div>
+        <div class="value" id="stat-contact">-</div>
+      </div>
+      <div class="stat-card survey">
+        <div class="stat-label">Průzkum</div>
+        <div class="stat-value" id="stat-survey" style="color: #8b5cf6;">-</div>
+      </div>
+      <div class="stat-card gc-event" id="stat-card-gc-event" style="cursor:pointer;">
+        <div class="stat-label">GC Event</div>
+        <div class="stat-value" id="stat-gc-event" style="color: #D4A017;">-</div>
+      </div>
+      <div class="stat-card pricing">
+        <div class="stat-label">Ceník</div>
+        <div class="stat-value" id="stat-pricing" style="color: #ec4899;">-</div>
+      </div>
+    </div>
+
+    <!-- View Toggle Bar -->
+    <div class="view-toggle-bar" id="view-toggle-bar">
+      <div class="view-toggle">
+        <button class="view-toggle-btn active" id="btn-table-view" type="button">
+          <iconify-icon icon="solar:list-bold" style="font-size: 1rem; vertical-align: -2px;"></iconify-icon>
+          Tabulka
+        </button>
+        <button class="view-toggle-btn" id="btn-question-view" type="button">
+          <iconify-icon icon="solar:chart-square-bold" style="font-size: 1rem; vertical-align: -2px;"></iconify-icon>
+          Analýza odpovědí
+        </button>
+      </div>
+      <div class="qv-form-selector" id="qv-form-selector" style="display:none;">
+        <label for="qv-form-select" style="font-size: 0.8125rem; font-weight: 500; color: #6b7280;">Formulář:</label>
+        <select id="qv-form-select">
+          <option value="">-- Vyberte formulář --</option>
+          <option value="audit">AI Audit</option>
+          <option value="contact">Kontakt</option>
+          <option value="survey">Průzkum</option>
+          <option value="gc-event">GC Event</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Question View Panel (hidden by default) -->
+    <div id="question-view-panel" style="display:none;">
+      <div id="qv-content">
+        <div class="qv-empty-state" id="qv-empty-no-form">
+          <iconify-icon icon="solar:chart-square-line-duotone" width="64" style="color: #d1d5db; display: block; margin: 0 auto 1rem;"></iconify-icon>
+          <p style="font-size: 1rem; font-weight: 500; color: #6b7280; margin-bottom: 0.5rem;">Vyberte formulář pro zobrazení analýzy odpovědí</p>
+          <p style="font-size: 0.8125rem; color: #9ca3af;">Zvolte typ formuláře z výběru nahoře</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Hledat</label>
+          <input type="text" id="filter-search" class="search-input" placeholder="Email, firma, jméno..." />
+        </div>
+        <div class="filter-group">
+          <label>Zdroj</label>
+          <select id="filter-source">
+            <option value="">Všechny</option>
+            <option value="audit">AI Audit</option>
+            <option value="contact">Kontakt</option>
+            <option value="survey">Průzkum</option>
+            <option value="pricing-calculator">Ceník</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Formulář</label>
+          <select id="filter-lead-source">
+            <option value="">Všechny</option>
+            <option value="homepage-hero-form">🏠 Homepage Hero</option>
+            <option value="audit-page-form">📄 Audit Page</option>
+            <option value="contact-page-form">📞 Contact Page</option>
+            <option value="hero-form">🏠 Hero (legacy)</option>
+            <option value="audit-page">📄 Audit (legacy)</option>
+            <option value="gc-pruzkum-page">🔬 Průzkum AI bolestivých míst</option>
+            <option value="gc-event-page">GC Event dotazník</option>
+            <option value="unknown">❓ Unknown</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Platforma</label>
+          <select id="filter-platform">
+            <option value="">Všechny</option>
+            <option value="google">🔍 Google</option>
+            <option value="facebook">📘 Facebook</option>
+            <option value="instagram">📸 Instagram</option>
+            <option value="linkedin">💼 LinkedIn</option>
+            <option value="youtube">📺 YouTube</option>
+            <option value="bing">🔎 Bing</option>
+            <option value="direct">🏠 Direct</option>
+            <option value="other">🌐 Other</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Od</label>
+          <input type="date" id="filter-from" />
+        </div>
+        <div class="filter-group">
+          <label>Do</label>
+          <input type="date" id="filter-to" />
+        </div>
+        <button id="clear-filters-btn" class="btn btn-secondary">
+          <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+          Vymazat filtry
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <div id="loading" class="loading">
+        <iconify-icon icon="svg-spinners:ring-resize" class="spinner" style="font-size: 2rem;"></iconify-icon>
+        <p style="margin-top: 1rem;">Načítám leady...</p>
+      </div>
+      <table id="leads-table" style="display: none;">
+        <thead>
+          <tr>
+            <th style="width: 40px;">
+              <input type="checkbox" id="select-all" />
+            </th>
+            <th>Datum</th>
+            <th>Zdroj</th>
+            <th>Formulář</th>
+            <th>Platforma</th>
+            <th>Email</th>
+            <th>Firma / Jméno</th>
+            <th>Web</th>
+            <th>Město</th>
+            <th>Detail</th>
+          </tr>
+        </thead>
+        <tbody id="leads-tbody">
+        </tbody>
+      </table>
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <iconify-icon icon="solar:inbox-line-bold"></iconify-icon>
+        <p>Žádné leady nenalezeny</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3>Smazat vybrané leady</h3>
+      <p id="delete-modal-count">Opravdu chcete smazat X leadů?</p>
+      
+      <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; cursor: pointer;">
+        <input type="checkbox" id="delete-reports-checkbox" checked style="width: 18px; height: 18px;" />
+        <span style="color: #374151;">Smazat i přiložené reporty (audit)</span>
+      </label>
+      
+      <div class="modal-actions">
+        <button id="delete-cancel-btn" class="btn btn-secondary">Zrušit</button>
+        <button id="delete-confirm-btn" class="btn btn-danger">
+          <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+          Smazat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function() {
+      // XSS prevention helper
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      // Safe href: validates protocol before placing URL in an href attribute
+      function safeHref(url) {
+        if (!url) return '';
+        var trimmed = String(url).trim();
+        if (/^(https?:\/\/|mailto:)/i.test(trimmed)) {
+          return escapeHtml(trimmed);
+        }
+        return escapeHtml('https://' + trimmed);
+      }
+
+      // Elements
+      const loginScreen = document.getElementById('login-screen');
+      const dashboard = document.getElementById('dashboard');
+      const passwordInput = document.getElementById('password-input');
+      const loginBtn = document.getElementById('login-btn');
+      const loginError = document.getElementById('login-error');
+      const logoutBtn = document.getElementById('logout-btn');
+      const refreshBtn = document.getElementById('refresh-btn');
+      const exportBtn = document.getElementById('export-btn');
+      const clearFiltersBtn = document.getElementById('clear-filters-btn');
+      
+      const filterSearch = document.getElementById('filter-search');
+      const filterSource = document.getElementById('filter-source');
+      const filterLeadSource = document.getElementById('filter-lead-source');
+      const filterPlatform = document.getElementById('filter-platform');
+      const filterFrom = document.getElementById('filter-from');
+      const filterTo = document.getElementById('filter-to');
+      
+      const statTotal = document.getElementById('stat-total');
+      const statAudit = document.getElementById('stat-audit');
+      const statContact = document.getElementById('stat-contact');
+      
+      const loadingEl = document.getElementById('loading');
+      const tableEl = document.getElementById('leads-table');
+      const tbodyEl = document.getElementById('leads-tbody');
+      const emptyStateEl = document.getElementById('empty-state');
+
+      let allLeads = [];
+      let password = '';
+
+      // Early init: these must be available before fetchLeads() runs
+      var QV_STATE = { visible: false, activeFormKey: null, chartsRendered: {} };
+      var QuestionView = {};
+      var CHART_DEFAULTS = {
+        color: '#9ca3af',
+        font: { family: "'Inter', system-ui, sans-serif", size: 12 }
+      };
+
+      // One-time migration from localStorage to sessionStorage
+      var legacyPassword = localStorage.getItem('admin_password');
+      if (legacyPassword) {
+        sessionStorage.setItem('admin_password', legacyPassword);
+        localStorage.removeItem('admin_password');
+      }
+
+      // Check for stored password
+      var storedPassword = sessionStorage.getItem('admin_password');
+      if (storedPassword) {
+        password = storedPassword;
+        showDashboard();
+        applyGlobalChartDefaults();
+        fetchLeads().then(function(success) {
+          if (!success) {
+            handleAuthFailure('Uložené heslo je neplatné. Přihlaste se znovu.');
+          }
+        });
+      }
+
+      // Login
+      loginBtn.addEventListener('click', attemptLogin);
+      passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') attemptLogin();
+      });
+
+      function attemptLogin() {
+        password = passwordInput.value;
+        if (!password) {
+          loginError.textContent = 'Zadejte heslo';
+          loginError.style.display = 'block';
+          return;
+        }
+        
+        // Try to fetch leads with this password
+        loginError.style.display = 'none';
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<iconify-icon icon="svg-spinners:ring-resize"></iconify-icon> Ověřuji...';
+        
+        fetchLeads().then(success => {
+          if (success) {
+            sessionStorage.setItem('admin_password', password);
+            applyGlobalChartDefaults();
+            showDashboard();
+          } else {
+            loginError.textContent = 'Nesprávné heslo';
+            loginError.style.display = 'block';
+            passwordInput.focus();
+          }
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = '<iconify-icon icon="solar:lock-keyhole-bold"></iconify-icon> Přihlásit se';
+        });
+      }
+
+      // Auth failure handler — reusable for logout, 401, stale password
+      function handleAuthFailure(message) {
+        sessionStorage.removeItem('admin_password');
+        password = '';
+        allLeads = [];
+        loginScreen.style.display = 'flex';
+        dashboard.classList.remove('active');
+        passwordInput.value = '';
+        if (message) {
+          loginError.textContent = message;
+          loginError.style.display = 'block';
+        }
+      }
+
+      // Logout
+      logoutBtn.addEventListener('click', () => {
+        handleAuthFailure();
+      });
+
+      function showDashboard() {
+        loginScreen.style.display = 'none';
+        dashboard.classList.add('active');
+      }
+
+      // Fetch leads from API
+      async function fetchLeads() {
+        QV_STATE.chartsRendered = {};
+
+        loadingEl.style.display = 'block';
+        tableEl.style.display = 'none';
+        emptyStateEl.style.display = 'none';
+        var emptyP = emptyStateEl.querySelector('p');
+        if (emptyP) emptyP.textContent = 'Žádné leady nenalezeny';
+
+        try {
+          const response = await fetch(`/.netlify/functions/admin-leads`, {
+            headers: { 'Authorization': 'Bearer ' + password }
+          });
+
+          if (response.status === 401) {
+            handleAuthFailure('Relace vypršela. Přihlaste se znovu.');
+            return false;
+          }
+
+          const data = await response.json();
+
+          if (data.success) {
+            allLeads = data.leads;
+            updateStats(data);
+            renderTable();
+
+            // Re-render Question View if it's active
+            if (QV_STATE.visible && QV_STATE.activeFormKey) {
+              QuestionView.renderQuestionView(QV_STATE.activeFormKey);
+            }
+
+            return true;
+          }
+
+          var emptyMsg = emptyStateEl.querySelector('p');
+          if (emptyMsg) emptyMsg.textContent = 'Chyba při načítání dat. Zkuste to znovu.';
+          emptyStateEl.style.display = 'block';
+          return false;
+        } catch (error) {
+          console.error('Failed to fetch leads:', error);
+          var emptyMsg = emptyStateEl.querySelector('p');
+          if (emptyMsg) emptyMsg.textContent = 'Chyba při načítání dat. Zkuste to znovu.';
+          emptyStateEl.style.display = 'block';
+          return false;
+        } finally {
+          loadingEl.style.display = 'none';
+        }
+      }
+
+      // Update stats
+      function updateStats(data) {
+        statTotal.textContent = data.total || 0;
+        statAudit.textContent = data.totalAudit || 0;
+        statContact.textContent = data.totalContact || 0;
+        const statSurvey = document.getElementById('stat-survey');
+        if (statSurvey) statSurvey.textContent = data.totalSurvey || 0;
+        document.getElementById('stat-gc-event').textContent = data.totalGcEvent || 0;
+        var statPricing = document.getElementById('stat-pricing');
+        if (statPricing) statPricing.textContent = data.totalPricing || 0;
+      }
+
+      // Shared filter logic for Table View and Question View
+      function getFilteredLeads(options) {
+        var opts = options || {};
+        var applySearch = opts.applySearch !== false;
+        var applySource = opts.applySource !== false;
+        var applyPlatform = opts.applyPlatform !== false;
+        var applyDates = opts.applyDates !== false;
+
+        var filtered = allLeads.slice();
+
+        if (applySearch) {
+          var search = filterSearch.value.toLowerCase();
+          if (search) {
+            filtered = filtered.filter(function(lead) {
+              var email = (lead.email || '').toLowerCase();
+              var company = (lead.companyName || '').toLowerCase();
+              var name = (lead.name || '').toLowerCase();
+              var website = (lead.website || '').toLowerCase();
+              return email.indexOf(search) !== -1 || company.indexOf(search) !== -1 || name.indexOf(search) !== -1 || website.indexOf(search) !== -1;
+            });
+          }
+        }
+
+        if (applySource) {
+          var source = filterSource.value;
+          if (source) {
+            filtered = filtered.filter(function(lead) { return lead.source === source; });
+          }
+          var leadSource = filterLeadSource.value;
+          if (leadSource) {
+            filtered = filtered.filter(function(lead) { return lead.leadSource === leadSource; });
+          }
+        }
+
+        if (applyPlatform) {
+          var platform = filterPlatform.value;
+          if (platform) {
+            filtered = filtered.filter(function(lead) {
+              var utmSource = (lead.utmSource || '').toLowerCase();
+              if (platform === 'other') {
+                var knownPlatforms = ['google', 'facebook', 'instagram', 'linkedin', 'youtube', 'bing', 'direct'];
+                return utmSource && knownPlatforms.indexOf(utmSource) === -1;
+              }
+              return utmSource === platform;
+            });
+          }
+        }
+
+        if (applyDates) {
+          var from = filterFrom.value;
+          var to = filterTo.value;
+          if (from) {
+            var fromDate = new Date(from);
+            filtered = filtered.filter(function(lead) { return new Date(lead.submittedAt) >= fromDate; });
+          }
+          if (to) {
+            var toDate = new Date(to);
+            toDate.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(function(lead) { return new Date(lead.submittedAt) <= toDate; });
+          }
+        }
+
+        return filtered;
+      }
+
+      // Render table with filters
+      function renderTable() {
+        let filtered = getFilteredLeads();
+
+        if (filtered.length === 0) {
+          tableEl.style.display = 'none';
+          emptyStateEl.style.display = 'block';
+          return;
+        }
+        
+        emptyStateEl.style.display = 'none';
+        tableEl.style.display = 'table';
+        
+        tbodyEl.innerHTML = filtered.map(lead => {
+          const date = new Date(lead.submittedAt).toLocaleString('cs-CZ', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          const isAudit = lead.source === 'audit';
+          const isSurvey = lead.source === 'survey';
+
+          // Source badge
+          var badge;
+          if (isAudit) {
+            badge = `<span class="badge badge-audit">${escapeHtml('Audit')}</span>`;
+          } else if (isSurvey) {
+            badge = `<span class="badge badge-survey">${escapeHtml('Průzkum')}</span>`;
+          } else if (lead.source === 'pricing-calculator') {
+            badge = `<span class="badge badge-pricing">${escapeHtml('Ceník')}</span>`;
+          } else {
+            badge = `<span class="badge badge-contact">${escapeHtml('Kontakt')}</span>`;
+          }
+
+          // Lead source badge with updated mappings
+          const leadSource = lead.leadSource || 'unknown';
+          const leadSourceMap = {
+            'homepage-hero-form': '🏠 Homepage Hero',
+            'audit-page-form': '📄 Audit Page',
+            'contact-page-form': '📞 Contact Page',
+            'hero-form': '🏠 Hero (legacy)',
+            'audit-page': '📄 Audit (legacy)',
+            'gc-pruzkum-page': '🔬 Průzkum AI',
+            'gc-event-page': 'GC Event dotazník',
+            'unknown': '❓ Unknown'
+          };
+          const leadSourceText = leadSourceMap[leadSource] || escapeHtml(leadSource);
+
+          // Platform/Traffic source display
+          const platformIcons = {
+            'google': '🔍',
+            'facebook': '📘',
+            'instagram': '📸',
+            'linkedin': '💼',
+            'youtube': '📺',
+            'bing': '🔎',
+            'twitter': '🐦',
+            'tiktok': '🎵',
+            'direct': '🏠',
+            'email': '📧'
+          };
+          const utmSource = (lead.utmSource || '').toLowerCase();
+          const utmMedium = lead.utmMedium || '';
+          const utmCampaign = lead.utmCampaign || '';
+          const platformIcon = platformIcons[utmSource] || '🌐';
+          const platformName = utmSource ? (utmSource.charAt(0).toUpperCase() + utmSource.slice(1)) : '-';
+          let platformDisplay = utmSource ? `${platformIcon} ${escapeHtml(platformName)}` : '<span class="text-muted">-</span>';
+          if (utmMedium) platformDisplay += ` <span class="text-muted">/ ${escapeHtml(utmMedium)}</span>`;
+
+          // Build tooltip with full UTM data (attr-escaped)
+          let platformTitle = '';
+          if (utmSource) platformTitle += `Source: ${escapeHtml(utmSource)}`;
+          if (utmMedium) platformTitle += `\nMedium: ${escapeHtml(utmMedium)}`;
+          if (utmCampaign) platformTitle += `\nCampaign: ${escapeHtml(utmCampaign)}`;
+          if (lead.utmContent) platformTitle += `\nContent: ${escapeHtml(lead.utmContent)}`;
+          if (lead.utmTerm) platformTitle += `\nTerm: ${escapeHtml(lead.utmTerm)}`;
+          if (lead.gclid) platformTitle += `\nGoogle Click ID: ${escapeHtml(lead.gclid.substring(0, 20))}...`;
+          if (lead.fbclid) platformTitle += `\nFacebook Click ID: ${escapeHtml(lead.fbclid.substring(0, 20))}...`;
+          if (lead.msclkid) platformTitle += `\nMicrosoft Click ID: ${escapeHtml(lead.msclkid.substring(0, 20))}...`;
+          if (lead.referrer) platformTitle += `\nReferrer: ${escapeHtml(lead.referrer)}`;
+
+          // Name column
+          var name;
+          if (isAudit) {
+            name = escapeHtml(lead.companyName || '-');
+          } else if (isSurvey) {
+            name = escapeHtml(lead.companyName || lead.name || '-');
+          } else {
+            name = escapeHtml(lead.name || '-');
+          }
+
+          const city = escapeHtml(lead.city || '-');
+
+          // Website column — use websiteUrl for survey/gc-event leads, website for others
+          var websiteDisplay;
+          var rawWebsite = isSurvey ? (lead.websiteUrl || '') : (lead.website || '');
+          if (rawWebsite) {
+            const safeWebsite = escapeHtml(rawWebsite);
+            const href = safeHref(rawWebsite);
+            websiteDisplay = `<a href="${href}" target="_blank" class="link truncate">${safeWebsite}</a>`;
+          } else {
+            websiteDisplay = '-';
+          }
+
+          // Detail / info column
+          let detailText = '';
+          if (isAudit) {
+            if (lead.reportUrl) {
+              detailText = `<a href="${safeHref(lead.reportUrl)}" target="_blank" class="link">Zobrazit report</a>`;
+            } else {
+              const pain = escapeHtml(lead.biggestPainPoint || '');
+              detailText = pain ? `<span class="truncate" title="${pain}">${pain}</span>` : '-';
+            }
+          } else if (isSurvey) {
+            var details = [];
+            if (lead.industry) details.push('Obor: ' + escapeHtml(INDUSTRY_LABELS[lead.industry] || lead.industry));
+            if (lead.painPoints && Array.isArray(lead.painPoints)) {
+              details.push('Výzvy: ' + escapeHtml(lead.painPoints.map(function(p) { return PAIN_POINT_LABELS[p] || p; }).join(', ')));
+            }
+            if (lead.primaryPainPoint) details.push('Hlavní: ' + escapeHtml(PAIN_POINT_LABELS[lead.primaryPainPoint] || lead.primaryPainPoint));
+            if (lead.aiMaturity) details.push('AI: ' + escapeHtml(GC_AI_MATURITY_LABELS[lead.aiMaturity] || lead.aiMaturity));
+            if (lead.hoursLostPerWeek) details.push('Ztráta: ' + escapeHtml(GC_HOURS_LABELS[lead.hoursLostPerWeek] || lead.hoursLostPerWeek));
+            if (lead.contextNote) details.push('Poznámka: ' + escapeHtml(lead.contextNote.substring(0, 100)));
+            detailText = details.length > 0 ? details.join(' | ') : '-';
+          } else {
+            if (lead.service) {
+              detailText = 'Služba: ' + escapeHtml(lead.service);
+            } else if (lead.message) {
+              const safeMsg = escapeHtml(lead.message);
+              detailText = `<span class="truncate" title="${safeMsg}">${safeMsg}</span>`;
+            } else {
+              detailText = '-';
+            }
+          }
+
+          return `
+            <tr>
+              <td>
+                <input type="checkbox" class="lead-checkbox" data-id="${escapeHtml(String(lead.id))}" data-source="${escapeHtml(lead.source)}" data-report-id="${escapeHtml(lead.reportId || '')}" />
+              </td>
+              <td class="text-muted">${date}</td>
+              <td>${badge}</td>
+              <td><span class="text-muted" style="font-size: 0.75rem;">${leadSourceText}</span></td>
+              <td title="${platformTitle}" style="cursor: ${platformTitle ? 'help' : 'default'}; font-size: 0.8rem;">${platformDisplay}</td>
+              <td><a href="mailto:${escapeHtml(lead.email)}" class="link">${escapeHtml(lead.email)}</a></td>
+              <td>${name}</td>
+              <td>${websiteDisplay}</td>
+              <td>${city}</td>
+              <td>${detailText}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Filter event listeners
+      filterSearch.addEventListener('input', debounce(renderTable, 300));
+      filterSource.addEventListener('change', renderTable);
+      filterLeadSource.addEventListener('change', renderTable);
+      filterPlatform.addEventListener('change', renderTable);
+      filterFrom.addEventListener('change', renderTable);
+      filterTo.addEventListener('change', renderTable);
+      
+      clearFiltersBtn.addEventListener('click', () => {
+        filterSearch.value = '';
+        filterSource.value = '';
+        filterLeadSource.value = '';
+        filterPlatform.value = '';
+        filterFrom.value = '';
+        filterTo.value = '';
+        renderTable();
+      });
+
+      // Refresh
+      refreshBtn.addEventListener('click', () => {
+        fetchLeads();
+      });
+
+      // Export CSV
+      exportBtn.addEventListener('click', () => {
+        if (allLeads.length === 0) return;
+        
+        const headers = ['Datum', 'Zdroj', 'Formulář', 'Platforma', 'Medium', 'Kampaň', 'Email', 'Firma/Jméno', 'Web', 'Město', 'Telefon', 'Služba', 'Report URL', 'Jazyk', 'GCLID', 'FBCLID', 'Referrer', 'Industry', 'Company Size', 'Pain Points', 'Primary Pain Point', 'AI Maturity', 'Hours Lost/Week', 'Context Note', 'Pouzivane nastroje', 'Tech Level', 'Top Examples'];
+        function csvSafeValue(val) {
+          let str = String(val || '').replace(/"/g, '""');
+          if (/^[=+\-@\t\r]/.test(str)) {
+            str = "'" + str;
+          }
+          return '"' + str + '"';
+        }
+
+        const rows = allLeads.map(lead => {
+          const date = new Date(lead.submittedAt).toISOString();
+          const nameField = lead.source === 'audit' ? (lead.companyName || '') : (lead.source === 'survey' ? (lead.companyName || lead.name || '') : (lead.name || ''));
+          return [
+            date,
+            lead.source,
+            lead.leadSource || '',
+            lead.utmSource || '',
+            lead.utmMedium || '',
+            lead.utmCampaign || '',
+            lead.email,
+            nameField,
+            lead.source === 'survey' ? '' : (lead.website || ''),
+            lead.city || '',
+            lead.phoneNumber || lead.phone || '',
+            lead.service || '',
+            lead.reportUrl || '',
+            lead.language || '',
+            lead.gclid || '',
+            lead.fbclid || '',
+            lead.referrer || '',
+            lead.source === 'survey' ? (lead.industry || '') : '',
+            lead.source === 'survey' ? (lead.companySize || '') : '',
+            lead.source === 'survey' ? (lead.painPoints ? lead.painPoints.join('; ') : '') : '',
+            lead.source === 'survey' ? (lead.primaryPainPoint || '') : '',
+            lead.source === 'survey' ? (lead.aiMaturity || '') : '',
+            lead.source === 'survey' ? (lead.hoursLostPerWeek || '') : '',
+            lead.source === 'survey' ? (lead.contextNote || '') : '',
+            lead.source === 'survey' ? ((lead.toolsUsed || []).join(', ') || '-') : '',
+            lead.source === 'survey' ? (lead.techLevel || '') : '',
+            lead.source === 'survey' ? ((lead.topExamples || []).join(', ') || '') : ''
+          ].map(csvSafeValue).join(',');
+        });
+        
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `leads_export_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Debounce helper
+      function debounce(fn, delay) {
+        let timeout;
+        return function(...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+      }
+
+      // ===================================================================
+      // Label maps — MUST be declared before FORM_REGISTRY which references them.
+      // `var` hoisting only hoists the declaration (as undefined), NOT the value.
+      // ===================================================================
+
+      var INDUSTRY_LABELS = {
+        'ecommerce': 'E-commerce',
+        'retail': 'Maloobchod',
+        'manufacturing': 'Výroba',
+        'professional_svcs': 'Prof. služby',
+        'real_estate': 'Reality',
+        'hospitality': 'Pohostinství',
+        'healthcare': 'Zdravotnictví',
+        'education': 'Vzdělávání',
+        'construction': 'Stavebnictví',
+        'logistics': 'Logistika',
+        'finance': 'Finance',
+        'marketing_agency': 'Marketing / Agentura',
+        'it_tech': 'IT / Tech',
+        'other': 'Ostatní',
+        'Neuvedeno': 'Neuvedeno'
+      };
+
+      var PAIN_POINT_LABELS = {
+        'new_customers': 'Získávání zákazníků',
+        'speed_to_lead': 'Pomalá reakce na poptávky',
+        'automating_communication': 'Automatizace komunikace',
+        'customer_support': 'Zákaznická podpora',
+        'boring_admin': 'Opakující se administrativa',
+        'reporting_data': 'Reporting a data',
+        'juggling_tools': 'Příliš mnoho nástrojů',
+        'integrating_ai': 'Zapojení AI',
+        'marketing_materials': 'Marketingové materiály',
+        'content_creation': 'Tvorba obsahu',
+        'manual_data_entry': 'Ruční zadávání dat',
+        'document_processing': 'Zpracování dokumentů',
+        'other': 'Ostatní'
+      };
+
+      var TOOLS_LABELS = {
+        'chatgpt': 'ChatGPT / Claude / Gemini',
+        'automation': 'Make / n8n / Zapier',
+        'crm': 'HubSpot / Pipedrive',
+        'pm': 'Monday / Asana / Notion',
+        'office': 'Google Workspace / M365',
+        'accounting': 'Pohoda / Money S3',
+        'custom': 'Vlastní řešení',
+        'none': 'Žádné',
+        'other': 'Ostatní'
+      };
+
+      var ROLE_LABELS = {
+        owner_ceo: 'Majitel / jednatel',
+        sales_manager: 'Obch. manažer',
+        ops_manager: 'Provozní manažer',
+        it_lead: 'IT vedoucí',
+        employee: 'Zaměstnanec',
+        other: 'Jiná role'
+      };
+
+      var MANUAL_PROCESS_LABELS = {
+        data_entry: 'Zadávání dat',
+        reporting: 'Reportování',
+        customer_comms: 'Komunikace se zákazníky',
+        scheduling: 'Plánování',
+        document_processing: 'Zpracování dokumentů',
+        invoicing: 'Fakturace',
+        onboarding: 'Nábor a onboarding',
+        other: 'Jiný'
+      };
+
+      var CRM_LABELS = {
+        none: 'Žádný',
+        excel: 'Excel / tabulky',
+        hubspot_pipedrive: 'HubSpot / Pipedrive',
+        salesforce: 'Salesforce',
+        raynet: 'Raynet',
+        custom_other: 'Vlastní / jiný'
+      };
+
+      var ERP_LABELS = {
+        none: 'Žádný',
+        pohoda: 'Pohoda',
+        abra_helios: 'ABRA / Helios',
+        sap: 'SAP',
+        money_s3: 'Money S3',
+        custom_other: 'Jiný'
+      };
+
+      var MANUAL_PCT_LABELS = {
+        under_10: '< 10 %',
+        '10_25': '10–25 %',
+        '25_50': '25–50 %',
+        over_50: '> 50 %'
+      };
+
+      var TECH_OPENNESS_LABELS = {
+        conservative: 'Konzervativní',
+        open: 'Otevřený',
+        innovator: 'Inovativní'
+      };
+
+      var GC_AI_MATURITY_LABELS = {
+        none: 'Nepoužíváme',
+        experimenting: 'Zkoušíme',
+        active: 'Aktivně používáme'
+      };
+
+      var GC_COMPANY_SIZE_LABELS = {
+        solo: 'Pouze já',
+        '2-10': '2–10',
+        '11-50': '11–50',
+        '51-250': '51–250',
+        '250+': '250+'
+      };
+
+      var GC_HOURS_LABELS = {
+        '1-5': '1–5 h',
+        '5-10': '5–10 h',
+        '10-20': '10–20 h',
+        '20-40': '20–40 h',
+        '40+': '40+ h'
+      };
+
+      var TECH_LEVEL_LABELS = {
+        none:         'Vůbec',
+        beginner:     'Začátečník',
+        intermediate: 'Středně pokročilý',
+        advanced:     'Pokročilý'
+      };
+
+      var TOP_EXAMPLES_LABELS = {
+        auto_leads:          'Automatické hledání potenciálních klientů',
+        ai_web:              'Tvorba webu pomocí AI',
+        ai_assistant:        'AI asistent pro web',
+        ai_phone_management: 'Řízení byznysu z telefonu přes AI',
+        voice_blog:          'Blogové příspěvky na autopilota',
+        ai_avatar_reels:     'Reklamní příspěvky a reelska pomocí AI avatara',
+        ai_lead_magnet:      'Lead magnet pomocí AI + CRM'
+      };
+
+      // ===================================================================
+      // FORM_REGISTRY — defines all 4 form types with questions + metadata
+      // ===================================================================
+
+      var FORM_REGISTRY = {
+
+        // ------------------------------------------------------------------
+        // 1. AI Audit
+        // ------------------------------------------------------------------
+        'audit': {
+          label: 'AI Audit',
+          color: '#f97316',
+          leadFilter: function(lead) {
+            return lead.source === 'audit';
+          },
+          minDataThreshold: 3,
+          sections: [
+            { id: 'A', title: 'Firma a lokace',   color: '#00C4B4' },
+            { id: 'B', title: 'Výzvy a nástroje', color: '#f97316' }
+          ],
+          questions: [
+            {
+              key:         'detectedIndustry',
+              title:       'Detekované odvětví',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    INDUSTRY_LABELS,
+              orderedKeys: null,
+              color:       '#00C4B4',
+              section:     'A',
+              sparse:      true
+            },
+            {
+              key:         'city',
+              title:       'Město',
+              type:        'single',
+              chartType:   'bar',
+              required:    true,
+              labelMap:    {},
+              orderedKeys: null,
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            {
+              key:         'biggestPainPoint',
+              title:       'Největší výzva',
+              type:        'text',
+              chartType:   'none',
+              required:    false,
+              labelMap:    {},
+              orderedKeys: null,
+              color:       '#f97316',
+              section:     'B',
+              authorField: 'companyName'
+            },
+            {
+              key:         'currentTools',
+              title:       'Aktuální nástroje',
+              type:        'text',
+              chartType:   'none',
+              required:    false,
+              labelMap:    {},
+              orderedKeys: null,
+              color:       '#f97316',
+              section:     'B',
+              authorField: 'companyName'
+            }
+          ]
+        },
+
+        // ------------------------------------------------------------------
+        // 2. Kontakt
+        // ------------------------------------------------------------------
+        'contact': {
+          label: 'Kontakt',
+          color: '#00A39A',
+          leadFilter: function(lead) {
+            return lead.source === 'contact';
+          },
+          minDataThreshold: 3,
+          sections: [
+            { id: 'A', title: 'Poptávka', color: '#00C4B4' },
+            { id: 'B', title: 'Zpráva',   color: '#f97316' }
+          ],
+          questions: [
+            {
+              key:         'service',
+              title:       'Služba',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    {
+                audit:      'AI Audit',
+                chatbot:    'AI Chatbot',
+                voicebot:   'AI Voicebot',
+                agent:      'AI Agent',
+                automation: 'Automatizace procesů',
+                dev:        'Vývoj aplikací',
+                web:        'Web Design',
+                consult:    'AI Konzultace',
+                dataprep:   'Příprava dat (RAGus.ai)',
+                other:      'Jiné'
+              },
+              orderedKeys: null,
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            {
+              key:         'budget_onetime',
+              title:       'Jednorázový rozpočet',
+              type:        'ordinal',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    {
+                tier1:  'Do 50 000 Kč',
+                tier2:  '50–150 000 Kč',
+                tier3:  '150–500 000 Kč',
+                tier4:  '500 000+ Kč',
+                unsure: 'Zatím nevím'
+              },
+              orderedKeys: ['tier1', 'tier2', 'tier3', 'tier4', 'unsure'],
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            {
+              key:         'budget_monthly',
+              title:       'Měsíční rozpočet',
+              type:        'ordinal',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    {
+                tier1:  'Do 10 000 Kč',
+                tier2:  '10–30 000 Kč',
+                tier3:  '30–100 000 Kč',
+                tier4:  '100 000+ Kč',
+                unsure: 'Zatím nevím'
+              },
+              orderedKeys: ['tier1', 'tier2', 'tier3', 'tier4', 'unsure'],
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            {
+              key:         'message',
+              title:       'Zpráva',
+              type:        'text',
+              chartType:   'none',
+              required:    false,
+              labelMap:    {},
+              orderedKeys: null,
+              color:       '#f97316',
+              section:     'B',
+              authorField: 'name'
+            }
+          ]
+        },
+
+        // ------------------------------------------------------------------
+        // 3. Průzkum
+        // ------------------------------------------------------------------
+        'survey': {
+          label: 'Průzkum',
+          color: '#8b5cf6',
+          leadFilter: function(lead) {
+            return lead.source === 'survey' && lead.leadSource !== 'gc-event-page';
+          },
+          minDataThreshold: 3,
+          sections: [
+            { id: 'A', title: 'Firma',       color: '#00C4B4' },
+            { id: 'B', title: 'Výzvy',       color: '#f97316' },
+            { id: 'C', title: 'Technologie', color: '#6366f1' },
+            { id: 'D', title: 'Postoj',      color: '#22d3ee' }
+          ],
+          questions: [
+            // Section A — Firma
+            {
+              key:         'companySize',
+              title:       'Velikost firmy',
+              type:        'ordinal',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    GC_COMPANY_SIZE_LABELS,
+              orderedKeys: ['solo', '2-10', '11-50', '51-250', '250+'],
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            {
+              key:         'industry',
+              title:       'Odvětví',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    INDUSTRY_LABELS,
+              orderedKeys: null,
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            {
+              key:         'respondentRole',
+              title:       'Role respondenta',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    ROLE_LABELS,
+              orderedKeys: null,
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            // Section B — Výzvy
+            {
+              key:         'painPoints',
+              title:       'Výzvy (multi)',
+              type:        'multi',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    PAIN_POINT_LABELS,
+              orderedKeys: null,
+              color:       '#f97316',
+              section:     'B'
+            },
+            {
+              key:         'primaryPainPoint',
+              title:       'Hlavní výzva',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    PAIN_POINT_LABELS,
+              orderedKeys: null,
+              color:       '#f97316',
+              section:     'B'
+            },
+            {
+              key:         'hoursLostPerWeek',
+              title:       'Ztracené hodiny týdně',
+              type:        'ordinal',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    GC_HOURS_LABELS,
+              orderedKeys: ['1-5', '5-10', '10-20', '20-40', '40+'],
+              color:       '#f97316',
+              section:     'B'
+            },
+            // Section C — Technologie
+            {
+              key:         'crmUsed',
+              title:       'CRM systém',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    CRM_LABELS,
+              orderedKeys: null,
+              color:       '#6366f1',
+              section:     'C'
+            },
+            {
+              key:         'erpUsed',
+              title:       'ERP systém',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    ERP_LABELS,
+              orderedKeys: null,
+              color:       '#6366f1',
+              section:     'C'
+            },
+            {
+              key:         'aiMaturity',
+              title:       'Vyspělost v AI',
+              type:        'ordinal',
+              chartType:   'doughnut',
+              required:    false,
+              labelMap:    GC_AI_MATURITY_LABELS,
+              orderedKeys: ['none', 'experimenting', 'active'],
+              color:       '#6366f1',
+              section:     'C'
+            },
+            {
+              key:         'toolsUsed',
+              title:       'Používané nástroje',
+              type:        'multi',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    TOOLS_LABELS,
+              orderedKeys: null,
+              color:       '#6366f1',
+              section:     'C'
+            },
+            // Section D — Postoj
+            {
+              key:         'techOpenness',
+              title:       'Otevřenost k technologiím',
+              type:        'ordinal',
+              chartType:   'doughnut',
+              required:    false,
+              labelMap:    TECH_OPENNESS_LABELS,
+              orderedKeys: ['conservative', 'open', 'innovator'],
+              color:       '#22d3ee',
+              section:     'D'
+            },
+            {
+              key:         'techLevel',
+              title:       'Technická zdatnost',
+              type:        'ordinal',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    TECH_LEVEL_LABELS,
+              orderedKeys: ['none', 'beginner', 'intermediate', 'advanced'],
+              color:       '#22d3ee',
+              section:     'D'
+            },
+            {
+              key:         'topExamples',
+              title:       'Top 3 příklady pro event',
+              type:        'multi',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    TOP_EXAMPLES_LABELS,
+              orderedKeys: null,
+              color:       '#22d3ee',
+              section:     'D'
+            },
+            {
+              key:         'contextNote',
+              title:       'Poznámka ke kontextu',
+              type:        'text',
+              chartType:   'none',
+              required:    false,
+              labelMap:    {},
+              orderedKeys: null,
+              color:       '#22d3ee',
+              section:     'D',
+              authorField: 'companyName'
+            }
+          ]
+        },
+
+        // ------------------------------------------------------------------
+        // 4. GC Event dotazník
+        // ------------------------------------------------------------------
+        'gc-event': {
+          label: 'GC Event dotazník',
+          color: '#D4A017',
+          leadFilter: function(lead) {
+            return lead.leadSource === 'gc-event-page';
+          },
+          minDataThreshold: 3,
+          sections: [
+            { id: 'A', title: 'Firma',       color: '#00C4B4' },
+            { id: 'B', title: 'Výzvy',       color: '#f97316' },
+            { id: 'C', title: 'Technologie', color: '#6366f1' },
+            { id: 'D', title: 'Postoj',      color: '#22d3ee' }
+          ],
+          questions: [
+            // Section A — Firma
+            {
+              key:         'companySize',
+              title:       'Velikost firmy',
+              type:        'ordinal',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    GC_COMPANY_SIZE_LABELS,
+              orderedKeys: ['solo', '2-10', '11-50', '51-250', '250+'],
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            {
+              key:         'industry',
+              title:       'Odvětví',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    INDUSTRY_LABELS,
+              orderedKeys: null,
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            {
+              key:         'respondentRole',
+              title:       'Role respondenta',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    ROLE_LABELS,
+              orderedKeys: null,
+              color:       '#00C4B4',
+              section:     'A'
+            },
+            // Section B — Výzvy
+            {
+              key:         'painPoints',
+              title:       'Výzvy (multi)',
+              type:        'multi',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    PAIN_POINT_LABELS,
+              orderedKeys: null,
+              color:       '#f97316',
+              section:     'B'
+            },
+            {
+              key:         'primaryPainPoint',
+              title:       'Hlavní výzva',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    PAIN_POINT_LABELS,
+              orderedKeys: null,
+              color:       '#f97316',
+              section:     'B'
+            },
+            {
+              key:         'hoursLostPerWeek',
+              title:       'Ztracené hodiny týdně',
+              type:        'ordinal',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    GC_HOURS_LABELS,
+              orderedKeys: ['1-5', '5-10', '10-20', '20-40', '40+'],
+              color:       '#f97316',
+              section:     'B'
+            },
+            {
+              key:         'biggestManualProcess',
+              title:       'Největší manuální proces',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    MANUAL_PROCESS_LABELS,
+              orderedKeys: null,
+              color:       '#f97316',
+              section:     'B'
+            },
+            {
+              key:         'manualWorkPercentage',
+              title:       'Podíl manuální práce',
+              type:        'ordinal',
+              chartType:   'doughnut',
+              required:    false,
+              labelMap:    MANUAL_PCT_LABELS,
+              orderedKeys: ['under_10', '10_25', '25_50', 'over_50'],
+              color:       '#f97316',
+              section:     'B'
+            },
+            // Section C — Technologie
+            {
+              key:         'crmUsed',
+              title:       'CRM systém',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    CRM_LABELS,
+              orderedKeys: null,
+              color:       '#6366f1',
+              section:     'C'
+            },
+            {
+              key:         'erpUsed',
+              title:       'ERP systém',
+              type:        'single',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    ERP_LABELS,
+              orderedKeys: null,
+              color:       '#6366f1',
+              section:     'C'
+            },
+            {
+              key:         'aiMaturity',
+              title:       'Vyspělost v AI',
+              type:        'ordinal',
+              chartType:   'doughnut',
+              required:    false,
+              labelMap:    GC_AI_MATURITY_LABELS,
+              orderedKeys: ['none', 'experimenting', 'active'],
+              color:       '#6366f1',
+              section:     'C'
+            },
+            {
+              key:         'toolsUsed',
+              title:       'Používané nástroje',
+              type:        'multi',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    TOOLS_LABELS,
+              orderedKeys: null,
+              color:       '#6366f1',
+              section:     'C'
+            },
+            // Section D — Postoj
+            {
+              key:         'techOpenness',
+              title:       'Otevřenost k technologiím',
+              type:        'ordinal',
+              chartType:   'doughnut',
+              required:    false,
+              labelMap:    TECH_OPENNESS_LABELS,
+              orderedKeys: ['conservative', 'open', 'innovator'],
+              color:       '#22d3ee',
+              section:     'D'
+            },
+            {
+              key:         'techLevel',
+              title:       'Technická zdatnost',
+              type:        'ordinal',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    TECH_LEVEL_LABELS,
+              orderedKeys: ['none', 'beginner', 'intermediate', 'advanced'],
+              color:       '#22d3ee',
+              section:     'D'
+            },
+            {
+              key:         'topExamples',
+              title:       'Top 3 příklady pro event',
+              type:        'multi',
+              chartType:   'bar',
+              required:    false,
+              labelMap:    TOP_EXAMPLES_LABELS,
+              orderedKeys: null,
+              color:       '#22d3ee',
+              section:     'D'
+            },
+            {
+              key:         'contextNote',
+              title:       'Poznámka ke kontextu',
+              type:        'text',
+              chartType:   'none',
+              required:    false,
+              labelMap:    {},
+              orderedKeys: null,
+              color:       '#22d3ee',
+              section:     'D',
+              authorField: 'companyName'
+            }
+          ]
+        }
+
+      }; // end FORM_REGISTRY
+
+      // ===================================================================
+      // QuestionView — aggregation namespace
+      // ===================================================================
+
+      /**
+       * Aggregate a single-value field into chart-ready labels + values.
+       *
+       * For ordinal/single types the raw counts come from countField().
+       * - orderedKeys present  => iterate in that order, include zeros.
+       * - orderedKeys null     => groupWithFallback (when labelMap has entries)
+       *                          then sortedByFreqDesc.
+       * Entries keyed 'Neuvedeno' or '' are excluded from chart output but
+       * their respondents still count toward the denominator.
+       *
+       * @param {Array}  leads - full lead array already filtered to this form
+       * @param {Object} qDef  - question definition from FORM_REGISTRY
+       * @returns {{ labels: string[], values: number[], totalResponded: number }}
+       */
+      QuestionView.aggregateSingleField = function(leads, qDef) {
+        var raw = countField(leads, qDef.key);
+        var hasLabelMap = Object.keys(qDef.labelMap).length > 0;
+        var leadIndex = indexLeadsByField(leads, qDef.key);
+
+        var orderedKeys, orderedValues;
+
+        if (qDef.orderedKeys) {
+          // Ordinal path — use explicit key order, include zeros for absent keys
+          orderedKeys   = qDef.orderedKeys;
+          orderedValues = qDef.orderedKeys.map(function(k) { return raw[k] || 0; });
+        } else {
+          // Frequency-sorted path
+          var counts;
+          if (hasLabelMap) {
+            var knownKeys = Object.keys(qDef.labelMap).filter(function(k) {
+              return k !== 'Neuvedeno';
+            });
+            counts = groupWithFallback(raw, knownKeys, qDef.labelMap);
+          } else {
+            // No labelMap — copy raw, strip Neuvedeno / empty
+            counts = {};
+            Object.keys(raw).forEach(function(k) {
+              if (k !== 'Neuvedeno' && k !== '') {
+                counts[k] = raw[k];
+              }
+            });
+          }
+          var sorted = sortedByFreqDesc(counts);
+          orderedKeys   = sorted.keys;
+          orderedValues = sorted.values;
+        }
+
+        // Build human-readable labels, filter out Neuvedeno / empty
+        var labels = [];
+        var values = [];
+        var respondents = new Map();
+        orderedKeys.forEach(function(k, i) {
+          if (k === 'Neuvedeno' || k === '') return;
+          var displayLabel = qDef.labelMap[k] || k;
+          labels.push(displayLabel);
+          values.push(orderedValues[i]);
+          respondents.set(displayLabel, leadIndex.get(k) || []);
+        });
+
+        // totalResponded = leads that have a real, non-empty value
+        var totalResponded = leads.reduce(function(sum, lead) {
+          var v = lead[qDef.key];
+          if (v && v !== '' && v !== 'Neuvedeno') return sum + 1;
+          return sum;
+        }, 0);
+
+        return { labels: labels, values: values, totalResponded: totalResponded, respondents: respondents };
+      };
+
+      /**
+       * Aggregate a multi-value (array) field into chart-ready labels + values.
+       *
+       * Uses countArrayField() which already skips null/empty array entries.
+       * groupWithFallback applied when labelMap has entries.
+       * Results sorted by frequency descending.
+       *
+       * @param {Array}  leads
+       * @param {Object} qDef
+       * @returns {{ labels: string[], values: number[], totalResponded: number }}
+       */
+      QuestionView.aggregateMultiField = function(leads, qDef) {
+        var raw = countArrayField(leads, qDef.key);
+        var hasLabelMap = Object.keys(qDef.labelMap).length > 0;
+        var leadIndex = indexLeadsByArrayField(leads, qDef.key);
+
+        var counts;
+        if (hasLabelMap) {
+          var knownKeys = Object.keys(qDef.labelMap).filter(function(k) {
+            return k !== 'Neuvedeno';
+          });
+          counts = groupWithFallback(raw, knownKeys, qDef.labelMap);
+        } else {
+          counts = {};
+          Object.keys(raw).forEach(function(k) {
+            if (k !== 'Neuvedeno' && k !== '') {
+              counts[k] = raw[k];
+            }
+          });
+        }
+
+        var sorted = sortedByFreqDesc(counts);
+        var respondents = new Map();
+        var labels = sorted.keys.map(function(k) {
+          var displayLabel = qDef.labelMap[k] || k;
+          respondents.set(displayLabel, leadIndex.get(k) || []);
+          return displayLabel;
+        });
+
+        var totalResponded = leads.reduce(function(sum, lead) {
+          var v = lead[qDef.key];
+          if (Array.isArray(v) && v.length > 0) return sum + 1;
+          return sum;
+        }, 0);
+
+        return { labels: labels, values: sorted.values, totalResponded: totalResponded, respondents: respondents };
+      };
+
+      /**
+       * Collect free-text responses with author attribution.
+       *
+       * @param {Array}  leads
+       * @param {Object} qDef
+       * @returns {{ entries: Array<{text: string, author: string}>, totalResponded: number }}
+       */
+      QuestionView.aggregateTextField = function(leads, qDef) {
+        var entries = [];
+        leads.forEach(function(lead) {
+          var text = lead[qDef.key];
+          if (!text || String(text).trim() === '') return;
+          var author = qDef.authorField ? (lead[qDef.authorField] || '') : '';
+          entries.push({
+            text:   String(text).trim(),
+            author: String(author).trim(),
+            email:  lead.email || '',
+            leadId: lead.id || ''
+          });
+        });
+        return { entries: entries, totalResponded: entries.length };
+      };
+
+      /**
+       * Dispatcher — routes to the correct aggregation strategy based on qDef.type.
+       *
+       * @param {Array}  leads
+       * @param {Object} qDef
+       * @returns {Object} aggregation result appropriate for the question type
+       */
+      QuestionView.aggregateQuestion = function(leads, qDef) {
+        if (qDef.type === 'text')  return QuestionView.aggregateTextField(leads, qDef);
+        if (qDef.type === 'multi') return QuestionView.aggregateMultiField(leads, qDef);
+        return QuestionView.aggregateSingleField(leads, qDef);
+      };
+
+      // ===================================================================
+      // Chart instance registry for QuestionView charts
+      // ===================================================================
+
+      var qvChartInstances = {};
+
+      QuestionView.destroyChart = function(formKey, qKey) {
+        var key = formKey + '_' + qKey;
+        if (qvChartInstances[key]) {
+          qvChartInstances[key].destroy();
+          delete qvChartInstances[key];
+        }
+      };
+
+      QuestionView.destroyAllChartsForForm = function(formKey) {
+        Object.keys(qvChartInstances).forEach(function(key) {
+          if (key.indexOf(formKey + '_') === 0 && qvChartInstances[key]) {
+            qvChartInstances[key].destroy();
+            delete qvChartInstances[key];
+          }
+        });
+      };
+
+      QuestionView.destroyAllCharts = function() {
+        Object.keys(qvChartInstances).forEach(function(key) {
+          if (qvChartInstances[key]) { qvChartInstances[key].destroy(); }
+        });
+        qvChartInstances = {};
+      };
+
+      // ===================================================================
+      // QuestionView chart factories
+      // ===================================================================
+
+      /**
+       * Build a horizontal bar chart into a QV canvas element.
+       *
+       * @param {string} formKey  - form identifier key
+       * @param {Object} qDef    - question definition from FORM_REGISTRY
+       * @param {string[]} labels - human-readable option labels
+       * @param {number[]} values - count per label
+       */
+      QuestionView.buildQvBarChart = function(formKey, qDef, labels, values, respondents) {
+        var canvasId    = 'qv-chart-' + formKey + '-' + qDef.key;
+        var wrapperId   = 'qv-wrap-'  + formKey + '-' + qDef.key;
+        var instanceKey = formKey + '_' + qDef.key;
+
+        setBarWrapperHeight(wrapperId, labels.length);
+        QuestionView.destroyChart(formKey, qDef.key);
+
+        var ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+
+        var chartColor = qDef.color || '#00A39A';
+
+        qvChartInstances[instanceKey] = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              backgroundColor: chartColor + '66',
+              borderColor: chartColor,
+              borderWidth: 2,
+              borderRadius: 6,
+              borderSkipped: false
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            onClick: function(event, elements) {
+              if (!elements || elements.length === 0) return;
+              var dataIndex = elements[0].index;
+              var clickedLabel = labels[dataIndex];
+              if (!clickedLabel) return;
+              var labelLeads = respondents ? respondents.get(clickedLabel) : null;
+              if (!labelLeads || labelLeads.length === 0) return;
+              QuestionView.showRespondentPanel(formKey, qDef.key, clickedLabel, labelLeads);
+            },
+            onHover: function(event, elements) {
+              event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    var sum = context.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+                    var pct = sum > 0 ? Math.round(context.parsed.x / sum * 100) : 0;
+                    return ' ' + context.label + ': ' + context.parsed.x + ' (' + pct + '%)';
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: { color: '#6b7280', precision: 0, font: { size: 11 }, maxTicksLimit: 6 },
+                grid:  { color: 'rgba(0,0,0,0.04)' },
+                border: { display: false }
+              },
+              y: {
+                ticks: { color: '#374151', font: { size: 12 }, autoSkip: false, padding: 8 },
+                grid:  { display: false }
+              }
+            }
+          }
+        });
+      };
+
+      /**
+       * Build a doughnut chart into a QV canvas element.
+       *
+       * @param {string} formKey  - form identifier key
+       * @param {Object} qDef    - question definition from FORM_REGISTRY
+       * @param {string[]} labels - human-readable option labels
+       * @param {number[]} values - count per label
+       */
+      QuestionView.buildQvDoughnutChart = function(formKey, qDef, labels, values, respondents) {
+        var canvasId    = 'qv-chart-' + formKey + '-' + qDef.key;
+        var wrapperId   = 'qv-wrap-'  + formKey + '-' + qDef.key;
+        var instanceKey = formKey + '_' + qDef.key;
+
+        QuestionView.destroyChart(formKey, qDef.key);
+
+        var ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+
+        // Color palette for doughnut segments
+        var palette  = ['#ef4444', '#D4A017', '#00A39A', '#6b7280', '#8b5cf6', '#f97316', '#3b82f6', '#22d3ee'];
+        var bgColors = labels.map(function(_, i) { return palette[i % palette.length]; });
+
+        // Fix wrapper height for doughnut (needs more room for the legend)
+        var wrapperEl = document.getElementById(wrapperId);
+        if (wrapperEl) wrapperEl.style.height = '280px';
+
+        qvChartInstances[instanceKey] = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              backgroundColor: bgColors,
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            onClick: function(event, elements) {
+              if (!elements || elements.length === 0) return;
+              var dataIndex = elements[0].index;
+              var clickedLabel = labels[dataIndex];
+              if (!clickedLabel) return;
+              var labelLeads = respondents ? respondents.get(clickedLabel) : null;
+              if (!labelLeads || labelLeads.length === 0) return;
+              QuestionView.showRespondentPanel(formKey, qDef.key, clickedLabel, labelLeads);
+            },
+            onHover: function(event, elements) {
+              event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+            },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { padding: 16, usePointStyle: true, boxWidth: 10, font: { size: 11 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    var sum = context.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+                    var pct = sum > 0 ? Math.round(context.parsed / sum * 100) : 0;
+                    return ' ' + context.label + ': ' + context.parsed + ' (' + pct + '%)';
+                  }
+                }
+              }
+            }
+          }
+        });
+      };
+
+      // ===================================================================
+      // QuestionView freetext renderer
+      // ===================================================================
+
+      /**
+       * Render a paginated list of free-text responses into a QV container.
+       * The first 5 entries are visible; a toggle button reveals the rest.
+       * All user content is passed through escapeHtml() before insertion.
+       *
+       * @param {string} formKey  - form identifier key
+       * @param {Object} qDef    - question definition from FORM_REGISTRY
+       * @param {Array<{text: string, author: string}>} entries - aggregated text entries
+       */
+      QuestionView.renderFreetextList = function(formKey, qDef, entries) {
+        var containerId = 'qv-freetext-' + formKey + '-' + qDef.key;
+        var container   = document.getElementById(containerId);
+        if (!container) return;
+
+        if (!entries || entries.length === 0) {
+          container.innerHTML = '<div class="gc-empty-field">Žádné textové odpovědi</div>';
+          return;
+        }
+
+        var maxVisible = 5;
+        var html = '';
+
+        entries.forEach(function(entry, i) {
+          var hiddenAttr = i >= maxVisible
+            ? ' style="display:none;" data-qv-extra="' + formKey + '-' + qDef.key + '"'
+            : '';
+          html += '<div class="gc-freetext-item"' + hiddenAttr + '>';
+          html += '"' + escapeHtml(entry.text) + '"';
+          if (entry.author) {
+            html += '<div class="gc-freetext-author">— ' + escapeHtml(entry.author) + '</div>';
+          }
+          html += '</div>';
+        });
+
+        if (entries.length > maxVisible) {
+          html += '<button class="gc-freetext-toggle" aria-expanded="false" onclick="(function(btn){' +
+            'var items=document.querySelectorAll(\'[data-qv-extra=&quot;' + formKey + '-' + qDef.key + '&quot;]\');' +
+            'var shown=btn.getAttribute(\'data-shown\')===\'true\';' +
+            'items.forEach(function(el){el.style.display=shown?\'none\':\'\';});' +
+            'btn.setAttribute(\'data-shown\',shown?\'false\':\'true\');' +
+            'btn.setAttribute(\'aria-expanded\',shown?\'false\':\'true\');' +
+            'btn.textContent=shown?\'Zobrazit vše (' + entries.length + ')\':\'Skrýt\';' +
+            '})(this)">Zobrazit vše (' + entries.length + ')</button>';
+        }
+
+        container.innerHTML = html;
+      };
+
+      // ===================================================================
+      // QuestionView respondent panel
+      // ===================================================================
+
+      /**
+       * Show (or toggle off) a panel listing the individual respondents who
+       * chose a given answer label.  Called by chart onClick handlers.
+       *
+       * @param {string} formKey   - form identifier key
+       * @param {string} qKey     - question key
+       * @param {string} label    - the clicked bar / segment label
+       * @param {Array}  leadsList - Lead objects that selected this label
+       */
+      QuestionView.showRespondentPanel = function(formKey, qKey, label, leadsList) {
+        var panelId = 'qv-panel-' + formKey + '-' + qKey;
+        var panel = document.getElementById(panelId);
+        if (!panel) return;
+
+        // Toggle: clicking same bar again hides panel
+        var currentLabel = panel.getAttribute('data-active-label');
+        if (panel.style.display !== 'none' && currentLabel === label) {
+          panel.style.display = 'none';
+          panel.removeAttribute('data-active-label');
+          return;
+        }
+
+        panel.setAttribute('data-active-label', label);
+
+        var count = leadsList.length;
+        var countText = count + ' ' + czechPlural(count, 'respondent', 'respondenti', 'respondentů');
+
+        var html = '<div class="gc-respondent-panel__header">';
+        html += '<span class="gc-respondent-panel__title">' + escapeHtml(label) + '</span>';
+        html += '<span class="gc-respondent-panel__count">' + countText + '</span>';
+        html += '<button class="gc-respondent-panel__close" onclick="(function(btn){var p=btn.closest(\'.gc-respondent-panel\');if(p){p.style.display=\'none\';p.removeAttribute(\'data-active-label\');}})(this)" aria-label="Zavřít">&times;</button>';
+        html += '</div>';
+        html += '<ul class="gc-respondent-list">';
+
+        leadsList.forEach(function(lead) {
+          var name = lead.companyName || lead.name || '';
+          var email = lead.email || '';
+          html += '<li class="gc-respondent-item">';
+          // Email as PLAIN TEXT — no mailto link (PII protection)
+          html += '<span class="gc-respondent-email">' + escapeHtml(email) + '</span>';
+          if (name) {
+            html += '<span class="gc-respondent-name">' + escapeHtml(name) + '</span>';
+          }
+          var date = lead.submittedAt ? new Date(lead.submittedAt).toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+          if (date) {
+            html += '<span class="gc-respondent-date">' + date + '</span>';
+          }
+          html += '</li>';
+        });
+
+        html += '</ul>';
+        panel.innerHTML = html;
+        panel.style.display = 'block';
+      };
+
+      // ===================================================================
+      // QuestionView sr-only table + keyboard helper
+      // ===================================================================
+
+      /**
+       * Populate the sr-only data table for a chart and attach a keyboard
+       * handler to the canvas so Enter/Space opens the first label's respondents.
+       *
+       * @param {string} formKey - form identifier key
+       * @param {Object} qDef   - question definition from FORM_REGISTRY
+       * @param {Object} data   - aggregation result (labels, values, totalResponded, respondents)
+       */
+      function populateSrTableAndBindKeyboard(formKey, qDef, data) {
+        var tableEl = document.getElementById('qv-table-' + formKey + '-' + qDef.key);
+        if (tableEl) {
+          var tbody = tableEl.querySelector('tbody');
+          if (tbody && data.labels) {
+            var total2 = data.totalResponded || 0;
+            var rows = '';
+            for (var ti = 0; ti < data.labels.length; ti++) {
+              var pct2 = total2 > 0 ? Math.round(data.values[ti] / total2 * 100) : 0;
+              rows += '<tr><td>' + escapeHtml(data.labels[ti]) + '</td><td>' + data.values[ti] + '</td><td>' + pct2 + ' %</td></tr>';
+            }
+            tbody.innerHTML = rows;
+          }
+        }
+        var canvasEl = document.getElementById('qv-chart-' + formKey + '-' + qDef.key);
+        if (canvasEl && data.respondents) {
+          canvasEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              var firstLabel = data.labels[0];
+              var firstLeads = data.respondents ? data.respondents.get(firstLabel) : null;
+              if (firstLeads && firstLeads.length > 0) {
+                QuestionView.showRespondentPanel(formKey, qDef.key, firstLabel, firstLeads);
+              }
+            }
+          });
+        }
+      }
+
+      // ===================================================================
+      // QuestionView block renderer — top-level dispatcher
+      // ===================================================================
+
+      /**
+       * Render a single question block: aggregate data, update the response
+       * bar, then delegate to the appropriate chart or freetext renderer.
+       *
+       * Dispatch rules:
+       *   type === 'text'  → renderFreetextList
+       *   type === 'multi' → buildQvBarChart  (always horizontal bar)
+       *   otherwise        → buildQvDoughnutChart when qDef.chartType === 'doughnut',
+       *                      else buildQvBarChart
+       *
+       * @param {string} formKey  - form identifier key
+       * @param {Object} qDef    - question definition from FORM_REGISTRY
+       * @param {number} qNumber - 1-based question index (reserved for future use)
+       * @param {Array}  leads   - filtered lead array for this form
+       */
+      QuestionView.renderQuestionBlock = function(formKey, qDef, qNumber, leads) {
+        var data = QuestionView.aggregateQuestion(leads, qDef);
+
+        var countEl  = document.getElementById('qv-count-'     + formKey + '-' + qDef.key);
+        var barFill  = document.getElementById('qv-bar-'       + formKey + '-' + qDef.key);
+        var barLabel = document.getElementById('qv-bar-label-' + formKey + '-' + qDef.key);
+
+        if (qDef.type === 'text') {
+          var responded = data.totalResponded;
+          var total     = leads.length;
+          var pct       = total > 0 ? Math.round(responded / total * 100) : 0;
+
+          if (countEl)  countEl.textContent      = responded + ' odpovědí';
+          if (barFill)  barFill.style.width      = pct + '%';
+          if (barLabel) barLabel.textContent     = responded + ' z ' + total + ' respondentů (' + pct + '%)';
+          var barContainer = barFill ? barFill.parentElement : null;
+          if (barContainer) { barContainer.setAttribute('aria-valuenow', Math.round(pct)); }
+
+          QuestionView.renderFreetextList(formKey, qDef, data.entries);
+
+        } else if (qDef.type === 'multi') {
+          var totalSelections = data.values.reduce(function(a, b) { return a + b; }, 0);
+          var responded = data.totalResponded;
+          var total     = leads.length;
+          var pct       = total > 0 ? Math.round(responded / total * 100) : 0;
+
+          if (countEl)  countEl.textContent  = totalSelections + ' výběrů od ' + responded + ' respondentů';
+          if (barFill)  barFill.style.width  = pct + '%';
+          if (barLabel) barLabel.textContent = responded + ' z ' + total + ' respondentů (' + pct + '%)';
+          var barContainer = barFill ? barFill.parentElement : null;
+          if (barContainer) { barContainer.setAttribute('aria-valuenow', Math.round(pct)); }
+
+          if (data.labels.length > 0) {
+            QuestionView.buildQvBarChart(formKey, qDef, data.labels, data.values, data.respondents);
+            populateSrTableAndBindKeyboard(formKey, qDef, data);
+          }
+
+        } else {
+          // single or ordinal
+          var responded = data.totalResponded;
+          var total     = leads.length;
+          var pct       = total > 0 ? Math.round(responded / total * 100) : 0;
+
+          if (countEl)  countEl.textContent  = responded + ' odpovědí z ' + total;
+          if (barFill)  barFill.style.width  = pct + '%';
+          if (barLabel) barLabel.textContent = responded + ' z ' + total + ' respondentů (' + pct + '%)';
+          var barContainer = barFill ? barFill.parentElement : null;
+          if (barContainer) { barContainer.setAttribute('aria-valuenow', Math.round(pct)); }
+
+          if (data.labels.length > 0) {
+            if (qDef.chartType === 'doughnut') {
+              QuestionView.buildQvDoughnutChart(formKey, qDef, data.labels, data.values, data.respondents);
+              populateSrTableAndBindKeyboard(formKey, qDef, data);
+            } else {
+              QuestionView.buildQvBarChart(formKey, qDef, data.labels, data.values, data.respondents);
+              populateSrTableAndBindKeyboard(formKey, qDef, data);
+            }
+          }
+        }
+      };
+
+      // ===================================================================
+      // QuestionView HTML builder
+      // ===================================================================
+
+      /**
+       * Generates the complete HTML string for a form's Question View.
+       * Uses only existing .gc-* CSS classes — no new classes are introduced.
+       *
+       * @param {string} formKey  - form identifier key
+       * @param {Object} formDef  - form definition from FORM_REGISTRY
+       * @returns {string} HTML string ready for innerHTML assignment
+       */
+      QuestionView.buildQvHTML = function(formKey, formDef) {
+        var html = '<div class="gc-analytics-container">';
+
+        // Summary bar placeholder — populated by renderQvSummaryBar after DOM insertion
+        html += '<div class="gc-summary-bar" id="qv-summary-' + formKey + '"></div>';
+
+        // Track question number across all sections
+        var qNum = 0;
+
+        // Section accent colours matching the GC analytics palette
+        var sectionColors = { A: '#00C4B4', B: '#f97316', C: '#6366f1', D: '#22d3ee' };
+
+        // Pre-scan: count how many questions belong to each section
+        var sectionCounts = {};
+        formDef.questions.forEach(function(q) {
+          var sid = q.section || 'A';
+          sectionCounts[sid] = (sectionCounts[sid] || 0) + 1;
+        });
+
+        // Pre-scan for 2-column grid groups
+        var gridGroups = [];
+        var gi = 0;
+        while (gi < formDef.questions.length) {
+          var gq = formDef.questions[gi];
+          var isSmall = gq.chartType !== 'none' && gq.orderedKeys && gq.orderedKeys.length <= 4;
+          if (isSmall) {
+            var groupStart = gi;
+            var groupSection = gq.section;
+            while (gi + 1 < formDef.questions.length) {
+              var nextQ = formDef.questions[gi + 1];
+              var nextSmall = nextQ.chartType !== 'none' && nextQ.orderedKeys && nextQ.orderedKeys.length <= 4;
+              if (nextSmall && nextQ.section === groupSection) {
+                gi++;
+              } else {
+                break;
+              }
+            }
+            if (gi > groupStart) {
+              gridGroups.push([groupStart, gi]);
+            }
+          }
+          gi++;
+        }
+        var gridStarts = {};
+        var gridEnds = {};
+        gridGroups.forEach(function(g) {
+          gridStarts[g[0]] = true;
+          gridEnds[g[1]] = true;
+        });
+
+        // Track current section so headers are only emitted once per section
+        var currentSection = null;
+
+        for (var qi = 0; qi < formDef.questions.length; qi++) {
+          var q = formDef.questions[qi];
+          qNum++;
+
+          // Emit a section header whenever the section changes
+          if (q.section !== currentSection) {
+            currentSection = q.section;
+            var sectionDef = null;
+            formDef.sections.forEach(function(s) { if (s.id === currentSection) sectionDef = s; });
+            if (sectionDef) {
+              var sectionId = sectionDef.id;
+              var sectionClass = 'gc-section-header gc-section-header--' + sectionId.toLowerCase();
+              if (qNum === 1) sectionClass += ' gc-section-header--first';
+              var sectionN = sectionCounts[sectionId] || 0;
+              var sectionCountLabel = czechPlural(sectionN, 'otázka', 'otázky', 'otázek');
+              html += '<div class="' + sectionClass + '" aria-label="Sekce ' + escapeHtml(sectionId) + ': ' + escapeHtml(sectionDef.title) + '">';
+              html += '<span class="gc-section-badge">' + escapeHtml(sectionId) + '</span>';
+              html += '<h3>' + escapeHtml(sectionDef.title) + '</h3>';
+              html += '<span class="gc-section-count">' + sectionN + ' ' + sectionCountLabel + '</span>';
+              html += '</div>';
+            }
+          }
+
+          // Open 2-column grid wrapper if this question starts a grid group
+          if (gridStarts[qi]) {
+            html += '<div class="gc-question-grid-2col">';
+          }
+
+          // Badge and type label classes
+          var isRequired     = q.required;
+          var badgeClass     = 'gc-q-badge' + (isRequired ? ' gc-q-badge--required' : ' gc-q-badge--optional');
+          var typeLabel      = q.type === 'multi' ? 'Více výběrů' : (q.type === 'text' ? 'Text' : 'Jeden výběr');
+          var typeBadgeClass = 'gc-type-badge' + (q.type === 'multi' ? ' gc-type-badge--multi' : q.type === 'text' ? ' gc-type-badge--text' : ' gc-type-badge--single');
+
+          html += '<div class="gc-question-block gc-question-block--section-' + (q.section || 'a').toLowerCase() + '">';
+
+          // Row 1: badge + title headline
+          html += '<div class="gc-question-header">';
+          html += '<span class="' + badgeClass + '">Q' + qNum + '</span>';
+          html += '<h4 class="gc-question-title">' + escapeHtml(q.title) + '</h4>';
+          html += '</div>';
+
+          // Row 2: metadata strip (type + response count)
+          html += '<div class="gc-question-meta">';
+          html += '<span class="' + typeBadgeClass + '">' + escapeHtml(typeLabel) + '</span>';
+          html += '<span class="gc-response-count" id="qv-count-' + formKey + '-' + q.key + '">–</span>';
+          html += '</div>';
+
+          // Thin divider line
+          html += '<div class="gc-question-divider"></div>';
+
+          // Response bar — filled by renderQuestionBlock after data aggregation
+          html += '<div class="gc-response-bar" role="progressbar" aria-label="M\u00edra odpov\u011bd\u00ed" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><div class="gc-response-bar-fill" id="qv-bar-' + formKey + '-' + q.key + '" style="width: 0%;"></div></div>';
+          html += '<div class="gc-response-bar-label" id="qv-bar-label-' + formKey + '-' + q.key + '"></div>';
+
+          // Chart container or freetext list depending on chartType
+          if (q.chartType === 'none') {
+            html += '<div class="gc-freetext-list" id="qv-freetext-' + formKey + '-' + q.key + '"></div>';
+          } else {
+            html += '<div class="gc-chart-wrapper" id="qv-wrap-' + formKey + '-' + q.key + '" style="position: relative;">';
+            // role="img" + aria-label satisfy WCAG for canvas-based charts
+            html += '<canvas id="qv-chart-' + formKey + '-' + q.key + '" role="img" aria-label="Graf: ' + escapeHtml(q.title) + '" aria-describedby="qv-table-' + formKey + '-' + q.key + '" tabindex="0"></canvas>';
+            html += '<span class="sr-only">Stiskn\u011bte Enter pro zobrazen\u00ed respondent\u016f prvn\u00ed odpov\u011bdi</span>';
+            html += '</div>';
+            html += '<table id="qv-table-' + formKey + '-' + q.key + '" class="sr-only">';
+            html += '<caption>' + escapeHtml(q.label || q.title) + ' \u2014 distribuce odpov\u011bd\u00ed</caption>';
+            html += '<thead><tr><th>Odpov\u011b\u010f</th><th>Po\u010det</th><th>Procento</th></tr></thead>';
+            html += '<tbody></tbody>';
+            html += '</table>';
+            html += '<div class="gc-respondent-panel" id="qv-panel-' + formKey + '-' + q.key + '" style="display:none;" aria-live="polite"></div>';
+          }
+
+          html += '</div>'; // close .gc-question-block
+
+          // Close 2-column grid wrapper if this question ends a grid group
+          if (gridEnds[qi]) {
+            html += '</div>'; // close gc-question-grid-2col
+          }
+        }
+
+        html += '</div>'; // close .gc-analytics-container
+        return html;
+      };
+
+      // ===================================================================
+      // QuestionView master renderer
+      // ===================================================================
+
+      /**
+       * Master orchestrator for the Question View panel.
+       * Destroys stale charts, filters leads for the requested form,
+       * injects HTML, renders the summary bar, then renders every
+       * question block in document order.
+       *
+       * IMPORTANT ordering contract:
+       *   1. destroyAllCharts()  — must happen BEFORE innerHTML replacement
+       *   2. innerHTML = …       — wipes the DOM, creates fresh canvas elements
+       *   3. renderQvSummaryBar  — populates the summary bar element
+       *   4. renderQuestionBlock — must happen AFTER innerHTML (needs canvas in DOM)
+       *
+       * @param {string} formKey - form identifier key from FORM_REGISTRY
+       */
+      QuestionView.renderQuestionView = function(formKey) {
+        var formDef = FORM_REGISTRY[formKey];
+        if (!formDef) return;
+
+        var contentEl = document.getElementById('qv-content');
+        if (!contentEl) return;
+
+        // Step 1 — destroy all chart instances BEFORE innerHTML replacement
+        // (Chart.js holds canvas references; destroying first prevents memory leaks)
+        QuestionView.destroyAllCharts();
+
+        // Step 2 — filter leads to only those belonging to this form
+        // Apply date and platform filters from the global filter bar
+        var leads = getFilteredLeads({ applySearch: false, applySource: false }).filter(formDef.leadFilter);
+
+        // Empty state: no leads at all
+        if (leads.length === 0) {
+          contentEl.innerHTML = '<div class="qv-empty-state">' +
+            '<iconify-icon icon="solar:inbox-line-bold" width="64" style="color: #d1d5db; display: block; margin: 0 auto 1rem;"></iconify-icon>' +
+            '<p style="font-size: 1rem; font-weight: 500; color: #6b7280;">Žádné odpovědi pro formulář \u201e' + escapeHtml(formDef.label) + '\u201c</p>' +
+            '</div>';
+          return;
+        }
+
+        // Below-threshold state: not enough data to render meaningful charts
+        if (leads.length < formDef.minDataThreshold) {
+          contentEl.innerHTML = '<div class="qv-empty-state">' +
+            '<iconify-icon icon="solar:chart-square-line-duotone" width="64" style="color: #d1d5db; display: block; margin: 0 auto 1rem;"></iconify-icon>' +
+            '<p style="font-size: 1rem; font-weight: 500; color: #6b7280;">Nedostatek dat pro analýzu</p>' +
+            '<p style="font-size: 0.8125rem; color: #9ca3af;">Formulář \u201e' + escapeHtml(formDef.label) + '\u201c má ' + leads.length + ' odpov\u011bd' + (leads.length === 1 ? '\u011b' : 'i') + '. Minimum pro grafy: ' + formDef.minDataThreshold + '.</p>' +
+            '</div>';
+          return;
+        }
+
+        // Step 3 — generate and inject HTML (creates all canvas/container elements)
+        contentEl.innerHTML = QuestionView.buildQvHTML(formKey, formDef);
+
+        // Step 4 — populate the summary bar (DOM element now exists)
+        QuestionView.renderQvSummaryBar(formKey, leads, formDef);
+
+        // Step 5 — render each question block (canvas elements now exist in DOM)
+        var qNum = 0;
+        formDef.questions.forEach(function(q) {
+          qNum++;
+          QuestionView.renderQuestionBlock(formKey, q, qNum, leads);
+        });
+
+        // Mark this form as rendered in the shared UI state
+        QV_STATE.chartsRendered[formKey] = true;
+      };
+
+      // ===================================================================
+      // QuestionView summary bar renderer
+      // ===================================================================
+
+      /**
+       * Populates the summary bar (#qv-summary-{formKey}) with aggregate
+       * statistics: total respondents, submission date range, and a
+       * form-specific contextual stat (top service or top industry).
+       *
+       * @param {string} formKey  - form identifier key
+       * @param {Array}  leads    - filtered lead array for this form (length > 0 guaranteed)
+       * @param {Object} formDef  - form definition from FORM_REGISTRY
+       */
+      QuestionView.renderQvSummaryBar = function(formKey, leads, formDef) {
+        var summaryEl = document.getElementById('qv-summary-' + formKey);
+        if (!summaryEl || leads.length === 0) return;
+
+        var total = leads.length;
+
+        // Derive submission date range from submittedAt timestamps
+        var dates = leads.map(function(l) { return new Date(l.submittedAt); }).filter(function(d) { return !isNaN(d); });
+        var earliest = dates.length > 0 ? new Date(Math.min.apply(null, dates)) : null;
+        var latest   = dates.length > 0 ? new Date(Math.max.apply(null, dates)) : null;
+
+        var formatDate = function(d) {
+          if (!d) return '\u2013';
+          return d.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        };
+
+        // Build a form-specific contextual stat for the right-hand side of the bar
+        var contextStat = '';
+        if (formKey === 'contact') {
+          // Contact form: show most-selected service
+          var serviceCounts = {};
+          leads.forEach(function(l) { if (l.service) serviceCounts[l.service] = (serviceCounts[l.service] || 0) + 1; });
+          var topService = Object.entries(serviceCounts).sort(function(a, b) { return b[1] - a[1]; })[0];
+          if (topService) {
+            var serviceQ      = (FORM_REGISTRY.contact.questions.find(function(q) { return q.key === 'service'; }) || {});
+            var serviceLblMap = serviceQ.labelMap || {};
+            contextStat = 'Nejčastější služba: ' + escapeHtml(serviceLblMap[topService[0]] || topService[0]);
+          }
+        } else {
+          // All other forms: show most common industry
+          var indField  = formKey === 'audit' ? 'detectedIndustry' : 'industry';
+          var indCounts = {};
+          leads.forEach(function(l) { if (l[indField]) indCounts[l[indField]] = (indCounts[l[indField]] || 0) + 1; });
+          var topInd = Object.entries(indCounts).sort(function(a, b) { return b[1] - a[1]; })[0];
+          if (topInd) {
+            contextStat = 'Nejčastější odvětví: ' + escapeHtml(INDUSTRY_LABELS[topInd[0]] || topInd[0]);
+          }
+        }
+
+        var html = '<div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem;">';
+        html += '<span style="font-weight: 600; color: #111827; font-size: 0.9375rem;">Celkem: ' + total + ' respondent\u016f</span>';
+        html += '<span class="gc-summary-divider" style="color: #d1d5db; margin: 0 0.25rem;">|</span>';
+        html += '<span style="color: #6b7280; font-size: 0.8125rem;">Od: ' + formatDate(earliest) + ' \u2013 Do: ' + formatDate(latest) + '</span>';
+        if (contextStat) {
+          html += '<span class="gc-summary-divider" style="color: #d1d5db; margin: 0 0.25rem;">|</span>';
+          html += '<span style="color: #6b7280; font-size: 0.8125rem;">' + contextStat + '</span>';
+        }
+        html += '</div>';
+
+        summaryEl.innerHTML = html;
+      };
+
+      // ===================================================================
+      // VIEW TOGGLE WIRING
+      // ===================================================================
+
+      var btnTableView = document.getElementById('btn-table-view');
+      var btnQuestionView = document.getElementById('btn-question-view');
+      var qvFormSelector = document.getElementById('qv-form-selector');
+      var qvFormSelect = document.getElementById('qv-form-select');
+      var questionViewPanel = document.getElementById('question-view-panel');
+
+      function activateTableView() {
+        QV_STATE.visible = false;
+        var f = document.querySelector('.filters');
+        var t = document.querySelector('.table-container');
+        if (f) f.style.display = '';
+        if (t) t.style.display = '';
+        if (questionViewPanel) questionViewPanel.style.display = 'none';
+        if (qvFormSelector) qvFormSelector.style.display = 'none';
+        if (btnTableView) btnTableView.classList.add('active');
+        if (btnQuestionView) btnQuestionView.classList.remove('active');
+        QuestionView.destroyAllCharts();
+      }
+
+      function activateQuestionView(preselectedFormKey) {
+        QV_STATE.visible = true;
+        var f = document.querySelector('.filters');
+        var t = document.querySelector('.table-container');
+        if (f) f.style.display = 'none';
+        if (t) t.style.display = 'none';
+        if (questionViewPanel) questionViewPanel.style.display = '';
+        if (qvFormSelector) qvFormSelector.style.display = '';
+        if (btnTableView) btnTableView.classList.remove('active');
+        if (btnQuestionView) btnQuestionView.classList.add('active');
+        if (preselectedFormKey && qvFormSelect) {
+          qvFormSelect.value = preselectedFormKey;
+          QV_STATE.activeFormKey = preselectedFormKey;
+          QuestionView.renderQuestionView(preselectedFormKey);
+        } else if (QV_STATE.activeFormKey) {
+          QuestionView.renderQuestionView(QV_STATE.activeFormKey);
+        }
+      }
+
+      if (btnTableView) btnTableView.addEventListener('click', function() { window.location.hash = ''; activateTableView(); });
+      if (btnQuestionView) btnQuestionView.addEventListener('click', function() { window.location.hash = '#question-view'; activateQuestionView(); });
+
+      if (qvFormSelect) {
+        qvFormSelect.addEventListener('change', function() {
+          var formKey = qvFormSelect.value;
+          if (formKey) {
+            QV_STATE.activeFormKey = formKey;
+            QV_STATE.chartsRendered[formKey] = false;
+            window.location.hash = '#question-view/' + formKey;
+            QuestionView.renderQuestionView(formKey);
+          } else {
+            QV_STATE.activeFormKey = null;
+            QuestionView.destroyAllCharts();
+            var c = document.getElementById('qv-content');
+            if (c) c.innerHTML = '<div class="qv-empty-state"><iconify-icon icon="solar:chart-square-line-duotone" width="64" style="color:#d1d5db;display:block;margin:0 auto 1rem;"></iconify-icon><p style="font-size:1rem;font-weight:500;color:#6b7280;margin-bottom:0.5rem;">Vyberte formulář pro zobrazení analýzy odpovědí</p><p style="font-size:0.8125rem;color:#9ca3af;">Zvolte typ formuláře z výběru nahoře</p></div>';
+          }
+        });
+      }
+
+      // Re-render QV when date/platform filters change
+      [filterFrom, filterTo, filterPlatform].forEach(function(el) {
+        if (el) el.addEventListener('change', function() {
+          if (QV_STATE.visible && QV_STATE.activeFormKey) {
+            QV_STATE.chartsRendered[QV_STATE.activeFormKey] = false;
+            QuestionView.renderQuestionView(QV_STATE.activeFormKey);
+          }
+        });
+      });
+
+      // ===================================================================
+      // DELETE FUNCTIONALITY
+      // ===================================================================
+      
+      const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+      const selectedCountSpan = document.getElementById('selected-count');
+      const selectAllCheckbox = document.getElementById('select-all');
+      const deleteModal = document.getElementById('delete-modal');
+      const deleteModalCount = document.getElementById('delete-modal-count');
+      const deleteCancelBtn = document.getElementById('delete-cancel-btn');
+      const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+      const deleteReportsCheckbox = document.getElementById('delete-reports-checkbox');
+      
+      let selectedLeads = new Set();
+      
+      // Update selected count and button state
+      function updateDeleteButtonState() {
+        const count = selectedLeads.size;
+        selectedCountSpan.textContent = count;
+        deleteSelectedBtn.disabled = count === 0;
+      }
+      
+      // Handle individual checkbox clicks
+      document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('lead-checkbox')) {
+          const leadId = e.target.dataset.id;
+          const row = e.target.closest('tr');
+          
+          if (e.target.checked) {
+            selectedLeads.add(leadId);
+            row.classList.add('selected');
+          } else {
+            selectedLeads.delete(leadId);
+            row.classList.remove('selected');
+          }
+          
+          updateDeleteButtonState();
+          
+          // Update select-all checkbox state
+          const allCheckboxes = document.querySelectorAll('.lead-checkbox');
+          const checkedCheckboxes = document.querySelectorAll('.lead-checkbox:checked');
+          selectAllCheckbox.checked = allCheckboxes.length > 0 && allCheckboxes.length === checkedCheckboxes.length;
+          selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+        }
+      });
+      
+      // Handle select-all checkbox
+      selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.lead-checkbox');
+        const rows = document.querySelectorAll('#leads-tbody tr');
+        
+        selectedLeads.clear();
+        
+        checkboxes.forEach((checkbox, index) => {
+          checkbox.checked = selectAllCheckbox.checked;
+          if (selectAllCheckbox.checked) {
+            selectedLeads.add(checkbox.dataset.id);
+            rows[index].classList.add('selected');
+          } else {
+            rows[index].classList.remove('selected');
+          }
+        });
+        
+        updateDeleteButtonState();
+      });
+      
+      // Show delete modal
+      deleteSelectedBtn.addEventListener('click', function() {
+        if (selectedLeads.size === 0) return;
+        
+        const count = selectedLeads.size;
+        deleteModalCount.textContent = `Opravdu chcete smazat ${count} ${count === 1 ? 'lead' : count < 5 ? 'leady' : 'leadů'}?`;
+        deleteModal.style.display = 'flex';
+      });
+      
+      // Cancel delete
+      deleteCancelBtn.addEventListener('click', function() {
+        deleteModal.style.display = 'none';
+      });
+      
+      // Close modal on backdrop click
+      deleteModal.addEventListener('click', function(e) {
+        if (e.target === deleteModal) {
+          deleteModal.style.display = 'none';
+        }
+      });
+      
+      // Confirm delete
+      deleteConfirmBtn.addEventListener('click', async function() {
+        const leadIds = Array.from(selectedLeads);
+        const deleteReports = deleteReportsCheckbox.checked;
+        
+        if (leadIds.length === 0) return;
+        
+        // Disable button during deletion
+        deleteConfirmBtn.disabled = true;
+        deleteConfirmBtn.innerHTML = '<iconify-icon icon="svg-spinners:ring-resize"></iconify-icon> Mazání...';
+        
+        try {
+          const response = await fetch('/.netlify/functions/admin-leads-delete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + password
+            },
+            body: JSON.stringify({
+              leadIds: leadIds,
+              deleteReports: deleteReports
+            })
+          });
+
+          if (response.status === 401) {
+            deleteModal.style.display = 'none';
+            handleAuthFailure('Relace vypršela. Přihlaste se znovu.');
+            return;
+          }
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            console.log(`[Delete] Successfully deleted ${result.deletedCount} leads`);
+            
+            // Close modal
+            deleteModal.style.display = 'none';
+            
+            // Clear selection
+            selectedLeads.clear();
+            selectAllCheckbox.checked = false;
+            updateDeleteButtonState();
+            
+            // Refresh leads list
+            await fetchLeads();
+            
+            // Show success message (optional)
+            if (result.errors.length > 0) {
+              console.warn(`[Delete] ${result.errors.length} errors occurred:`, result.errors);
+            }
+          } else {
+            console.error('[Delete] Failed:', result.error || 'Unknown error');
+            alert('Nepodařilo se smazat leady. Zkuste to znovu.');
+          }
+        } catch (error) {
+          console.error('[Delete] Error:', error);
+          alert('Došlo k chybě při mazání leadů.');
+        } finally {
+          // Re-enable button
+          deleteConfirmBtn.disabled = false;
+          deleteConfirmBtn.innerHTML = '<iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon> Smazat';
+        }
+      });
+      // --- Data aggregation helpers ---
+      function countField(leads, field) {
+        return leads.reduce(function(acc, lead) {
+          var val = lead[field] || 'Neuvedeno';
+          if (val === '') val = 'Neuvedeno';
+          acc[val] = (acc[val] || 0) + 1;
+          return acc;
+        }, {});
+      }
+
+      function countArrayField(leads, field) {
+        return leads.reduce(function(acc, lead) {
+          var values = lead[field];
+          if (Array.isArray(values)) {
+            values.forEach(function(v) {
+              if (v) acc[v] = (acc[v] || 0) + 1;
+            });
+          }
+          return acc;
+        }, {});
+      }
+
+      function indexLeadsByField(leads, field) {
+        var index = new Map();
+        leads.forEach(function(lead) {
+          var val = lead[field];
+          if (!val || val === '' || val === 'Neuvedeno') return;
+          if (!index.has(val)) index.set(val, []);
+          index.get(val).push(lead);
+        });
+        return index;
+      }
+
+      function indexLeadsByArrayField(leads, field) {
+        var index = new Map();
+        leads.forEach(function(lead) {
+          var values = lead[field];
+          if (!Array.isArray(values)) return;
+          values.forEach(function(v) {
+            if (!v) return;
+            if (!index.has(v)) index.set(v, []);
+            index.get(v).push(lead);
+          });
+        });
+        return index;
+      }
+
+      function czechPlural(n, one, few, many) {
+        if (n === 1) return one;
+        if (n >= 2 && n <= 4) return few;
+        return many;
+      }
+
+      function sortedByFreqDesc(obj) {
+        var entries = Object.entries(obj).sort(function(a, b) { return b[1] - a[1]; });
+        return {
+          keys: entries.map(function(e) { return e[0]; }),
+          values: entries.map(function(e) { return e[1]; })
+        };
+      }
+
+      function applyGlobalChartDefaults() {
+        if (typeof Chart === 'undefined') return;
+        Chart.defaults.color = CHART_DEFAULTS.color;
+        Chart.defaults.font.family = CHART_DEFAULTS.font.family;
+        Chart.defaults.font.size = CHART_DEFAULTS.font.size;
+      }
+
+      function setBarWrapperHeight(wrapperId, itemCount) {
+        var wrapper = document.getElementById(wrapperId);
+        if (wrapper) {
+          var h = Math.max(220, itemCount * 36);
+          wrapper.style.height = h + 'px';
+        }
+      }
+
+      // Group unknown values under "Ostatní", keeping known ones labelled
+      function groupWithFallback(rawCounts, knownKeys, labelMap) {
+        var grouped = {};
+        Object.keys(rawCounts).forEach(function(k) {
+          if (k === 'Neuvedeno' || k === '') return;
+          if (knownKeys.indexOf(k) === -1) {
+            grouped['other'] = (grouped['other'] || 0) + rawCounts[k];
+          } else {
+            grouped[k] = (grouped[k] || 0) + rawCounts[k];
+          }
+        });
+        return grouped;
+      }
+
+      // GC Event stat card click
+      var gcEventStatCard = document.getElementById('stat-card-gc-event');
+      if (gcEventStatCard) {
+        gcEventStatCard.addEventListener('click', function() {
+          activateQuestionView('gc-event');
+        });
+      }
+
+      var otherStatCards = document.querySelectorAll('.stat-card:not(#stat-card-gc-event)');
+      otherStatCards.forEach(function(card) {
+        card.addEventListener('click', function() { activateTableView(); });
+      });
+
+      // Hash-based activation on page load (run after fetchLeads completes)
+      function checkHashActivation() {
+        var hash = window.location.hash;
+        if (hash === '#gc-event' || hash === '#question-view/gc-event') {
+          activateQuestionView('gc-event');
+        } else if (hash === '#question-view/audit') {
+          activateQuestionView('audit');
+        } else if (hash === '#question-view/contact') {
+          activateQuestionView('contact');
+        } else if (hash === '#question-view/survey') {
+          activateQuestionView('survey');
+        } else if (hash === '#question-view') {
+          activateQuestionView();
+        }
+      }
+
+      var _originalFetchLeads = fetchLeads;
+      fetchLeads = async function() {
+        var result = await _originalFetchLeads.apply(this, arguments);
+        if (result) checkHashActivation();
+        return result;
+      };
+
+    })();
+  </script>
+</body>
+</html>

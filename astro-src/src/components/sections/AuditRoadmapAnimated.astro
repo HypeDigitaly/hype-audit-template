@@ -1,0 +1,449 @@
+---
+/**
+ * AuditRoadmapAnimated Component
+ * 
+ * Beautiful animated winding road visualization showing the AI audit process.
+ * Features:
+ * - SVG winding road path that draws on scroll
+ * - Numbered milestone circles at each bend
+ * - Step content cards adjacent to milestones
+ * - Smooth scroll-triggered animations
+ * - Mobile responsive (vertical layout)
+ */
+
+interface Props {
+  lang: 'cs' | 'en';
+  t: Record<string, string>;
+}
+
+const { lang, t } = Astro.props;
+
+// Process steps configuration with conversational copy
+const steps = [
+  {
+    number: '01',
+    title: t.audit_process_step1_title,
+    description: t.audit_process_step1_desc,
+    icon: 'solar:document-text-bold',
+    color: 'primary',
+    features: lang === 'cs' 
+      ? ['Analyzujeme váš web', 'Prozkoumáme váš obor', 'PDF report do schránky'] 
+      : ['Automated website analysis', 'AI trend analysis', 'PDF report']
+  },
+  {
+    number: '02',
+    title: t.audit_process_step2_title,
+    description: t.audit_process_step2_desc,
+    icon: 'solar:chat-round-call-bold',
+    color: 'blue',
+    features: lang === 'cs'
+      ? ['30 minut vašeho času', 'Probereme priority', 'Dohodneme další kroky']
+      : ['30min consultation', 'Priority setting', 'Scope definition']
+  },
+  {
+    number: '03',
+    title: t.audit_process_step3_title,
+    description: t.audit_process_step3_desc,
+    icon: 'solar:clipboard-check-bold',
+    color: 'purple',
+    features: lang === 'cs'
+      ? ['Mluvíme s vašimi lidmi', 'Mapujeme procesy', 'Počítáme úspory']
+      : ['15+ interviews', 'Process mapping', 'ROI calculation']
+  },
+  {
+    number: '04',
+    title: t.audit_process_step4_title,
+    description: t.audit_process_step4_desc,
+    icon: 'solar:chart-2-bold',
+    color: 'orange',
+    features: lang === 'cs'
+      ? ['Co řešit hned', 'Plán na rok', 'První rychlé výhry']
+      : ['Priority Matrix', '12-mo plan', 'Quick Wins']
+  }
+];
+
+const colorMap: Record<string, { bg: string; border: string; text: string; glow: string; solid: string }> = {
+  primary: { bg: 'bg-primary/10', border: 'border-primary/30', text: 'text-primary', glow: 'shadow-primary/20', solid: '#00A39A' },
+  blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', glow: 'shadow-blue-500/20', solid: '#3b82f6' },
+  purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400', glow: 'shadow-purple-500/20', solid: '#a855f7' },
+  orange: { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', glow: 'shadow-orange-500/20', solid: '#f97316' }
+};
+---
+
+<section id="audit-process" class="py-24 bg-[#050505] border-t border-white/5 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    
+    <!-- Section Header -->
+    <div class="text-center max-w-3xl mx-auto mb-20">
+      <h2 class="animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both] text-3xl md:text-4xl lg:text-5xl font-medium text-white tracking-tighter mb-6">
+        {t.audit_process_title}
+      </h2>
+      <p class="animate-on-scroll [animation:animationIn_0.8s_ease-out_0.2s_both] text-lg text-neutral-400">
+        {t.audit_process_subtitle}
+      </p>
+    </div>
+
+    <!-- Road Map Container -->
+    <div class="roadmap-container relative" id="roadmap-container">
+      
+      <!-- SVG Road Path - Desktop -->
+      <svg 
+        class="road-svg hidden lg:block absolute left-1/2 -translate-x-1/2 top-0 w-full max-w-4xl h-full pointer-events-none"
+        viewBox="0 0 800 1200"
+        preserveAspectRatio="xMidYMid meet"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <!-- Road background (dashed center line) -->
+        <path 
+          class="road-path-bg"
+          d="M 400 0 
+             Q 400 80, 200 150
+             Q 0 220, 200 300
+             Q 400 380, 600 450
+             Q 800 520, 600 600
+             Q 400 680, 200 750
+             Q 0 820, 200 900
+             Q 400 980, 400 1100"
+          stroke="rgba(255,255,255,0.05)"
+          stroke-width="80"
+          stroke-linecap="round"
+          fill="none"
+        />
+        
+        <!-- Animated road path -->
+        <path 
+          class="road-path-animated"
+          id="road-path"
+          d="M 400 0 
+             Q 400 80, 200 150
+             Q 0 220, 200 300
+             Q 400 380, 600 450
+             Q 800 520, 600 600
+             Q 400 680, 200 750
+             Q 0 820, 200 900
+             Q 400 980, 400 1100"
+          stroke="url(#roadGradient)"
+          stroke-width="6"
+          stroke-linecap="round"
+          fill="none"
+          stroke-dasharray="2400"
+          stroke-dashoffset="2400"
+        />
+        
+        <!-- Road center dashes -->
+        <path 
+          class="road-dashes"
+          d="M 400 0 
+             Q 400 80, 200 150
+             Q 0 220, 200 300
+             Q 400 380, 600 450
+             Q 800 520, 600 600
+             Q 400 680, 200 750
+             Q 0 820, 200 900
+             Q 400 980, 400 1100"
+          stroke="rgba(255,255,255,0.15)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-dasharray="20 15"
+          fill="none"
+          opacity="0"
+        />
+        
+        <!-- Gradient definition -->
+        <defs>
+          <linearGradient id="roadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#00A39A" />
+            <stop offset="33%" stop-color="#3b82f6" />
+            <stop offset="66%" stop-color="#a855f7" />
+            <stop offset="100%" stop-color="#f97316" />
+          </linearGradient>
+          
+          <!-- Glow filter -->
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+
+      <!-- Steps Grid -->
+      <div class="relative z-10 grid grid-cols-1 gap-16 lg:gap-24">
+        {steps.map((step, index) => {
+          const colors = colorMap[step.color];
+          const isEven = index % 2 === 0;
+          
+          return (
+            <div 
+              class={`roadmap-step flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${!isEven ? 'lg:flex-row-reverse' : ''}`}
+              data-step={index + 1}
+            >
+              <!-- Milestone Circle -->
+              <div class="milestone-wrapper flex-shrink-0 relative">
+                <!-- Outer glow ring -->
+                <div 
+                  class={`milestone-glow absolute inset-0 rounded-full blur-xl opacity-0 transition-opacity duration-1000`}
+                  style={`background: ${colors.solid};`}
+                ></div>
+                
+                <!-- Main circle -->
+                <div 
+                  class={`milestone-circle relative w-24 h-24 md:w-28 md:h-28 rounded-full ${colors.bg} border-2 ${colors.border} flex items-center justify-center transform scale-90 opacity-0 transition-all duration-700`}
+                >
+                  <!-- Number -->
+                  <span class={`text-3xl md:text-4xl font-bold ${colors.text}`}>{step.number}</span>
+                  
+                  <!-- Pulse ring -->
+                  <div 
+                    class={`absolute inset-0 rounded-full ${colors.border} animate-ping opacity-0`}
+                    style="animation-duration: 2s;"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Content Card -->
+              <div 
+                class={`step-content flex-1 max-w-lg transform ${isEven ? 'lg:translate-x-8' : 'lg:-translate-x-8'} opacity-0 transition-all duration-700`}
+              >
+                <div class={`p-6 md:p-8 rounded-2xl ${colors.bg} border ${colors.border} backdrop-blur-sm hover:shadow-lg ${colors.glow} transition-all duration-300`}>
+                  <!-- Icon & Title -->
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class={`w-12 h-12 rounded-xl ${colors.bg} border ${colors.border} flex items-center justify-center`}>
+                      <iconify-icon icon={step.icon} class={`text-2xl ${colors.text}`}></iconify-icon>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold text-white">{step.title}</h3>
+                  </div>
+                  
+                  <!-- Description -->
+                  <p class="text-neutral-300 text-base leading-relaxed mb-5">
+                    {step.description}
+                  </p>
+                  
+                  <!-- Features -->
+                  <ul class="space-y-2">
+                    {step.features.map((feature) => (
+                      <li class="flex items-center gap-3 text-sm text-neutral-200">
+                        <iconify-icon icon="solar:check-circle-bold" class={`${colors.text} text-lg flex-shrink-0`}></iconify-icon>
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- Bottom Timeline Summary -->
+    <div class="mt-20 text-center">
+      <div class="animate-on-scroll [animation:animationIn_0.8s_ease-out_0.8s_both] inline-flex items-center gap-3 px-6 py-4 rounded-full bg-white/5 border border-white/10">
+        <iconify-icon icon="solar:clock-circle-bold" class="text-primary text-xl"></iconify-icon>
+        <span class="text-neutral-200 text-sm font-medium">
+          {lang === 'cs' 
+            ? 'Předběžný audit: 5 minut | Rychlý audit: 2 týdny | Kompletní audit: 4-6 týdnů'
+            : 'Pre-Audit: 5 minutes | Quick Strike: 2 weeks | Full Audit: 4-6 weeks'}
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Road path animation */
+  .road-path-animated {
+    filter: url(#glow);
+    transition: stroke-dashoffset 2s ease-out;
+  }
+  
+  .road-dashes {
+    transition: opacity 0.5s ease-out;
+  }
+  
+  /* Milestone animations */
+  .milestone-circle {
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                opacity 0.7s ease-out;
+  }
+  
+  .milestone-circle.animate {
+    transform: scale(1);
+    opacity: 1;
+  }
+  
+  .milestone-glow.animate {
+    opacity: 0.3;
+  }
+  
+  /* Content card animations */
+  .step-content {
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                opacity 0.7s ease-out;
+  }
+  
+  .step-content.animate {
+    transform: translateX(0) !important;
+    opacity: 1;
+  }
+  
+  /* Staggered animation delays */
+  .roadmap-step[data-step="1"] .milestone-circle,
+  .roadmap-step[data-step="1"] .step-content { transition-delay: 0.2s; }
+  
+  .roadmap-step[data-step="2"] .milestone-circle,
+  .roadmap-step[data-step="2"] .step-content { transition-delay: 0.5s; }
+  
+  .roadmap-step[data-step="3"] .milestone-circle,
+  .roadmap-step[data-step="3"] .step-content { transition-delay: 0.8s; }
+  
+  .roadmap-step[data-step="4"] .milestone-circle,
+  .roadmap-step[data-step="4"] .step-content { transition-delay: 1.1s; }
+  
+  /* Mobile styles */
+  @media (max-width: 1023px) {
+    .roadmap-step {
+      text-align: center;
+    }
+    
+    .step-content {
+      transform: translateY(20px) !important;
+    }
+    
+    .step-content.animate {
+      transform: translateY(0) !important;
+    }
+  }
+  
+  /* Pulse animation for active milestone */
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    const container = document.getElementById('roadmap-container');
+    if (!container) return;
+    
+    const roadPath = document.getElementById('road-path');
+    const roadDashes = document.querySelector('.road-dashes');
+    const steps = container.querySelectorAll('.roadmap-step');
+    
+    // Get road path length
+    let pathLength = 2400;
+    if (roadPath) {
+      try {
+        pathLength = roadPath.getTotalLength();
+        roadPath.style.strokeDasharray = pathLength;
+        roadPath.style.strokeDashoffset = pathLength;
+      } catch(e) {
+        // SVG might not be rendered yet
+      }
+    }
+    
+    // Intersection Observer for scroll-based animation
+    const observerOptions = {
+      root: null,
+      rootMargin: '-10% 0px -10% 0px',
+      threshold: [0, 0.25, 0.5, 0.75, 1]
+    };
+    
+    // Observe main container for road animation
+    const containerObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Calculate how much of the container is visible
+          const scrollProgress = Math.min(1, entry.intersectionRatio * 2);
+          
+          // Animate road path
+          if (roadPath) {
+            const drawLength = pathLength * (1 - scrollProgress * 0.8);
+            roadPath.style.strokeDashoffset = Math.max(0, drawLength);
+          }
+          
+          // Show road dashes after path is partially drawn
+          if (roadDashes && scrollProgress > 0.3) {
+            roadDashes.style.opacity = '1';
+          }
+        }
+      });
+    }, observerOptions);
+    
+    containerObserver.observe(container);
+    
+    // Observe individual steps for staggered animation
+    const stepObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const step = entry.target;
+          const milestone = step.querySelector('.milestone-circle');
+          const glow = step.querySelector('.milestone-glow');
+          const content = step.querySelector('.step-content');
+          
+          if (milestone) milestone.classList.add('animate');
+          if (glow) glow.classList.add('animate');
+          if (content) content.classList.add('animate');
+          
+          // Stop observing after animation
+          stepObserver.unobserve(step);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '0px 0px -15% 0px',
+      threshold: 0.2
+    });
+    
+    steps.forEach(step => stepObserver.observe(step));
+    
+    // Scroll-based road drawing
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const rect = container.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          
+          // Calculate scroll progress through the container
+          const containerTop = rect.top;
+          const containerHeight = rect.height;
+          const scrollStart = windowHeight * 0.8;
+          const scrollEnd = -containerHeight * 0.6;
+          
+          let progress = 0;
+          if (containerTop < scrollStart && containerTop > scrollEnd) {
+            progress = (scrollStart - containerTop) / (scrollStart - scrollEnd);
+            progress = Math.max(0, Math.min(1, progress));
+          } else if (containerTop <= scrollEnd) {
+            progress = 1;
+          }
+          
+          // Animate road path based on scroll
+          if (roadPath) {
+            const drawLength = pathLength * (1 - progress);
+            roadPath.style.strokeDashoffset = Math.max(0, drawLength);
+          }
+          
+          // Show dashes when path is mostly drawn
+          if (roadDashes && progress > 0.4) {
+            roadDashes.style.opacity = String(Math.min(1, (progress - 0.4) * 2.5));
+          }
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  })();
+</script>

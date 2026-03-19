@@ -1,0 +1,112 @@
+---
+export interface Props {
+  videoId: string;
+  title?: string;
+  className?: string;
+  start?: number;
+  openInModal?: boolean;
+  playButtonColor?: 'primary' | 'orange';
+}
+
+const {
+  videoId,
+  title = "YouTube video player",
+  className = "",
+  start,
+  openInModal = false,
+  playButtonColor = 'primary'
+} = Astro.props;
+
+const buttonColorClass = playButtonColor === 'orange'
+  ? 'bg-orange-500/90 shadow-orange-500/30'
+  : 'bg-primary/90';
+
+// Use the HQ thumbnail from YouTube
+const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0${start ? `&start=${start}` : ''}`;
+---
+
+<div
+  class={`youtube-facade-container group relative cursor-pointer overflow-hidden bg-neutral-900 ${className}`}
+  data-video-id={videoId}
+  data-embed-url={embedUrl}
+  data-open-modal={openInModal ? "true" : "false"}
+>
+  <!-- Video Thumbnail -->
+  <img
+    src={thumbnailUrl}
+    alt={title}
+    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+    loading="lazy"
+    decoding="async"
+    width="1280"
+    height="720"
+  />
+
+  <!-- Overlay Play Button -->
+  <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-all duration-300">
+    <div class={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-full ${buttonColorClass} text-white shadow-2xl group-hover:scale-110 group-active:scale-95 transition-all duration-300`}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="ml-1">
+        <path d="M8 5v14l11-7z"></path>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Video Info/Title (optional) -->
+  {title && (
+    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <p class="text-white text-sm font-medium">{title}</p>
+    </div>
+  )}
+</div>
+
+<script>
+  function initYoutubeFacades() {
+    const facades = document.querySelectorAll('.youtube-facade-container');
+    const modal = document.getElementById('video-modal-overlay');
+    const modalContent = modal?.querySelector('.video-modal-content');
+
+    facades.forEach(facade => {
+      if (facade.getAttribute('data-initialized')) return;
+
+      facade.addEventListener('click', function() {
+        const embedUrl = this.getAttribute('data-embed-url');
+        const openModal = this.getAttribute('data-open-modal') === 'true';
+
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('src', embedUrl);
+        iframe.setAttribute('title', 'YouTube video player');
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+        iframe.setAttribute('allowfullscreen', 'true');
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+
+        if (openModal && modal && modalContent) {
+          // Open in modal overlay
+          iframe.className = 'w-full h-full';
+          modalContent.innerHTML = '';
+          modalContent.appendChild(iframe);
+          modal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        } else {
+          // Inline replacement (original behavior)
+          iframe.className = 'w-full h-full absolute inset-0 z-10';
+          this.innerHTML = '';
+          this.appendChild(iframe);
+        }
+      });
+
+      facade.setAttribute('data-initialized', 'true');
+    });
+  }
+
+  // Initialize on load and on Astro page transitions
+  document.addEventListener('DOMContentLoaded', initYoutubeFacades);
+  document.addEventListener('astro:page-load', initYoutubeFacades);
+</script>
+
+<style>
+  .youtube-facade-container {
+    aspect-ratio: 16 / 9;
+  }
+</style>

@@ -1,0 +1,41 @@
+# robots.txt for HypeDigitaly
+# https://hypedigitaly.ai
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://hypedigitaly.ai/sitemap.xml
+
+# Crawl-delay (optional, be gentle with server)
+Crawl-delay: 1
+
+# Disallow API endpoints if any
+Disallow: /api/
+
+# Disallow non-existent path-based language URLs
+# (Our site uses ?lang=en query parameter, not /en/ paths)
+Disallow: /en
+Disallow: /en/
+Disallow: /cs
+Disallow: /cs/
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+

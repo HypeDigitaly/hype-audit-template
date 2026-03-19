@@ -1,0 +1,421 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { translations, type Language } from '../scripts/translations';
+import { site } from '../config/site';
+
+// Server-side rendered page - detects language from URL param or cookie
+export const prerender = false;
+
+const url = Astro.url;
+const langParam = url.searchParams.get('lang');
+
+// Redirect ?lang=cs to clean URL (Czech is default - keeps URLs clean)
+if (langParam === 'cs') {
+  const cleanUrl = new URL(Astro.url);
+  cleanUrl.searchParams.delete('lang');
+  const redirectPath = cleanUrl.pathname + (cleanUrl.search || '') + (cleanUrl.hash || '');
+  return Astro.redirect(redirectPath || '/', 301);
+}
+
+const cookieLang = Astro.cookies.get('preferredLanguage')?.value;
+const lang: Language = (langParam === 'en' || langParam === 'cs') ? langParam : 
+                       (cookieLang === 'en' || cookieLang === 'cs') ? cookieLang : 'cs';
+const t = translations[lang];
+
+// Set cookie if language was explicitly selected via URL param
+if (langParam && (langParam === 'en' || langParam === 'cs')) {
+  Astro.cookies.set('preferredLanguage', langParam, { 
+    path: '/', 
+    maxAge: 60 * 60 * 24 * 365, // 1 year
+    sameSite: 'lax'
+  });
+}
+---
+
+<PageLayout 
+  title={t.privacy_title}
+  description={t.privacy_meta_description}
+  lang={lang}
+  showDigitalRain={false}
+  simpleNav={false}
+  simpleFooter={false}
+>
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-20">
+    <header class="mb-16">
+      <h1 class="text-4xl md:text-5xl font-bold mb-8 tracking-tight text-white">{lang === 'cs' ? 'Zásady zpracování osobních údajů' : 'Personal Data Processing Policy'}</h1>
+      <p class="text-neutral-300 text-lg leading-relaxed">
+        <strong class="text-white">{site.legalName}</strong>, {t.privacy_company_intro}
+      </p>
+    </header>
+
+    <div class="prose prose-invert max-w-none space-y-12 text-neutral-300 leading-relaxed">
+      
+      <!-- Intro Box -->
+      <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-8 mb-12">
+        <p class="font-bold text-white mb-4">{t.privacy_intro_text}</p>
+        <p>{t.privacy_intro_contact.split(site.email)[0]}<a href={`mailto:${site.email}`} class="text-primary hover:text-primary-light underline underline-offset-4">{site.email}</a>{t.privacy_intro_contact.split(site.email)[1]}</p>
+      </div>
+
+      <!-- 1. DEFINICE -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_1_title}</h2>
+        <p class="mb-6">{t.privacy_section_1_intro}</p>
+        
+        <div class="overflow-x-auto">
+          <table class="text-sm w-full border-collapse">
+            <tbody>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_ai_assistant}</td>
+                <td class="py-3 px-4">{t.privacy_def_ai_assistant_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_gdpr}</td>
+                <td class="py-3 px-4">{t.privacy_def_gdpr_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_eea}</td>
+                <td class="py-3 px-4">{t.privacy_def_eea_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_commercial}</td>
+                <td class="py-3 px-4">{t.privacy_def_commercial_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_personal_data}</td>
+                <td class="py-3 px-4">{t.privacy_def_personal_data_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_service}</td>
+                <td class="py-3 px-4">{t.privacy_def_service_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_contract}</td>
+                <td class="py-3 px-4">{t.privacy_def_contract_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_user}</td>
+                <td class="py-3 px-4">{t.privacy_def_user_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_controller}</td>
+                <td class="py-3 px-4">{t.privacy_def_controller_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_processor}</td>
+                <td class="py-3 px-4">{t.privacy_def_processor_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_processing}</td>
+                <td class="py-3 px-4">{t.privacy_def_processing_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top">{t.privacy_def_special_category}</td>
+                <td class="py-3 px-4">{t.privacy_def_special_category_desc}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2. JAK PŘISTUPUJEME KE ZPRACOVÁNÍ -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_2_title}</h2>
+        <p class="mb-4">{t.privacy_section_2_text_1}</p>
+        <p>{t.privacy_section_2_text_2}</p>
+      </section>
+
+      <!-- 3. V JAKÉ ROLI SE OCITÁME -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_3_title}</h2>
+        <p class="mb-4">{t.privacy_section_3_intro}</p>
+        <p class="mb-6">{t.privacy_section_3_when}</p>
+        
+        <h3 class="text-xl font-bold text-white mt-8 mb-4">{t.privacy_section_3_controller_title}</h3>
+        <p class="mb-4">{t.privacy_section_3_controller_when}</p>
+        <p>{t.privacy_section_3_controller_processors}</p>
+
+        <h3 class="text-xl font-bold text-white mt-8 mb-4">{t.privacy_section_3_processor_title}</h3>
+        <p class="mb-4">{t.privacy_section_3_processor_when}</p>
+        <p class="mb-4">{t.privacy_section_3_processor_info}</p>
+        <p>{t.privacy_section_3_subprocessors}</p>
+      </section>
+
+      <!-- 4. JAKÉ OSOBNÍ ÚDAJE ZPRACOVÁVÁME -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_4_title}</h2>
+        <p class="mb-6">{t.privacy_section_4_how}</p>
+        
+        <div class="bg-white/[0.02] border border-white/5 rounded-xl p-6 space-y-3 text-sm mb-6">
+          {t.privacy_section_4_data_list.split('\n').map((item: string) => (
+            <p>{item}</p>
+          ))}
+        </div>
+
+        <p>{t.privacy_section_4_special}</p>
+      </section>
+
+      <!-- 5. V JAKÝCH PŘÍPADECH ZPRACOVÁVÁME -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_5_title}</h2>
+        <p class="mb-8">{t.privacy_section_5_intro}</p>
+        
+        <!-- UŽIVATELÉ WEBOVÝCH STRÁNEK -->
+        <h3 class="text-xl font-bold text-white mt-8 mb-4">{t.privacy_section_5_website_title}</h3>
+        <p class="mb-4">{t.privacy_section_5_website_intro}</p>
+        
+        <div class="overflow-x-auto mb-8">
+          <table class="text-sm w-full border-collapse">
+            <thead>
+              <tr class="bg-white/[0.05]">
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_why}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_what}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_how}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_how_long}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_website_visit_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_website_visit_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_website_visit_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_website_visit_duration}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_inquiry_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_inquiry_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_inquiry_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_inquiry_duration}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_newsletter_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_newsletter_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_newsletter_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_newsletter_duration}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_webinar_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_webinar_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_webinar_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_webinar_duration}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_social_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_social_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_social_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_social_duration}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ZÁKAZNÍCI -->
+        <h3 class="text-xl font-bold text-white mt-8 mb-4">{t.privacy_section_5_customers_title}</h3>
+        <p class="mb-4">{t.privacy_section_5_customers_intro}</p>
+        
+        <div class="overflow-x-auto mb-8">
+          <table class="text-sm w-full border-collapse">
+            <thead>
+              <tr class="bg-white/[0.05]">
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_why}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_what}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_how}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_how_long}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_contract_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_contract_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_contract_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_contract_duration}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_service_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_service_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_service_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_service_duration}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_accounting_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_accounting_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_accounting_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_accounting_duration}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_customer_marketing_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_customer_marketing_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_customer_marketing_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_customer_marketing_duration}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- UCHAZEČI O ZAMĚSTNÁNÍ -->
+        <h3 class="text-xl font-bold text-white mt-8 mb-4">{t.privacy_section_5_applicants_title}</h3>
+        <p class="mb-4">{t.privacy_section_5_applicants_intro}</p>
+        
+        <div class="overflow-x-auto mb-8">
+          <table class="text-sm w-full border-collapse">
+            <thead>
+              <tr class="bg-white/[0.05]">
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_why}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_what}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_how}</th>
+                <th class="text-left py-3 px-4 font-semibold text-white border border-white/10">{t.privacy_table_how_long}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_job_why}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_job_what}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_job_how}</td>
+                <td class="py-3 px-4 align-top border border-white/10">{t.privacy_job_duration}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. NA JAKÉM ZÁKLADĚ ZPRACOVÁVÁME -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_6_title}</h2>
+        <p class="mb-4">{t.privacy_section_6_intro}</p>
+        <ul class="list-disc pl-6 space-y-2 mb-4">
+          {t.privacy_section_6_list.split('\n').map((item: string) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+        <p>{t.privacy_section_6_note}</p>
+      </section>
+
+      <!-- 7. KDO JSOU NAŠI ZPRACOVATELÉ -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_7_title}</h2>
+        <p class="mb-6">{t.privacy_section_7_intro}</p>
+        
+        <div class="overflow-x-auto mb-6">
+          <table class="text-sm w-full border-collapse">
+            <tbody>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white py-3 px-4 border border-white/10">{t.privacy_processors_website}</td>
+                <td class="py-3 px-4 border border-white/10"><a href="https://www.netlify.com/gdpr-ccpa/" class="text-primary hover:underline">Netlify</a>, <a href="https://aws.amazon.com/compliance/gdpr-center/" class="text-primary hover:underline">Amazon Web Services</a>, <a href="https://policies.google.com/privacy" class="text-primary hover:underline">Google Fonts</a>, <a href="https://iconify.design/docs/privacy/" class="text-primary hover:underline">Iconify</a>, <a href="https://policies.google.com/privacy" class="text-primary hover:underline">Google Maps</a></td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white py-3 px-4 border border-white/10">{t.privacy_processors_analytics}</td>
+                <td class="py-3 px-4 border border-white/10"><a href="https://policies.google.com/privacy" class="text-primary hover:underline">Google Analytics 4</a>, <a href="https://clarity.microsoft.com/terms" class="text-primary hover:underline">Microsoft Clarity</a></td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white py-3 px-4 border border-white/10">{t.privacy_processors_service}</td>
+                <td class="py-3 px-4 border border-white/10"><a href="https://cloud.google.com/privacy/gdpr" class="text-primary hover:underline">Google Cloud Service</a>, <a href="https://www.airtable.com/company/data-residency-faqs" class="text-primary hover:underline">Airtable</a>, <a href="https://www.voiceflow.com/legal/gdpr" class="text-primary hover:underline">Voiceflow</a>, <a href="https://openai.com/policies/" class="text-primary hover:underline">OpenAI</a>, <a href="https://www.anthropic.com/legal/privacy" class="text-primary hover:underline">Anthropic</a>, <a href="https://ai.google.dev/" class="text-primary hover:underline">Gemini</a>, <a href="https://replit.com/" class="text-primary hover:underline">Replit</a>, <a href="https://www.twilio.com/" class="text-primary hover:underline">Twilio</a>, <a href="https://cal.com/privacy" class="text-primary hover:underline">Cal.com</a></td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white py-3 px-4 border border-white/10">{t.privacy_processors_payment}</td>
+                <td class="py-3 px-4 border border-white/10"><a href="https://www.idoklad.cz/" class="text-primary hover:underline">iDoklad</a></td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white py-3 px-4 border border-white/10">{t.privacy_processors_support}</td>
+                <td class="py-3 px-4 border border-white/10"><a href="https://policies.google.com/privacy?hl=en-US" class="text-primary hover:underline">Google</a></td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white py-3 px-4 border border-white/10">{t.privacy_processors_marketing}</td>
+                <td class="py-3 px-4 border border-white/10"><a href="https://openai.com/policies/" class="text-primary hover:underline">OpenAI</a>, <a href="https://instantly.ai/" class="text-primary hover:underline">Instantly</a>, <a href="https://www.skool.com/" class="text-primary hover:underline">Skool</a></td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white py-3 px-4 border border-white/10">{t.privacy_processors_social}</td>
+                <td class="py-3 px-4 border border-white/10">
+                  {site.social.facebook && <><a href={site.social.facebook} class="text-primary hover:underline">Facebook</a>{', '}</>}
+                  {site.social.instagram && <><a href={site.social.instagram} class="text-primary hover:underline">Instagram</a>{', '}</>}
+                  {site.social.linkedin && <><a href={site.social.linkedin} class="text-primary hover:underline">LinkedIn</a></>}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>{t.privacy_section_7_legal}</p>
+      </section>
+
+      <!-- 8. JAKÁ JSME PŘIJALI OPATŘENÍ -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_8_title}</h2>
+        <p class="mb-4">{t.privacy_section_8_intro}</p>
+        
+        <p class="mb-4"><strong class="text-white">{t.privacy_section_8_technical.split('.')[0]}.</strong> {t.privacy_section_8_technical.split('.').slice(1).join('.')}</p>
+        <ul class="list-disc pl-6 space-y-2 mb-6">
+          {t.privacy_section_8_technical_list.split('\n').map((item: string) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+
+        <p class="mb-4"><strong class="text-white">{t.privacy_section_8_organizational.split('.')[0]}.</strong> {t.privacy_section_8_organizational.split('.').slice(1).join('.')}</p>
+        <ul class="list-disc pl-6 space-y-2">
+          {t.privacy_section_8_organizational_list.split('\n').map((item: string) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- 9. JAKÁ MÁTE PRÁVA -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_9_title}</h2>
+        <p class="mb-4">{t.privacy_section_9_contact}</p>
+        <p class="mb-6">{t.privacy_section_9_timing}</p>
+        
+        <div class="overflow-x-auto">
+          <table class="text-sm w-full border-collapse">
+            <tbody>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_access}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_access_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_rectification}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_rectification_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_erasure}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_erasure_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_restriction}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_restriction_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_notification}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_notification_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_portability}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_portability_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_objection}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_objection_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_withdraw}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_withdraw_desc}</td>
+              </tr>
+              <tr class="border-b border-white/10 hover:bg-white/[0.02]">
+                <td class="font-bold text-white whitespace-nowrap py-3 px-4 align-top border border-white/10">{t.privacy_right_automated}</td>
+                <td class="py-3 px-4 border border-white/10">{t.privacy_right_automated_desc}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 10. ZÁVĚR -->
+      <section>
+        <h2 class="text-2xl font-bold text-white mb-6">{t.privacy_section_10_title}</h2>
+        <p class="mb-4">{t.privacy_section_10_text}</p>
+        <p class="mb-4">{t.privacy_section_10_contact}</p>
+        <p class="mb-8">{t.privacy_section_10_complaint}</p>
+        
+        <p class="text-sm text-neutral-500 italic text-center pt-8 border-t border-white/5">{t.privacy_effective_date}</p>
+      </section>
+
+    </div>
+  </main>
+</PageLayout>

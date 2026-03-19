@@ -1,0 +1,129 @@
+---
+import { translations, type Language, getLocalizedHref } from '../../scripts/translations';
+import { site } from '../../config/site';
+
+export interface Props {
+  lang?: Language;
+  simple?: boolean;
+  ctaUrl?: string;
+  ultraMinimal?: boolean;
+}
+
+const { lang = 'cs', simple = false, ctaUrl, ultraMinimal = false } = Astro.props;
+const t = translations[lang];
+
+// Helper for localized links
+const href = (path: string) => getLocalizedHref(path, lang);
+---
+
+<div class="fixed z-50 flex animate-on-scroll [animation:animationIn_0.8s_ease-out_0s_both] pr-4 pl-4 top-6 right-0 left-0 justify-center">
+  <nav class="flex md:gap-6 bg-neutral-950/90 w-full h-14 max-w-7xl border-white/10 border mr-auto ml-auto pr-3 pl-6 shadow-lg backdrop-blur-xl gap-x-4 gap-y-4 items-center justify-between rounded-lg">
+    <div class="flex items-center gap-2">
+      <a href={href("/")} class="flex items-center gap-2">
+        <!-- Mobile: Square icon logo -->
+        <img src="/assets/images/HD_Color_logo.png" alt={site.name} width="36" height="36" class="h-9 w-auto lg:hidden" fetchpriority="high" loading="eager">
+        <!-- Desktop: Full text logo -->
+        <img src="/assets/images/logo.png" alt={site.name} width="180" height="32" class="h-8 w-auto hidden lg:block" fetchpriority="high" loading="eager">
+      </a>
+    </div>
+
+    {!simple && !ultraMinimal && (
+      <div class="hidden lg:flex items-center gap-5 text-sm font-medium text-neutral-400 whitespace-nowrap">
+        <a href={href("/sluzby")} class="hover:text-white transition-colors">{t.nav_services}</a>
+        <a href={href("/audit")} class="relative group hover:text-white transition-colors">
+          <span class="relative">
+            {t.nav_audit}
+            <span class="absolute -top-5 -right-8 px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full shadow-lg shadow-orange-500/30 pulse-badge whitespace-nowrap">
+              {t.nav_audit_badge}
+            </span>
+          </span>
+        </a>
+        <a href={href("/#reference")} class="hover:text-white transition-colors">{t.nav_cases}</a>
+        <a href={href("/blog")} class="hover:text-white transition-colors">{t.nav_case_studies}</a>
+        <a href={href("/hypelead")} class="relative group hover:text-white transition-colors">
+          <span class="relative">
+            {t.service_sales_title}
+            <span class="absolute -top-5 -right-14 px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full shadow-lg shadow-orange-500/30 pulse-badge whitespace-nowrap">
+              Nejoblíbenější
+            </span>
+          </span>
+        </a>
+        <a href={href("/kontakt")} class="hover:text-white transition-colors">{t.nav_contact}</a>
+      </div>
+    )}
+
+    <div class="flex items-center gap-3 text-sm font-medium">
+      {!ultraMinimal && (
+        <Fragment>
+          <!-- Language Switcher -->
+          <div class="relative" id="lang-switcher">
+            <button
+              id="lang-trigger"
+              class="hidden sm:flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-800 transition"
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-controls="lang-dropdown"
+              aria-label={t.nav_lang_label || "Select language"}
+            >
+              <span class="text-base" id="lang-flag" aria-hidden="true">{lang === 'cs' ? '🇨🇿' : '🇬🇧'}</span>
+              <span id="lang-text">{lang === 'cs' ? 'Čeština' : 'English'}</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div id="lang-dropdown" class="hidden absolute right-0 mt-2 w-36 rounded-lg bg-neutral-900/95 ring-1 ring-white/10 backdrop-blur-xl shadow-xl overflow-hidden" role="menu">
+              <button class={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-white/5 ${lang === 'cs' ? 'text-primary bg-primary/10' : 'text-neutral-300'}`} data-lang="cs">
+                <span class="text-base">🇨🇿</span>
+                <span>Čeština</span>
+                {lang === 'cs' && <iconify-icon icon="solar:check-circle-bold" class="ml-auto text-primary"></iconify-icon>}
+              </button>
+              <button class={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-white/5 ${lang === 'en' ? 'text-primary bg-primary/10' : 'text-neutral-300'}`} data-lang="en">
+                <span class="text-base">🇬🇧</span>
+                <span>English</span>
+                {lang === 'en' && <iconify-icon icon="solar:check-circle-bold" class="ml-auto text-primary"></iconify-icon>}
+              </button>
+            </div>
+          </div>
+        </Fragment>
+      )}
+
+      <!-- CTA Button (always rendered) -->
+      <a href={ctaUrl || href("/kontakt")} target={ctaUrl ? "_blank" : undefined} class="nav-cta-button hover:bg-white/10 transition-all flex text-sm font-medium text-neutral-200 bg-gradient-to-b from-primary/30 via-primary/10 to-primary/20 px-4 py-2 shadow-[0px_1px_0px_0px_rgba(0,163,154,0.3)_inset] gap-x-2 items-center rounded-lg relative overflow-hidden whitespace-nowrap" style="--border-gradient: linear-gradient(180deg, rgba(0, 163, 154, 0.5), rgba(0, 163, 154, 0), rgba(0, 163, 154, 0.2)); --border-radius-before: 8px">
+        <!-- Floating bubbles -->
+        <span class="nav-bubbles-wrapper">
+          <span class="nav-bubble"></span>
+          <span class="nav-bubble"></span>
+          <span class="nav-bubble"></span>
+          <span class="nav-bubble"></span>
+          <span class="nav-bubble"></span>
+          <span class="nav-bubble"></span>
+          <span class="nav-bubble"></span>
+          <span class="nav-bubble"></span>
+        </span>
+        <span class="text-xs font-semibold tracking-tight relative z-10">{t.nav_cta}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary relative z-10" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m12 5 7 7-7 7"></path>
+        </svg>
+      </a>
+
+      <!-- Mobile Menu Button -->
+      {!simple && !ultraMinimal && (
+        <button
+          id="mobile-menu-btn"
+          class="lg:hidden p-2 text-neutral-400 hover:text-white"
+          aria-label={t.nav_open_menu_label || "Open menu"}
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" x2="21" y1="6" y2="6"></line>
+            <line x1="3" x2="21" y1="12" y2="12"></line>
+            <line x1="3" x2="21" y1="18" y2="18"></line>
+          </svg>
+        </button>
+      )}
+    </div>
+  </nav>
+</div>
+

@@ -1,0 +1,254 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navigation from '../components/navigation/Navigation.astro';
+import Footer from '../components/sections/Footer.astro';
+import DigitalRain from '../components/ui/DigitalRain.astro';
+import GridBackground from '../components/ui/GridBackground.astro';
+import { translations, type Language } from '../scripts/translations';
+
+// This is a static 404 page - we use client-side JS to detect language URL patterns
+// Default to Czech since we can't access URL params in static 404
+const lang: Language = 'cs';
+const t = translations[lang];
+---
+
+<BaseLayout 
+  title={t.error_404_title}
+  description={t.error_404_subheadline}
+  lang={lang}
+  noindex={true}
+>
+  <DigitalRain />
+  <GridBackground />
+  
+  <Navigation lang={lang} simple={true} />
+  
+  <main id="main-content" class="z-10 relative pt-32 min-h-screen flex items-center justify-center px-4" role="main">
+    <div class="max-w-2xl mx-auto text-center">
+      <!-- 404 Icon -->
+      <div class="mb-8 animate-on-scroll [animation:animationIn_0.6s_ease-out_0s_both]">
+        <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+      </div>
+      
+      <!-- 404 Text -->
+      <h1 class="text-7xl md:text-9xl font-bold text-white mb-4 animate-on-scroll [animation:animationIn_0.6s_ease-out_0.1s_both]">
+        404
+      </h1>
+      
+      <h2 class="text-2xl md:text-3xl font-semibold text-white mb-4 animate-on-scroll [animation:animationIn_0.6s_ease-out_0.2s_both]" id="headline">
+        {t.error_404_headline}
+      </h2>
+      
+      <p class="text-neutral-400 text-lg mb-8 animate-on-scroll [animation:animationIn_0.6s_ease-out_0.3s_both]" id="subheadline">
+        {t.error_404_subheadline}
+      </p>
+      
+      <!-- Language URL Detection Message (hidden by default, shown by JS if detected) -->
+      <div id="lang-url-notice" class="hidden mb-8 p-6 rounded-xl bg-amber-500/10 border border-amber-500/30 animate-on-scroll [animation:animationIn_0.6s_ease-out_0.4s_both]">
+        <div class="flex items-center justify-center gap-3 mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p class="text-amber-200 font-medium" id="lang-notice-text"></p>
+        </div>
+        <p class="text-amber-200/80 text-sm mb-4" id="redirect-text"></p>
+        <div class="flex items-center justify-center gap-2 text-amber-200">
+          <span id="countdown-text"></span>
+          <span id="countdown" class="font-bold text-xl text-amber-400">5</span>
+          <span id="seconds-text"></span>
+        </div>
+        <p class="text-sm text-amber-200/60 mt-3">
+          <a id="instant-redirect" href="/" class="underline hover:text-amber-200 transition-colors"></a>
+        </p>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-on-scroll [animation:animationIn_0.6s_ease-out_0.5s_both]">
+        <a 
+          href="/" 
+          id="home-link"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-all hover:scale-105 shadow-lg shadow-primary/25"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <span id="home-btn-text">{t.error_404_back_home}</span>
+        </a>
+        
+        <button 
+          onclick="history.back()"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 text-neutral-200 font-medium rounded-lg hover:bg-neutral-700 transition-all border border-neutral-700"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span id="back-btn-text">{lang === 'cs' ? 'Zpět' : 'Go Back'}</span>
+        </button>
+      </div>
+      
+      <!-- Helpful Links -->
+      <div class="mt-12 pt-8 border-t border-neutral-800 animate-on-scroll [animation:animationIn_0.6s_ease-out_0.6s_both]">
+        <p class="text-neutral-500 text-sm mb-4" id="helpful-text">
+          {lang === 'cs' ? 'Možná hledáte:' : 'You might be looking for:'}
+        </p>
+        <div class="flex flex-wrap justify-center gap-3">
+          <a href="/chatbot" class="text-primary hover:text-primary/80 transition-colors text-sm">AI Chatbot</a>
+          <span class="text-neutral-700">•</span>
+          <a href="/priprava-dat" class="text-primary hover:text-primary/80 transition-colors text-sm">RAGus.ai</a>
+          <span class="text-neutral-700">•</span>
+          <a href="/konzultace" class="text-primary hover:text-primary/80 transition-colors text-sm" id="consulting-link">
+            {lang === 'cs' ? 'Konzultace' : 'Consulting'}
+          </a>
+          <span class="text-neutral-700">•</span>
+          <a href="/blog" class="text-primary hover:text-primary/80 transition-colors text-sm">Blog</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <Footer lang={lang} simple={true} showCalendar={false} />
+</BaseLayout>
+
+<script>
+  // Translations for client-side use
+  const t = {
+    cs: {
+      headline: "Stránka nenalezena",
+      subheadline: "Omlouváme se, ale stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
+      detected_lang_url: "Vypadá to, že jste použili neplatnou URL s jazykovou předponou",
+      redirect_message: "Přesměrováváme vás na správnou adresu",
+      redirect_in: "Přesměrování za",
+      seconds: "vteřin",
+      click_here: "klikněte zde pro okamžité přesměrování",
+      back_home: "Zpět na úvodní stránku",
+      back: "Zpět",
+      helpful: "Možná hledáte:",
+      consulting: "Konzultace"
+    },
+    en: {
+      headline: "Page Not Found",
+      subheadline: "Sorry, the page you're looking for doesn't exist or has been moved.",
+      detected_lang_url: "It looks like you used an invalid URL with a language prefix",
+      redirect_message: "Redirecting you to the correct address",
+      redirect_in: "Redirecting in",
+      seconds: "seconds",
+      click_here: "click here for immediate redirect",
+      back_home: "Back to Homepage",
+      back: "Go Back",
+      helpful: "You might be looking for:",
+      consulting: "Consulting"
+    }
+  };
+
+  // Detect language prefix in URL and redirect
+  (function() {
+    const path = window.location.pathname;
+    const hash = window.location.hash;
+    
+    // Check for /en/ or /cs/ prefix
+    const enMatch = path.match(/^\/en(\/.*)?$/);
+    const csMatch = path.match(/^\/cs(\/.*)?$/);
+    
+    let detectedLang: 'en' | 'cs' | null = null;
+    let correctPath = '/';
+    let correctUrl = '/';
+    
+    if (enMatch) {
+      detectedLang = 'en';
+      // Extract the path after /en/
+      const remainingPath = enMatch[1] || '/';
+      correctPath = remainingPath === '/' ? '/' : remainingPath;
+      correctUrl = correctPath + '?lang=en' + hash;
+    } else if (csMatch) {
+      detectedLang = 'cs';
+      // Extract the path after /cs/
+      const remainingPath = csMatch[1] || '/';
+      correctPath = remainingPath === '/' ? '/' : remainingPath;
+      correctUrl = correctPath + hash;
+    }
+    
+    // If we detected a language URL pattern, show notice and redirect
+    if (detectedLang) {
+      const lang = detectedLang;
+      const texts = t[lang];
+      
+      // Update UI text based on detected language
+      document.getElementById('headline')!.textContent = texts.headline;
+      document.getElementById('subheadline')!.textContent = texts.subheadline;
+      document.getElementById('home-btn-text')!.textContent = texts.back_home;
+      document.getElementById('back-btn-text')!.textContent = texts.back;
+      document.getElementById('helpful-text')!.textContent = texts.helpful;
+      document.getElementById('consulting-link')!.textContent = texts.consulting;
+      
+      // Show the language URL notice
+      const notice = document.getElementById('lang-url-notice');
+      const langNoticeText = document.getElementById('lang-notice-text');
+      const redirectText = document.getElementById('redirect-text');
+      const countdownText = document.getElementById('countdown-text');
+      const secondsText = document.getElementById('seconds-text');
+      const instantRedirect = document.getElementById('instant-redirect');
+      const homeLink = document.getElementById('home-link');
+      
+      if (notice && langNoticeText && redirectText && countdownText && secondsText && instantRedirect && homeLink) {
+        notice.classList.remove('hidden');
+        langNoticeText.textContent = `${texts.detected_lang_url} (/${lang}/)`;
+        redirectText.textContent = `${texts.redirect_message}: ${correctUrl}`;
+        countdownText.textContent = texts.redirect_in;
+        secondsText.textContent = texts.seconds;
+        instantRedirect.textContent = texts.click_here;
+        instantRedirect.href = correctUrl;
+        homeLink.href = correctUrl;
+        
+        // Update helpful links for English
+        if (lang === 'en') {
+          document.querySelectorAll('[href="/chatbot"]').forEach(el => {
+            (el as HTMLAnchorElement).href = '/chatbot?lang=en';
+          });
+          document.querySelectorAll('[href="/priprava-dat"]').forEach(el => {
+            (el as HTMLAnchorElement).href = '/priprava-dat?lang=en';
+          });
+          document.querySelectorAll('[href="/konzultace"]').forEach(el => {
+            (el as HTMLAnchorElement).href = '/konzultace?lang=en';
+          });
+          document.querySelectorAll('[href="/blog"]').forEach(el => {
+            (el as HTMLAnchorElement).href = '/blog?lang=en';
+          });
+        }
+        
+        // Start countdown
+        let countdown = 5;
+        const countdownEl = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+          countdown--;
+          if (countdownEl) {
+            countdownEl.textContent = countdown.toString();
+          }
+          
+          if (countdown <= 0) {
+            clearInterval(timer);
+            window.location.href = correctUrl;
+          }
+        }, 1000);
+      }
+    }
+  })();
+</script>
+
+<style>
+  @keyframes animationIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
