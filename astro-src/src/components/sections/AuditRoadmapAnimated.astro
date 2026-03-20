@@ -18,6 +18,26 @@ interface Props {
 
 const { lang, t } = Astro.props;
 
+// Step feature lists — separated from rendering logic, data-driven by lang prop
+const stepFeatures: Record<string, { cs: string[]; en: string[] }> = {
+  step1: {
+    cs: ['Analyzujeme váš web', 'Prozkoumáme váš obor', 'PDF report do schránky'],
+    en: ['Automated website analysis', 'AI trend analysis', 'PDF report'],
+  },
+  step2: {
+    cs: ['30 minut vašeho času', 'Probereme priority', 'Dohodneme další kroky'],
+    en: ['30min consultation', 'Priority setting', 'Scope definition'],
+  },
+  step3: {
+    cs: ['Mluvíme s vašimi lidmi', 'Mapujeme procesy', 'Počítáme úspory'],
+    en: ['15+ interviews', 'Process mapping', 'ROI calculation'],
+  },
+  step4: {
+    cs: ['Co řešit hned', 'Plán na rok', 'První rychlé výhry'],
+    en: ['Priority Matrix', '12-mo plan', 'Quick Wins'],
+  },
+};
+
 // Process steps configuration with conversational copy
 const steps = [
   {
@@ -26,9 +46,7 @@ const steps = [
     description: t.audit_process_step1_desc,
     icon: 'solar:document-text-bold',
     color: 'primary',
-    features: lang === 'cs' 
-      ? ['Analyzujeme váš web', 'Prozkoumáme váš obor', 'PDF report do schránky'] 
-      : ['Automated website analysis', 'AI trend analysis', 'PDF report']
+    features: stepFeatures.step1[lang],
   },
   {
     number: '02',
@@ -36,9 +54,7 @@ const steps = [
     description: t.audit_process_step2_desc,
     icon: 'solar:chat-round-call-bold',
     color: 'blue',
-    features: lang === 'cs'
-      ? ['30 minut vašeho času', 'Probereme priority', 'Dohodneme další kroky']
-      : ['30min consultation', 'Priority setting', 'Scope definition']
+    features: stepFeatures.step2[lang],
   },
   {
     number: '03',
@@ -46,9 +62,7 @@ const steps = [
     description: t.audit_process_step3_desc,
     icon: 'solar:clipboard-check-bold',
     color: 'purple',
-    features: lang === 'cs'
-      ? ['Mluvíme s vašimi lidmi', 'Mapujeme procesy', 'Počítáme úspory']
-      : ['15+ interviews', 'Process mapping', 'ROI calculation']
+    features: stepFeatures.step3[lang],
   },
   {
     number: '04',
@@ -56,14 +70,12 @@ const steps = [
     description: t.audit_process_step4_desc,
     icon: 'solar:chart-2-bold',
     color: 'orange',
-    features: lang === 'cs'
-      ? ['Co řešit hned', 'Plán na rok', 'První rychlé výhry']
-      : ['Priority Matrix', '12-mo plan', 'Quick Wins']
-  }
+    features: stepFeatures.step4[lang],
+  },
 ];
 
 const colorMap: Record<string, { bg: string; border: string; text: string; glow: string; solid: string }> = {
-  primary: { bg: 'bg-primary/10', border: 'border-primary/30', text: 'text-primary', glow: 'shadow-primary/20', solid: '#00A39A' },
+  primary: { bg: 'bg-primary/10', border: 'border-primary/30', text: 'text-primary', glow: 'shadow-primary/20', solid: 'var(--color-primary)' },
   blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', glow: 'shadow-blue-500/20', solid: '#3b82f6' },
   purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400', glow: 'shadow-purple-500/20', solid: '#a855f7' },
   orange: { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', glow: 'shadow-orange-500/20', solid: '#f97316' }
@@ -153,7 +165,7 @@ const colorMap: Record<string, { bg: string; border: string; text: string; glow:
         <!-- Gradient definition -->
         <defs>
           <linearGradient id="roadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#00A39A" />
+            <stop offset="0%" style="stop-color: var(--color-primary)" />
             <stop offset="33%" stop-color="#3b82f6" />
             <stop offset="66%" stop-color="#a855f7" />
             <stop offset="100%" stop-color="#f97316" />

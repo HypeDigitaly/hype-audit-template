@@ -3,6 +3,7 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
+import { escapeHtml } from '../utils';
 
 export function generateTimelineSection(data: AuditReportData, t: Translations): string {
   if (!data.implementationTimeline || data.implementationTimeline.length === 0) {
@@ -36,12 +37,12 @@ export function generateTimelineSection(data: AuditReportData, t: Translations):
       </div>
       <div class="timeline-content">
         <div class="timeline-header">
-          <h4>${phase.title}</h4>
-          <span class="timeline-duration">${phase.duration}</span>
+          <h4>${escapeHtml(phase.title)}</h4>
+          <span class="timeline-duration">${escapeHtml(phase.duration)}</span>
         </div>
         <span class="timeline-phase-label">${getPhaseLabel(phase.phase)}</span>
         <ul class="timeline-items">
-          ${phase.items.map(item => `<li>${item}</li>`).join('')}
+          ${phase.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
         </ul>
       </div>
     </div>

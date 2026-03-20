@@ -171,7 +171,10 @@ User Browser          Netlify Edge           Functions          Blob Storage
 
 The **complete configuration schema** is defined in `config.schema.ts`. All per-client customization flows through a single `config.json` file → TypeScript interface → generated files (`site.ts`, `client.ts`).
 
-**Total Fields: 33 required + optional**
+**Total Fields: 120+ (all optional except core identity fields)**
+
+**Previous version:** 33 fields
+**Current version:** 120+ fields across 16 sections with smart defaults
 
 ### 2.1 Company Identity (7 fields)
 
@@ -277,6 +280,152 @@ Configure who receives lead notifications and from which address.
 
 **Critical:** `fromEmail` must be a **sender address verified in your Resend account**. Unverified addresses will fail silently.
 
+### 2.8 LLM Configuration (8 fields) — NEW in v2
+
+Configure AI model selection, temperature, and LLM parameters.
+
+| Field Name | Type | Required | Validation | Example Value | Default | Where Used |
+|------------|------|----------|-----------|---------------|---------|-----------|
+| `llm.primaryModel` | string | Optional | Valid OpenRouter model ID | `"google/gemini-3-flash-preview"` | Gemini Flash | LLM synthesis primary attempt |
+| `llm.fallbackModels` | string[] | Optional | Array of valid model IDs | `["google/gemini-3-pro-preview", "anthropic/claude-sonnet-4.5"]` | Gemini Pro, Claude Sonnet | Model cascade fallback |
+| `llm.temperature` | number | Optional | 0.0-1.0 | 0.7 | 0.7 | Controls creativity vs consistency |
+| `llm.maxTokens` | number | Optional | 1000-32000 | 32000 | 32000 | Response length limit |
+| `llm.timeout` | number | Optional | 5000-60000 (ms) | 30000 | 30000 | Request timeout in milliseconds |
+
+### 2.9 Prompt Customization (5+ fields) — NEW in v2
+
+Configure the LLM system prompt and research synthesis instructions.
+
+| Field Name | Type | Required | Validation | Example Value | Where Used |
+|------------|------|----------|-----------|---------------|-----------|
+| `prompt.systemIdentity` | string | Optional | 1-500 chars, no injection patterns | "You are an expert AI strategist..." | LLM system prompt |
+| `prompt.tone` | string | Optional | One of: professional, casual, technical, sales | "professional" | Affects copywriting style |
+| `prompt.focusAreas` | string[] | Optional | Array of business areas | `["automation", "cost-reduction"]` | Guides opportunity recommendations |
+| `prompt.brandMentions` | string[] | Optional | Company names to mention | `["Acme Corp", "our platform"]` | Incorporates in recommendations |
+| `prompt.customInstructions` | string | Optional | 1-500 chars | "Always calculate ROI in USD..." | Additional constraints for LLM |
+
+### 2.10 Search Configuration (4+ fields) — NEW in v2
+
+Configure Tavily search behavior and query customization.
+
+| Field Name | Type | Required | Validation | Example Value | Where Used |
+|------------|------|----------|-----------|---------------|-----------|
+| `search.additionalQueries` | string[] | Optional | Array of custom search queries | `["best practices in ${industry}"]` | Appended to standard 6 searches |
+| `search.maxQueries` | number | Optional | 1-20 | 6 | Total searches to execute |
+| `search.disabledQueryTypes` | string[] | Optional | Array of: "ai-tools", "apps", "technology" | `["ai-tools"]` | Skip specific search types |
+| `search.searchDepth` | string | Optional | "basic" or "advanced" | "advanced" | Tavily search comprehensiveness |
+
+### 2.11 Report Configuration (10+ fields) — NEW in v2
+
+Configure report section visibility, ordering, and CTA customization.
+
+| Field Name | Type | Required | Validation | Example Value | Where Used |
+|------------|------|----------|-----------|---------------|-----------|
+| `report.sections.opportunities` | boolean | Optional | true/false | true | Include AI opportunities section |
+| `report.sections.roi` | boolean | Optional | true/false | true | Include ROI calculator |
+| `report.sections.timeline` | boolean | Optional | true/false | true | Include implementation timeline |
+| `report.sections.risks` | boolean | Optional | true/false | true | Include risk assessment |
+| `report.sections.tools` | boolean | Optional | true/false | true | Include recommended tools |
+| `report.sectionOrder` | string[] | Optional | Array of section names | `["header", "opportunities", "roi", ...]` | Determines report structure |
+| `report.cta.title` | string | Optional | 1-100 chars | "Ready to Transform?" | CTA section heading |
+| `report.cta.text` | string | Optional | 1-300 chars | "Schedule a free consultation..." | CTA body text |
+| `report.cta.buttonText` | string | Optional | 1-50 chars | "Book Your Call" | CTA button label |
+| `report.cta.buttonLink` | string | Optional | Valid URL | "https://cal.com/..." | CTA button destination |
+
+### 2.12 Content Configuration (10+ fields) — NEW in v2
+
+Configure homepage copy, hero section, and CTA messaging.
+
+| Field Name | Type | Required | Validation | Example Value | Where Used |
+|------------|------|----------|-----------|---------------|-----------|
+| `content.heroTitle` | string | Optional | 1-100 chars | "Free AI Audit for Your Business" | Home page h1 headline |
+| `content.heroSubtitle` | string | Optional | 1-200 chars | "Get personalized recommendations in 5 minutes" | Home page subtitle |
+| `content.ctaText` | string | Optional | 1-200 chars | "Start Your Free Audit" | Primary CTA button |
+| `content.pricingTiers` | object[] | Optional | Array of tier objects | (see below) | Pricing comparison table |
+
+### 2.13 Audit Form Configuration (15+ fields) — NEW in v2
+
+Configure form fields, pain points, and visibility.
+
+| Field Name | Type | Required | Validation | Example Value | Where Used |
+|------------|------|----------|-----------|---------------|-----------|
+| `auditForm.painPoints` | object[] | Optional | Array of pain point options | `[{ value: "new_customers", label_cs: "...", label_en: "..." }]` | Pain point checkboxes |
+| `auditForm.tools` | object[] | Optional | Array of tool options | `[{ value: "CRM", label: "CRM" }]` | Current tools checkboxes |
+| `auditForm.visibility.painPoints` | boolean | Optional | true/false | true | Show pain point checkboxes |
+| `auditForm.visibility.tools` | boolean | Optional | true/false | true | Show tools checkboxes |
+| `auditForm.visibility.city` | boolean | Optional | true/false | true | Show city field |
+
+### 2.14 Navigation Configuration (5+ fields) — NEW in v2
+
+Configure top navbar and footer links.
+
+| Field Name | Type | Required | Validation | Example Value | Where Used |
+|------------|------|----------|-----------|---------------|-----------|
+| `nav.links` | object[] | Optional | Array of `{ label, href, external? }` | `[{ label: "About", href: "/about" }]` | Top navigation menu |
+| `nav.showLogo` | boolean | Optional | true/false | true | Display logo in navbar |
+| `nav.ctaLink` | string | Optional | Valid URL | "https://cal.com/..." | Header CTA button |
+| `nav.ctaText` | string | Optional | 1-50 chars | "Book a Call" | Header CTA button label |
+
+### 2.15 Analytics Configuration (4 fields) — NEW in v2
+
+Configure tracking IDs for Google Analytics, Segment, Mixpanel.
+
+| Field Name | Type | Required | Validation | Example Value | Where Used |
+|------------|------|----------|-----------|---------------|-----------|
+| `analytics.ga4Id` | string | Optional | GA4 format `G-*` | "G-ABC123XYZ" | Google Analytics 4 tag |
+| `analytics.segmentKey` | string | Optional | Segment write key | "1234567890abcdefghij" | Segment analytics |
+| `analytics.mixpanelToken` | string | Optional | Mixpanel project token | "abc123def456ghi789" | Mixpanel tracking |
+
+### 2.16 SEO Configuration (6+ fields) — NEW in v2
+
+Configure meta descriptions, OG tags, and canonical URLs.
+
+| Field Name | Type | Required | Validation | Example Value | Where Used |
+|------------|------|----------|-----------|---------------|-----------|
+| `seo.metaDescription` | string | Optional | 1-160 chars | "Free preliminary AI audit for your business..." | Meta description tag |
+| `seo.ogImage` | string | Optional | Valid image URL | "https://cdn.acme.com/og-image.jpg" | Open Graph image |
+| `seo.ogType` | string | Optional | OG type | "website" | Open Graph type |
+| `seo.canonical` | string | Optional | Valid URL | "https://audit.acme.com" | Canonical URL tag |
+
+---
+
+## Section 2.5: Routing & Page Structure (v2 Generalization)
+
+### URL Structure
+
+The template now uses a **white-label URL structure** with the audit form as the home page:
+
+| Route | Status | Purpose | File |
+|-------|--------|---------|------|
+| `/` | **Live** | Home page with audit form | `src/pages/index.astro` |
+| `/audit` | **Deprecated (301)** | Backward-compatible redirect to `/` | `src/pages/audit.astro` |
+| `/report/{reportId}` | **Live** | View/print generated audit report | Function endpoint |
+| `/admin/leads` | **Live** | Admin dashboard (password-protected) | `src/pages/admin/leads.astro` |
+
+### De-Branding Changes
+
+All HypeDigitaly-specific content removed in v2:
+
+**Removed Hardcoded Values:**
+- Hardcoded company names ("Pavel Čermák", "HypeDigitaly s.r.o.", etc.)
+- HypeDigitaly analytics IDs (Google Analytics, Segment)
+- Product references ("RAGus.ai", "HypeLead.ai")
+- Dead navigation links to internal systems
+- Hardcoded logo paths
+- Hardcoded color #00A39A (replaced with CSS custom properties)
+
+**Replaced With Config-Driven Equivalents:**
+- All company names → `config.company.*`
+- All analytics IDs → `config.analytics.*`
+- All colors → CSS variables from `config.branding.*`
+- All navigation → `config.nav.*`
+- All copy → `config.content.*` + translation strings
+
+**Files Cleaned:**
+- 13 unused files deleted
+- All components updated to use config imports
+- All hardcoded paths replaced with dynamic URLs
+
 ---
 
 ## Section 3: Two-Layer Config Architecture
@@ -285,7 +434,7 @@ Configure who receives lead notifications and from which address.
 
 The template uses a **two-layer configuration system** to balance security, maintainability, and type safety:
 
-- **Layer 1 (Source of Truth):** `config.json` — committed to repo, human-readable
+- **Layer 1 (Source of Truth):** `config.json` — committed to repo, human-readable (120+ fields)
 - **Layer 2 (Secrets Only):** `.env.local` — gitignored, never committed, 7 environment variables
 
 **Why NOT placeholder tokens?** (e.g., `${COMPANY_NAME}`, `{@email}`)

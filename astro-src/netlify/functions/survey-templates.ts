@@ -213,7 +213,7 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
           </tr>
           <tr>
             <td style="padding:24px 40px;">
-              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">
+              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">
                 Procesy a technologie
               </h2>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
@@ -236,9 +236,9 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                       <tr>
                         <td width="200" style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">Web</td>
-                        <td style="font-size:14px;color:#00A39A;font-weight:600;">
+                        <td style="font-size:14px;color:${clientConfig.brand.primaryColor};font-weight:600;">
                           ${/^https?:\/\//i.test(lead.websiteUrl)
-                            ? `<a href="${escapeHtml(lead.websiteUrl)}" style="color:#00A39A;text-decoration:none;">${escapeHtml(lead.websiteUrl)}</a>`
+                            ? `<a href="${escapeHtml(lead.websiteUrl)}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${escapeHtml(lead.websiteUrl)}</a>`
                             : escapeHtml(lead.websiteUrl)}
                         </td>
                       </tr>
@@ -349,7 +349,7 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
           <!-- Company Info -->
           <tr>
             <td style="padding:32px 40px 24px 40px;">
-              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">
+              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">
                 Informace o společnosti
               </h2>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
@@ -391,8 +391,8 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                       <tr>
                         <td width="140" style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">E-mail</td>
-                        <td style="font-size:15px;color:#00A39A;font-weight:600;">
-                          <a href="mailto:${escapeHtml(lead.email)}" style="color:#00A39A;text-decoration:none;">${escapeHtml(lead.email)}</a>
+                        <td style="font-size:15px;color:${clientConfig.brand.primaryColor};font-weight:600;">
+                          <a href="mailto:${escapeHtml(lead.email)}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${escapeHtml(lead.email)}</a>
                         </td>
                       </tr>
                     </table>
@@ -405,8 +405,8 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                       <tr>
                         <td width="140" style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">Telefon</td>
-                        <td style="font-size:15px;color:#00A39A;font-weight:600;">
-                          <a href="tel:${escapeHtml(lead.phoneNumber)}" style="color:#00A39A;text-decoration:none;">${escapeHtml(lead.phoneNumber)}</a>
+                        <td style="font-size:15px;color:${clientConfig.brand.primaryColor};font-weight:600;">
+                          <a href="tel:${escapeHtml(lead.phoneNumber)}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${escapeHtml(lead.phoneNumber)}</a>
                         </td>
                       </tr>
                     </table>
@@ -440,7 +440,7 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
           <!-- Pain Points -->
           <tr>
             <td style="padding:24px 40px;">
-              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">
+              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">
                 Bolestivá místa (vybral/a ${lead.painPoints.length})
               </h2>
               <ul style="margin:0;padding:0 0 0 18px;list-style:disc;">
@@ -471,7 +471,7 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
           <!-- Key Sales Data -->
           <tr>
             <td style="padding:24px 40px;">
-              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">
+              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">
                 Klíčová obchodní data
               </h2>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
@@ -503,10 +503,10 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
           </tr>
           <tr>
             <td style="padding:24px 40px;">
-              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">
+              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">
                 Doplňující kontext
               </h2>
-              <blockquote style="margin:0;padding:16px 20px;background-color:rgba(255,255,255,0.03);border-left:3px solid #00A39A;border-radius:0 8px 8px 0;">
+              <blockquote style="margin:0;padding:16px 20px;background-color:rgba(255,255,255,0.03);border-left:3px solid ${clientConfig.brand.primaryColor};border-radius:0 8px 8px 0;">
                 <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.85);line-height:1.6;font-style:italic;">${escapeHtml(lead.contextNote)}</p>
               </blockquote>
             </td>
@@ -523,10 +523,10 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
           </tr>
           <tr>
             <td style="padding:24px 40px;">
-              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">
+              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">
                 Používané nástroje
               </h2>
-              <blockquote style="margin:0;padding:16px 20px;background-color:rgba(255,255,255,0.03);border-left:3px solid #00A39A;border-radius:0 8px 8px 0;">
+              <blockquote style="margin:0;padding:16px 20px;background-color:rgba(255,255,255,0.03);border-left:3px solid ${clientConfig.brand.primaryColor};border-radius:0 8px 8px 0;">
                 <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.85);line-height:1.6;">${escapeHtml(lead.toolsUsed.join(', '))}</p>
               </blockquote>
             </td>
@@ -560,7 +560,7 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
           <tr>
             <td style="padding:8px 40px 32px 40px;text-align:center;">
               <a href="mailto:${escapeHtml(lead.email)}?subject=Re: Váš průzkum AI automatizace"
-                 style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#00A39A 0%,#008f87 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:15px;font-weight:600;box-shadow:0 4px 14px rgba(0,163,154,0.4);margin-right:12px;">
+                 style="display:inline-block;padding:14px 32px;background:${clientConfig.brand.primaryColor};color:#ffffff;text-decoration:none;border-radius:8px;font-size:15px;font-weight:600;margin-right:12px;">
                 Odpovědět leadovi
               </a>
               <a href="${clientConfig.siteUrl}/.netlify/functions/admin-leads"
@@ -574,7 +574,7 @@ export function generateSurveyNotificationEmailHTML(lead: SurveyLead): string {
           <tr>
             <td style="padding:24px 40px;background-color:rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
               <p style="margin:0 0 6px 0;font-size:13px;color:rgba(255,255,255,0.4);">
-                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
               </p>
               <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.3);">
                 Lead ID: ${escapeHtml(lead.id)} &bull; Zdroj: ${escapeHtml(lead.leadSource)}
@@ -637,7 +637,7 @@ export function generateSurveyConfirmationEmailHTML(lead: SurveyLead): string {
               <p style="margin:0 0 16px 0;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.7;">
                 Podle Vašich odpovědí připravíme program přímo pro Vás — konkrétní ukázky, jak AI ušetří za zaměstnance a zjednoduší Vám práci. Žádné obecné řeči, jen věci, které můžete hned použít.
               </p>
-              <p style="margin:0;font-size:17px;font-weight:600;color:#00A39A;">
+              <p style="margin:0;font-size:17px;font-weight:600;color:${clientConfig.brand.primaryColor};">
                 Těšíme se na Vás 28. března!
               </p>
             </td>
@@ -651,19 +651,17 @@ export function generateSurveyConfirmationEmailHTML(lead: SurveyLead): string {
                   Řečník
                 </p>
                 <p style="margin:0 0 6px 0;font-size:17px;font-weight:700;color:#ffffff;">
-                  Pavel Čermák
+                  ${clientConfig.primaryContact.name}
                 </p>
                 <p style="margin:0 0 14px 0;font-size:14px;color:rgba(255,255,255,0.8);line-height:1.7;">
-                  AI podnikatel z České republiky, v roce 2022 založil první AI agenturu ${clientConfig.company.name} (<a href="${clientConfig.siteUrl}" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>), která nasadila AI asistenta pro krajský úřad. Dnes 5 z 13 krajů ČR využívá AI agenty od jeho společnosti. Celkem vybudoval 30+ agentů v oblasti veřejné správy s 90%+ přesností RAG v produkci.
+                  ${clientConfig.primaryContact.title}, ${clientConfig.company.name} (<a href="${clientConfig.siteUrl}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>)
                 </p>
                 <p style="margin:0 0 16px 0;font-size:13px;color:rgba(255,255,255,0.5);">
-                  <a href="https://www.linkedin.com/in/pavlis-cermak/" target="_blank" style="color:#00A39A;text-decoration:none;">LinkedIn</a>
-                  &nbsp;&bull;&nbsp;
-                  <a href="${clientConfig.siteUrl}" target="_blank" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                  <a href="${clientConfig.siteUrl}" target="_blank" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
                 </p>
                 <a href="${clientConfig.primaryContact.calendarUrl || ''}" target="_blank"
                    style="display:inline-block;padding:11px 22px;background:linear-gradient(135deg,#f97316 0%,#ea6c0a 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;box-shadow:0 4px 14px rgba(249,115,22,0.4);">
-                  Domluvte si konzultaci s Pavlem
+                  Domluvte si konzultaci
                 </a>
               </div>
             </td>
@@ -679,7 +677,7 @@ export function generateSurveyConfirmationEmailHTML(lead: SurveyLead): string {
           <!-- Answers Summary -->
           <tr>
             <td style="padding:24px 40px;">
-              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">
+              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">
                 Vaše odpovědi v kostce
               </h2>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
@@ -745,7 +743,7 @@ export function generateSurveyConfirmationEmailHTML(lead: SurveyLead): string {
           <tr>
             <td style="padding:24px 40px;background-color:rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
               <p style="margin:0 0 8px 0;font-size:13px;color:rgba(255,255,255,0.4);">
-                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
               </p>
               <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.3);">
                 AI, která šetří čas i peníze.
@@ -796,7 +794,7 @@ export function generateSurveyConfirmationEmailHTML(lead: SurveyLead): string {
               <p style="margin:0 0 16px 0;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.7;">
                 Based on your answers, we'll tailor the event content and presentation to deliver maximum value — practical tips and tricks you can implement in your business right away.
               </p>
-              <p style="margin:0;font-size:17px;font-weight:600;color:#00A39A;">
+              <p style="margin:0;font-size:17px;font-weight:600;color:${clientConfig.brand.primaryColor};">
                 See you on March 28!
               </p>
             </td>
@@ -810,19 +808,17 @@ export function generateSurveyConfirmationEmailHTML(lead: SurveyLead): string {
                   Speaker
                 </p>
                 <p style="margin:0 0 6px 0;font-size:17px;font-weight:700;color:#ffffff;">
-                  Pavel Čermák
+                  ${clientConfig.primaryContact.name}
                 </p>
                 <p style="margin:0 0 14px 0;font-size:14px;color:rgba(255,255,255,0.8);line-height:1.7;">
-                  AI entrepreneur from the Czech Republic. In 2022 he founded ${clientConfig.company.name} (<a href="${clientConfig.siteUrl}" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>), the first AI agency in the country, which deployed an AI assistant for a regional government office. Today 5 out of 13 Czech regions use AI agents built by his company. In total he has built 30+ agents in the public sector with 90%+ RAG accuracy in production.
+                  ${clientConfig.primaryContact.title}, ${clientConfig.company.name} (<a href="${clientConfig.siteUrl}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>)
                 </p>
                 <p style="margin:0 0 16px 0;font-size:13px;color:rgba(255,255,255,0.5);">
-                  <a href="https://www.linkedin.com/in/pavlis-cermak/" target="_blank" style="color:#00A39A;text-decoration:none;">LinkedIn</a>
-                  &nbsp;&bull;&nbsp;
-                  <a href="${clientConfig.siteUrl}" target="_blank" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                  <a href="${clientConfig.siteUrl}" target="_blank" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
                 </p>
                 <a href="${clientConfig.primaryContact.calendarUrl || ''}" target="_blank"
                    style="display:inline-block;padding:11px 22px;background:linear-gradient(135deg,#f97316 0%,#ea6c0a 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;box-shadow:0 4px 14px rgba(249,115,22,0.4);">
-                  Book a consultation with Pavel Čermák
+                  Book a consultation
                 </a>
               </div>
             </td>
@@ -838,7 +834,7 @@ export function generateSurveyConfirmationEmailHTML(lead: SurveyLead): string {
           <!-- Answers Summary -->
           <tr>
             <td style="padding:24px 40px;">
-              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">
+              <h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">
                 Your answers at a glance
               </h2>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
@@ -904,7 +900,7 @@ export function generateSurveyConfirmationEmailHTML(lead: SurveyLead): string {
           <tr>
             <td style="padding:24px 40px;background-color:rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
               <p style="margin:0 0 8px 0;font-size:13px;color:rgba(255,255,255,0.4);">
-                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
               </p>
               <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.3);">
                 The future is in AI. We are building it.

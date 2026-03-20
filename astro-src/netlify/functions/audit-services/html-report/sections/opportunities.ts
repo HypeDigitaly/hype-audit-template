@@ -3,7 +3,7 @@
 // =============================================================================
 
 import type { AuditReportData, Translations, AIOpportunity, OpportunityBenefit } from '../types';
-import { getEnhancedBenefitLabel, escapeHtmlAttr } from '../utils';
+import { getEnhancedBenefitLabel, escapeHtmlAttr, escapeHtml } from '../utils';
 import { sortBenefitsByBusinessType, getBusinessTypeSummaryLabel } from './summary';
 import {
   detectBusinessType,
@@ -42,14 +42,14 @@ export function generateOpportunitiesSection(data: AuditReportData, t: Translati
             const primaryClass = isPrimary ? ' benefit-primary' : '';
 
             return `
-            <div class="benefit-tag benefit-${benefit.type}${primaryClass}"${tooltipAttr}>
-              <span class="benefit-icon">${benefit.icon}</span>
+            <div class="benefit-tag benefit-${escapeHtmlAttr(benefit.type)}${primaryClass}"${tooltipAttr}>
+              <span class="benefit-icon">${escapeHtml(benefit.icon)}</span>
               <div class="benefit-content">
                 <div class="benefit-numbers">
-                  <span class="benefit-value">${benefit.value}</span>
-                  <span class="benefit-unit">${benefit.unit}</span>
+                  <span class="benefit-value">${escapeHtml(benefit.value)}</span>
+                  <span class="benefit-unit">${escapeHtml(benefit.unit)}</span>
                 </div>
-                <span class="benefit-label">${displayLabel}</span>
+                <span class="benefit-label">${escapeHtml(displayLabel)}</span>
               </div>
             </div>
           `;}).join('')}
@@ -83,7 +83,7 @@ export function generateOpportunitiesSection(data: AuditReportData, t: Translati
 
     // Generate short description HTML if available
     const shortDescHTML = opp.shortDescription
-      ? `<p class="opp-short-desc">${opp.shortDescription}</p>`
+      ? `<p class="opp-short-desc">${escapeHtml(opp.shortDescription)}</p>`
       : '';
 
     return `
@@ -91,9 +91,9 @@ export function generateOpportunitiesSection(data: AuditReportData, t: Translati
         <div class="opp-header">
           <span class="opp-badge ${quadrant.class}"${tooltipAttr}>${quadrant.label}</span>
         </div>
-        <h3>${opp.title}</h3>
+        <h3>${escapeHtml(opp.title)}</h3>
         ${shortDescHTML}
-        <p class="opp-description">${opp.description}</p>
+        <p class="opp-description">${escapeHtml(opp.description)}</p>
         ${benefitsHTML}
         <div class="opp-meta">
           <span class="meta-tag">${t.implementationEffort}: ${effortLabel}</span>

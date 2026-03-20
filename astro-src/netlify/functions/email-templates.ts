@@ -43,7 +43,7 @@ export const SERVICE_LABELS_CS: Record<string, string> = {
   dev: "Vývoj aplikací",
   web: "Web Design",
   consult: "AI Konzultace",
-  dataprep: "Příprava dat (RAGus.ai)",
+  dataprep: "Příprava dat",
   other: "Jiné",
 };
 
@@ -57,7 +57,7 @@ export const SERVICE_LABELS_EN: Record<string, string> = {
   dev: "App Development",
   web: "Web Design",
   consult: "AI Consultation",
-  dataprep: "Data Preparation (RAGus.ai)",
+  dataprep: "Data Preparation",
   other: "Other",
 };
 
@@ -143,6 +143,7 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
   const budgetOnetimeLabel = data.budget_onetime ? BUDGET_ONETIME_LABELS_CS[data.budget_onetime] || data.budget_onetime : "Neuvedeno";
   const budgetMonthlyLabel = data.budget_monthly ? BUDGET_MONTHLY_LABELS_CS[data.budget_monthly] || data.budget_monthly : "Neuvedeno";
   const userLang = data.language || 'cs';
+  const primaryColor = clientConfig.brand.primaryColor;
 
   return `
 <!DOCTYPE html>
@@ -158,13 +159,13 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
       <td align="center" style="padding: 40px 20px;">
         <!-- Main Container -->
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #111111; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; max-width: 600px;">
-          
+
           <!-- Header with Logo -->
           <tr>
-            <td style="background: linear-gradient(135deg, #0d3d56 0%, #0a2a3d 100%); padding: 32px 40px; text-align: center; border-bottom: 1px solid rgba(0,163,154,0.3);">
+            <td style="background: linear-gradient(135deg, #0d3d56 0%, #0a2a3d 100%); padding: 32px 40px; text-align: center; border-bottom: 1px solid ${primaryColor}4D;">
               <img src="${clientConfig.brand.logoUrl}" alt="${clientConfig.company.name}" width="180" style="display: block; margin: 0 auto 16px auto; height: auto;">
               <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #ffffff; letter-spacing: -0.5px;">
-                📬 Nový zájemce z webu
+                Nový zájemce z webu
               </h1>
               <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255,255,255,0.6);">
                 Kontaktní formulář na ${clientConfig.siteUrl.replace('https://', '')} • Jazyk: ${userLang.toUpperCase()}
@@ -175,8 +176,8 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
           <!-- Contact Info Section -->
           <tr>
             <td style="padding: 32px 40px 24px 40px;">
-              <h2 style="margin: 0 0 20px 0; font-size: 16px; font-weight: 600; color: #00A39A; text-transform: uppercase; letter-spacing: 1px;">
-                👤 Kontaktní údaje
+              <h2 style="margin: 0 0 20px 0; font-size: 16px; font-weight: 600; color: ${primaryColor}; text-transform: uppercase; letter-spacing: 1px;">
+                Kontaktní údaje
               </h2>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr>
@@ -195,8 +196,8 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                       <tr>
                         <td width="100" style="font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500;">E-mail</td>
-                        <td style="font-size: 15px; color: #00A39A; font-weight: 600;">
-                          <a href="mailto:${escapeHtml(data.email)}" style="color: #00A39A; text-decoration: none;">${escapeHtml(data.email)}</a>
+                        <td style="font-size: 15px; color: ${primaryColor}; font-weight: 600;">
+                          <a href="mailto:${escapeHtml(data.email)}" style="color: ${primaryColor}; text-decoration: none;">${escapeHtml(data.email)}</a>
                         </td>
                       </tr>
                     </table>
@@ -224,8 +225,8 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                       <tr>
                         <td width="100" style="font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500;">Web</td>
-                        <td style="font-size: 15px; color: #00A39A; font-weight: 600;">
-                          <a href="${escapeHtml(data.website)}" style="color: #00A39A; text-decoration: none;" target="_blank">${escapeHtml(data.website)}</a>
+                        <td style="font-size: 15px; color: ${primaryColor}; font-weight: 600;">
+                          <a href="${escapeHtml(data.website)}" style="color: ${primaryColor}; text-decoration: none;" target="_blank">${escapeHtml(data.website)}</a>
                         </td>
                       </tr>
                     </table>
@@ -239,17 +240,17 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
           <!-- Divider -->
           <tr>
             <td style="padding: 0 40px;">
-              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(0,163,154,0.3) 50%, transparent 100%);"></div>
+              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, ${primaryColor}4D 50%, transparent 100%);"></div>
             </td>
           </tr>
 
           <!-- Service Interest Section -->
           <tr>
             <td style="padding: 24px 40px;">
-              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #00A39A; text-transform: uppercase; letter-spacing: 1px;">
-                🎯 Zájem o službu
+              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: ${primaryColor}; text-transform: uppercase; letter-spacing: 1px;">
+                Zájem o službu
               </h2>
-              <div style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, rgba(0,163,154,0.2) 0%, rgba(0,163,154,0.1) 100%); border: 1px solid rgba(0,163,154,0.4); border-radius: 8px; font-size: 16px; font-weight: 600; color: #00A39A;">
+              <div style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, ${primaryColor}33 0%, ${primaryColor}1A 100%); border: 1px solid ${primaryColor}66; border-radius: 8px; font-size: 16px; font-weight: 600; color: ${primaryColor};">
                 ${serviceLabel}
               </div>
             </td>
@@ -258,8 +259,8 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
           <!-- Budget Section -->
           <tr>
             <td style="padding: 0 40px 24px 40px;">
-              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #00A39A; text-transform: uppercase; letter-spacing: 1px;">
-                💰 Rozpočet
+              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: ${primaryColor}; text-transform: uppercase; letter-spacing: 1px;">
+                Rozpočet
               </h2>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr>
@@ -285,15 +286,15 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
           <!-- Divider -->
           <tr>
             <td style="padding: 0 40px;">
-              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(0,163,154,0.3) 50%, transparent 100%);"></div>
+              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, ${primaryColor}4D 50%, transparent 100%);"></div>
             </td>
           </tr>
           <tr>
             <td style="padding: 24px 40px;">
-              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #00A39A; text-transform: uppercase; letter-spacing: 1px;">
-                💬 Zpráva
+              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: ${primaryColor}; text-transform: uppercase; letter-spacing: 1px;">
+                Zpráva
               </h2>
-              <div style="padding: 20px; background-color: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid #00A39A;">
+              <div style="padding: 20px; background-color: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid ${primaryColor};">
                 <p style="margin: 0; font-size: 15px; color: rgba(255,255,255,0.85); line-height: 1.6; white-space: pre-wrap;">${escapeHtml(data.message)}</p>
               </div>
             </td>
@@ -304,8 +305,8 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
           <tr>
             <td style="padding: 24px 40px 32px 40px; text-align: center;">
               <a href="mailto:${escapeHtml(data.email)}?subject=Re: Váš dotaz na ${clientConfig.company.name}"
-                 style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #00A39A 0%, #008f87 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: 600; box-shadow: 0 4px 14px rgba(0,163,154,0.4);">
-                📧 Odpovědět zájemci
+                 style="display: inline-block; padding: 14px 32px; background: ${primaryColor}; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: 600;">
+                Odpovědět zájemci
               </a>
             </td>
           </tr>
@@ -314,7 +315,7 @@ export function generateNotificationEmailHTML(data: ContactFormData): string {
           <tr>
             <td style="padding: 24px 40px; background-color: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
               <p style="margin: 0 0 8px 0; font-size: 13px; color: rgba(255,255,255,0.4);">
-                ${clientConfig.company.legalName} • <a href="${clientConfig.siteUrl}" style="color: #00A39A; text-decoration: none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                ${clientConfig.company.legalName} • <a href="${clientConfig.siteUrl}" style="color: ${primaryColor}; text-decoration: none;">${clientConfig.siteUrl.replace('https://', '')}</a>
               </p>
               <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.3);">
                 Automaticky odesláno z kontaktního formuláře • ${new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -375,44 +376,77 @@ Automaticky odesláno z kontaktního formuláře
 export function generateConfirmationEmailHTML(data: ContactFormData): string {
   const lang: EmailLanguage = data.language || 'cs';
   const serviceLabel = getServiceLabel(data.service, lang);
-  
+  const primaryColor = clientConfig.brand.primaryColor;
+  const contactName = clientConfig.primaryContact.name;
+  const contactTitle = clientConfig.primaryContact.title;
+
   // Bilingual content
   const content = {
     cs: {
-      title: "Děkujeme za Váš dotaz!",
+      title: clientConfig.email?.leadConfirm?.greeting?.cs || "Děkujeme za Váš dotaz!",
       subtitle: "Ozveme se Vám do 24 hodin",
       greeting: `Dobrý den, ${escapeHtml(data.name.split(' ')[0])},`,
       body: `Děkujeme za Váš zájem o spolupráci. Právě jsme v pořádku obdrželi Vaši poptávku ohledně <strong>${serviceLabel}</strong>. Náš tým ji právě zpracovává a budeme Vás kontaktovat zpět co nejdříve, nejpozději však <strong>do 24 hodin</strong>.`,
       bookingTitle: "Rezervujte si bezplatnou konzultaci",
-      bookingDesc: "30 min bezplatná konzultace skrze Google Meet s Pavlem Čermákem (Jednatel a technický ředitel)",
-      bookingBtn: "📅 Rezervovat konzultaci",
-      caseStudiesLabel: "Case Studies",
-      caseStudiesSubtitle: "PODÍVEJTE SE, JAK TVOŘÍME AI BUDOUCNOST",
-      caseStudyTitle: "Případová studie: 5 regionů ČR",
-      caseStudyStats: "35,095 AI odpovědí • 102% ROI • 4.57/5 spokojenost",
-      videoTitle: `Pavel Čermák - AI v praxi (${clientConfig.company.name})`,
+      bookingDesc: `30 min bezplatná konzultace skrze Google Meet s ${contactName} (${contactTitle})`,
+      bookingBtn: "Rezervovat konzultaci",
       followUs: "Sledujte nás",
       tagline: "Budoucnost je v AI. My ji tvoříme.",
     },
     en: {
-      title: "Thank you for your inquiry!",
+      title: clientConfig.email?.leadConfirm?.greeting?.en || "Thank you for your inquiry!",
       subtitle: "We'll get back to you within 24 hours",
       greeting: `Hello ${escapeHtml(data.name.split(' ')[0])},`,
       body: `Thank you for your interest in working with us. We have successfully received your inquiry regarding <strong>${serviceLabel}</strong>. Our team is currently reviewing it and will contact you as soon as possible, but no later than <strong>within 24 hours</strong>.`,
       bookingTitle: "Book a free consultation",
-      bookingDesc: "30 min free consultation via Google Meet with Pavel Čermák (CEO and CTO)",
-      bookingBtn: "📅 Book a consultation",
-      caseStudiesLabel: "Case Studies",
-      caseStudiesSubtitle: "SEE HOW WE'RE SHAPING THE AI FUTURE",
-      caseStudyTitle: "Case Study: 5 Czech Regions",
-      caseStudyStats: "35,095 AI responses • 102% ROI • 4.57/5 satisfaction",
-      videoTitle: `Pavel Čermák - AI in Practice (${clientConfig.company.name})`,
+      bookingDesc: `30 min free consultation via Google Meet with ${contactName} (${contactTitle})`,
+      bookingBtn: "Book a consultation",
       followUs: "Follow us",
       tagline: "The future is in AI. We're building it.",
     }
   };
-  
+
   const t = content[lang];
+
+  // Build Google Reviews section only when configured
+  const googleReviewsUrl = clientConfig.social?.googleReviews || '';
+  const googleReviewsSection = googleReviewsUrl ? `
+          <!-- Google Reviews Section -->
+          <tr>
+            <td style="padding: 0 40px 24px 40px; text-align: center;">
+              <a href="${googleReviewsUrl}" target="_blank"
+                 style="display: inline-block; padding: 12px 24px; background: ${primaryColor}1A; border: 1px solid ${primaryColor}4D; border-radius: 8px; color: ${primaryColor}; text-decoration: none; font-size: 14px; font-weight: 600;">
+                ${lang === 'cs' ? 'Ohodnoťte nás na Google' : 'Review us on Google'}
+              </a>
+            </td>
+          </tr>` : '';
+
+  // Build social icons row — only include channels that are configured
+  const socialIcons: string[] = [];
+  if (clientConfig.social?.linkedin) {
+    socialIcons.push(`<td style="padding: 0 8px;"><a href="${clientConfig.social.linkedin}" target="_blank" style="display: inline-block; width: 44px; height: 44px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; line-height: 44px; text-decoration: none;"><img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" width="20" height="20" style="vertical-align: middle;"></a></td>`);
+  }
+  if (clientConfig.social?.instagram) {
+    socialIcons.push(`<td style="padding: 0 8px;"><a href="${clientConfig.social.instagram}" target="_blank" style="display: inline-block; width: 44px; height: 44px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; line-height: 44px; text-decoration: none;"><img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" width="20" height="20" style="vertical-align: middle;"></a></td>`);
+  }
+  if (clientConfig.social?.facebook) {
+    socialIcons.push(`<td style="padding: 0 8px;"><a href="${clientConfig.social.facebook}" target="_blank" style="display: inline-block; width: 44px; height: 44px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; line-height: 44px; text-decoration: none;"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="20" height="20" style="vertical-align: middle;"></a></td>`);
+  }
+
+  const socialSection = socialIcons.length > 0 ? `
+          <!-- Social Media Section -->
+          <tr>
+            <td style="padding: 0 40px 32px 40px; text-align: center;">
+              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: ${primaryColor}; text-transform: uppercase; letter-spacing: 1px;">
+                ${t.followUs}
+              </h2>
+              <table role="presentation" align="center" cellspacing="0" cellpadding="0">
+                <tr>
+                  ${socialIcons.join('\n                  ')}
+                </tr>
+              </table>
+            </td>
+          </tr>` : '';
 
   return `
 <!DOCTYPE html>
@@ -428,13 +462,13 @@ export function generateConfirmationEmailHTML(data: ContactFormData): string {
       <td align="center" style="padding: 40px 20px;">
         <!-- Main Container -->
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #111111; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; max-width: 600px;">
-          
+
           <!-- Header with Logo -->
           <tr>
-            <td style="background: linear-gradient(135deg, #0d3d56 0%, #0a2a3d 100%); padding: 32px 40px; text-align: center; border-bottom: 1px solid rgba(0,163,154,0.3);">
+            <td style="background: linear-gradient(135deg, #0d3d56 0%, #0a2a3d 100%); padding: 32px 40px; text-align: center; border-bottom: 1px solid ${primaryColor}4D;">
               <img src="${clientConfig.brand.logoUrl}" alt="${clientConfig.company.name}" width="180" style="display: block; margin: 0 auto 16px auto; height: auto;">
               <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #ffffff; letter-spacing: -0.5px;">
-                🎉 ${t.title}
+                ${t.title}
               </h1>
               <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255,255,255,0.6);">
                 ${t.subtitle}
@@ -457,17 +491,17 @@ export function generateConfirmationEmailHTML(data: ContactFormData): string {
           <!-- Booking CTA Section -->
           <tr>
             <td style="padding: 0 40px 24px 40px;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: linear-gradient(135deg, rgba(0,163,154,0.15) 0%, rgba(0,163,154,0.05) 100%); border: 1px solid rgba(0,163,154,0.3); border-radius: 12px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: ${primaryColor}26; border: 1px solid ${primaryColor}4D; border-radius: 12px;">
                 <tr>
                   <td style="padding: 24px; text-align: center;">
                     <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #ffffff;">
-                      📅 ${t.bookingTitle}
+                      ${t.bookingTitle}
                     </p>
                     <p style="margin: 0 0 20px 0; font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5;">
                       ${t.bookingDesc}
                     </p>
                     <a href="${clientConfig.primaryContact.calendarUrl || ''}" target="_blank"
-                       style="display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #00A39A 0%, #008f87 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: 600; box-shadow: 0 4px 14px rgba(0,163,154,0.4);">
+                       style="display: inline-block; padding: 14px 28px; background: ${primaryColor}; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: 600;">
                       ${t.bookingBtn}
                     </a>
                   </td>
@@ -479,91 +513,19 @@ export function generateConfirmationEmailHTML(data: ContactFormData): string {
           <!-- Divider -->
           <tr>
             <td style="padding: 0 40px;">
-              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(0,163,154,0.3) 50%, transparent 100%);"></div>
+              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, ${primaryColor}4D 50%, transparent 100%);"></div>
             </td>
           </tr>
 
-          <!-- Case Studies Section -->
-          <tr>
-            <td style="padding: 32px 40px 24px 40px;">
-              <p style="margin: 0 0 4px 0; font-size: 22px; font-weight: 600; color: #00A39A; font-style: italic; font-family: Georgia, 'Times New Roman', serif;">
-                ${t.caseStudiesLabel}
-              </p>
-              <p style="margin: 0 0 16px 0; font-size: 11px; font-weight: 600; color: #00A39A; text-transform: uppercase; letter-spacing: 1.5px;">
-                📊 ${t.caseStudiesSubtitle}
-              </p>
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background-color: #000000;">
-                    <a href="${clientConfig.siteUrl}/blog/pripadova-studie-5-kraju-cr" target="_blank" style="display: block; text-decoration: none;">
-                      <img src="${clientConfig.siteUrl}/assets/images/blog/pripadova-studie-5-kraju-cr/hero.png" alt="${t.caseStudyTitle}" style="width: 100%; display: block;">
-                      <div style="padding: 16px; background-color: #111111;">
-                        <p style="margin: 0 0 4px 0; color: #ffffff; font-size: 14px; font-weight: 600;">${t.caseStudyTitle}</p>
-                        <p style="margin: 0; color: #00A39A; font-size: 12px;">${t.caseStudyStats}</p>
-                      </div>
-                    </a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
+          ${googleReviewsSection}
 
-          <!-- YouTube Video Section -->
-          <tr>
-            <td style="padding: 16px 40px 24px 40px;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background-color: #000000;">
-                    <a href="https://www.youtube.com/watch?v=bHMZn4ga9DE" target="_blank" style="display: block; text-decoration: none;">
-                      <img src="https://i.ytimg.com/vi/bHMZn4ga9DE/maxresdefault.jpg" alt="${t.videoTitle}" style="width: 100%; display: block;">
-                      <div style="padding: 16px; background-color: #111111;">
-                        <p style="margin: 0; color: #ffffff; font-size: 14px; font-weight: 500;">📺 ${t.videoTitle}</p>
-                      </div>
-                    </a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Social Media Section -->
-          <tr>
-            <td style="padding: 0 40px 32px 40px; text-align: center;">
-              <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #00A39A; text-transform: uppercase; letter-spacing: 1px;">
-                📱 ${t.followUs}
-              </h2>
-              <table role="presentation" align="center" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td style="padding: 0 8px;">
-                    <a href="${clientConfig.social.linkedin || ''}" target="_blank" style="display: inline-block; width: 44px; height: 44px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; line-height: 44px; color: #1a1a1a; text-decoration: none;">
-                      <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" width="20" height="20" style="vertical-align: middle;">
-                    </a>
-                  </td>
-                  <td style="padding: 0 8px;">
-                    <a href="${clientConfig.social.instagram || ''}" target="_blank" style="display: inline-block; width: 44px; height: 44px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; line-height: 44px; color: #1a1a1a; text-decoration: none;">
-                      <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" width="20" height="20" style="vertical-align: middle;">
-                    </a>
-                  </td>
-                  <td style="padding: 0 8px;">
-                    <a href="${clientConfig.social.facebook || ''}" target="_blank" style="display: inline-block; width: 44px; height: 44px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; line-height: 44px; color: #1a1a1a; text-decoration: none;">
-                      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="20" height="20" style="vertical-align: middle;">
-                    </a>
-                  </td>
-                  <td style="padding: 0 8px;">
-                    <a href="https://www.youtube.com/@PavelCermakAI" target="_blank" style="display: inline-block; width: 44px; height: 44px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; line-height: 44px; color: #1a1a1a; text-decoration: none;">
-                      <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" width="20" height="20" style="vertical-align: middle;">
-                    </a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
+          ${socialSection}
 
           <!-- Footer -->
           <tr>
             <td style="padding: 24px 40px; background-color: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
               <p style="margin: 0 0 8px 0; font-size: 13px; color: rgba(255,255,255,0.4);">
-                ${clientConfig.company.legalName} • <a href="${clientConfig.siteUrl}" style="color: #00A39A; text-decoration: none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                ${clientConfig.company.legalName} • <a href="${clientConfig.siteUrl}" style="color: ${primaryColor}; text-decoration: none;">${clientConfig.siteUrl.replace('https://', '')}</a>
               </p>
               <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.3);">
                 ${t.tagline}
@@ -584,6 +546,14 @@ export function generateConfirmationEmailText(data: ContactFormData): string {
   const lang: EmailLanguage = data.language || 'cs';
   const serviceLabel = getServiceLabel(data.service, lang);
   const firstName = data.name.split(' ')[0];
+  const contactName = clientConfig.primaryContact.name;
+  const contactTitle = clientConfig.primaryContact.title;
+
+  const socialLinks = [
+    clientConfig.social?.linkedin ? `- LinkedIn: ${clientConfig.social.linkedin}` : '',
+    clientConfig.social?.instagram ? `- Instagram: ${clientConfig.social.instagram}` : '',
+    clientConfig.social?.facebook ? `- Facebook: ${clientConfig.social.facebook}` : '',
+  ].filter(Boolean).join('\n');
 
   if (lang === 'en') {
     return `
@@ -595,23 +565,12 @@ We have successfully received your message and our team is currently reviewing i
 
 ---
 
-📅 BOOK A FREE CONSULTATION
-30 min free consultation via Google Meet with ${clientConfig.primaryContact.name} (${clientConfig.primaryContact.title})
+BOOK A FREE CONSULTATION
+30 min free consultation via Google Meet with ${contactName} (${contactTitle})
 ${clientConfig.primaryContact.calendarUrl || ''}
 
 ---
-
-CASE STUDIES - See how we're shaping the AI future:
-- Case Study: 5 Czech Regions (35,095 AI responses, 102% ROI)
-  ${clientConfig.siteUrl}/blog/pripadova-studie-5-kraju-cr
-
-VIDEO:
-- Pavel Čermák - AI in Practice (${clientConfig.company.name})
-  https://www.youtube.com/watch?v=bHMZn4ga9DE
-
-Follow us:
-- LinkedIn: ${clientConfig.social.linkedin || ''}
-- Instagram: ${clientConfig.social.instagram || ''}
+${socialLinks ? `\nFollow us:\n${socialLinks}\n\n---` : ''}
 
 Thank you and we look forward to potential collaboration!
 
@@ -630,23 +589,12 @@ Vaši zprávu jsme v pořádku obdrželi a náš tým ji právě zpracovává. B
 
 ---
 
-📅 REZERVUJTE SI BEZPLATNOU KONZULTACI
-30 min bezplatná konzultace skrze Google Meet s ${clientConfig.primaryContact.name} (${clientConfig.primaryContact.title})
+REZERVUJTE SI BEZPLATNOU KONZULTACI
+30 min bezplatná konzultace skrze Google Meet s ${contactName} (${contactTitle})
 ${clientConfig.primaryContact.calendarUrl || ''}
 
 ---
-
-CASE STUDIES - Podívejte se, jak tvoříme AI budoucnost:
-- Případová studie: 5 regionů ČR (35,095 AI odpovědí, 102% ROI)
-  ${clientConfig.siteUrl}/blog/pripadova-studie-5-kraju-cr
-
-VIDEO:
-- Pavel Čermák - AI v praxi (${clientConfig.company.name})
-  https://www.youtube.com/watch?v=bHMZn4ga9DE
-
-Sledujte nás:
-- LinkedIn: ${clientConfig.social.linkedin || ''}
-- Instagram: ${clientConfig.social.instagram || ''}
+${socialLinks ? `\nSledujte nás:\n${socialLinks}\n\n---` : ''}
 
 Děkujeme a těšíme se na případnou spolupráci!
 

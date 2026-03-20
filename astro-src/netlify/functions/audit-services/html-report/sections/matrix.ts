@@ -3,6 +3,7 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
+import { escapeHtml } from '../utils';
 
 export function generateMatrixSection(data: AuditReportData, t: Translations): string {
   // Group opportunities by quadrant for grid layout
@@ -16,9 +17,16 @@ export function generateMatrixSection(data: AuditReportData, t: Translations): s
   const renderQuadrant = (key: keyof typeof grouped, label: string) => `
     <div class="matrix-quadrant">
       <span class="quadrant-label">${label}</span>
-      ${grouped[key].map(opp => `
-        <div class="matrix-item ${opp.quadrant.replace('_', '-')}">${opp.title}</div>
-      `).join('')}
+      ${grouped[key].map(opp => {
+        const VALID_QUADRANTS: Record<string, string> = {
+          'deprioritize': 'deprioritize',
+          'big_swing': 'big-swing',
+          'nice_to_have': 'nice-to-have',
+          'quick_win': 'quick-win'
+        };
+        const safeClass = VALID_QUADRANTS[opp.quadrant] || 'deprioritize';
+        return `<div class="matrix-item ${safeClass}">${escapeHtml(opp.title)}</div>`;
+      }).join('')}
     </div>
   `;
 

@@ -3,16 +3,24 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
+import { escapeHtml, escapeHtmlAttr, sanitizeUrl } from '../utils';
 
 export function generateToolsSection(data: AuditReportData, t: Translations): string {
-  const toolsHTML = data.recommendedTools.map(tool => `
+  const toolsHTML = data.recommendedTools.map(tool => {
+    const safeUrl = tool.url ? sanitizeUrl(tool.url) : '';
+    const linkHTML = safeUrl
+      ? `<a href="${escapeHtmlAttr(safeUrl)}" target="_blank" class="tool-link">${data.language === 'cs' ? 'Přejít na web →' : 'Visit website →'}</a>`
+      : '';
+
+    return `
     <div class="tool-card">
-      <span class="cat">${tool.category}</span>
-      <h4>${tool.name}</h4>
-      <p>${tool.useCase}</p>
-      ${tool.url ? `<a href="${tool.url}" target="_blank" class="tool-link">${data.language === 'cs' ? 'Přejít na web →' : 'Visit website →'}</a>` : ''}
+      <span class="cat">${escapeHtml(tool.category)}</span>
+      <h4>${escapeHtml(tool.name)}</h4>
+      <p>${escapeHtml(tool.useCase)}</p>
+      ${linkHTML}
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   return `
     <section class="section">

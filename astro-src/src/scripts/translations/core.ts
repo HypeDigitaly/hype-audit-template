@@ -3,20 +3,9 @@ import { site } from '../../config/site';
 
 export interface CoreKeys {
   // Navigation
-  nav_services: string;
-  nav_cases: string;
   nav_audit: string;
   nav_audit_badge: string;
-  nav_ai_profit_systems: string;
-  nav_ai_profit_systems_badge: string;
-  nav_data_prep: string;
-  nav_contact: string;
   nav_cta: string;
-  nav_chatbot_title: string;
-  nav_chatbot_desc: string;
-  nav_consulting_title: string;
-  nav_consulting_desc: string;
-  nav_case_studies: string;
 
   // Scroll Navigation
   scroll_to_top: string;
@@ -86,20 +75,9 @@ export interface CoreKeys {
 export const coreTranslations: Record<Language, CoreKeys> = {
   cs: {
     // Navigation
-    nav_services: "Služby",
-    nav_cases: "Reference",
     nav_audit: "AI Audit",
     nav_audit_badge: "ZDARMA",
-    nav_ai_profit_systems: "AI Profit Systems",
-    nav_ai_profit_systems_badge: "1:1 KOUČINK",
-    nav_data_prep: "RAGus.ai",
-    nav_contact: "Kontakt",
     nav_cta: "Bezplatná konzultace",
-    nav_chatbot_title: "AI Chatbot",
-    nav_chatbot_desc: "Inteligentní konverzační AI",
-    nav_consulting_title: "Konzultace & Partnerství",
-    nav_consulting_desc: "Strategické AI poradenství",
-    nav_case_studies: "Blog",
 
     // Scroll Navigation
     scroll_to_top: "Přejít nahoru",
@@ -110,9 +88,9 @@ export const coreTranslations: Record<Language, CoreKeys> = {
     hero_headline_1: "Bezplatný AI Audit",
     hero_headline_2: "pro Vaši firmu",
     hero_subheadline: "Zjistěte, kde ztrácíte čas a peníze. Náš AI Audit odhalí příležitosti pro automatizaci a úspory. Výsledky do 5 minut – přímo ve Vašem e-mailu.",
-    hero_subheadline_2: "První AI agentura v ČR, která nasadila AI asistenty na krajské weby.",
+    hero_subheadline_2: "AI Audit",
     hero_cta: "Sestavit AI strategii",
-    hero_trust_1: "1. AI asistent na krajských webech v ČR",
+    hero_trust_1: "Výsledky do 5 minut",
     hero_trust_2: "Výsledky do 5 minut",
     hero_trust_3: "100% zdarma",
     hero_form_website: "Web společnosti",
@@ -132,16 +110,16 @@ export const coreTranslations: Record<Language, CoreKeys> = {
     hero_form_field_required: "Toto pole je povinné.",
 
     // Stats
-    stat_first: "AI na krajích v ČR",
+    stat_first: "AI projekty v praxi",
     stat_experience: "roky zkušeností s AI",
-    stat_regions: "Krajů v ČR",
+    stat_regions: "odvětví",
     stat_projects: "úspěšných projektů",
 
     // Trusted by
     trusted_title: "Spolupracujeme s předními institucemi",
 
     // Footer
-    footer_desc: `${site.name} je strategický AI partner pro firmy a státní správu. První softwarová společnost v Česku, která nasadila AI chatboty na krajských webech.`,
+    footer_desc: `${site.name} je strategický AI partner pro firmy. Pomáháme firmám zavést AI a automatizaci do každodenních procesů.`,
     footer_services: "Služby",
     footer_references: "Reference",
     footer_contact: "Kontakt",
@@ -159,7 +137,7 @@ export const coreTranslations: Record<Language, CoreKeys> = {
     footer_label_city: "Město",
     footer_label_country: "Země",
     footer_country_name: "Česká republika",
-    footer_location: "Ústí nad Labem, Česká republika",
+    footer_location: "Česká republika",
     footer_rights: "Všechna práva vyhrazena",
 
     // About
@@ -167,20 +145,9 @@ export const coreTranslations: Record<Language, CoreKeys> = {
   },
   en: {
     // Navigation
-    nav_services: "Services",
-    nav_cases: "References",
     nav_audit: "AI Audit",
     nav_audit_badge: "FREE",
-    nav_ai_profit_systems: "AI Profit Systems",
-    nav_ai_profit_systems_badge: "1:1 COACHING",
-    nav_data_prep: "RAGus.ai",
-    nav_contact: "Contact",
     nav_cta: "Free consultation",
-    nav_chatbot_title: "AI Chatbot",
-    nav_chatbot_desc: "Intelligent conversational AI",
-    nav_consulting_title: "Consulting & Partnership",
-    nav_consulting_desc: "Strategic AI consultancy",
-    nav_case_studies: "Blog",
 
     // Scroll Navigation
     scroll_to_top: "Go to top",
@@ -191,9 +158,9 @@ export const coreTranslations: Record<Language, CoreKeys> = {
     hero_headline_1: "Free AI Audit",
     hero_headline_2: "for your company",
     hero_subheadline: "Discover where you're losing time and money. Our AI Audit reveals opportunities for automation and savings. Results in 5 minutes – delivered directly to your email.",
-    hero_subheadline_2: "The first AI agency in the Czech Republic to deploy AI assistants on regional government websites.",
+    hero_subheadline_2: "AI Audit",
     hero_cta: "Build your AI strategy",
-    hero_trust_1: "1st AI assistant on regional websites in CZ",
+    hero_trust_1: "Results in 5 minutes",
     hero_trust_2: "Results in 5 minutes",
     hero_trust_3: "100% free",
     hero_form_website: "Company website",
@@ -213,16 +180,16 @@ export const coreTranslations: Record<Language, CoreKeys> = {
     hero_form_field_required: "This field is required.",
 
     // Stats
-    stat_first: "AI on regions in CZ",
+    stat_first: "AI projects in production",
     stat_experience: "years of AI experience",
-    stat_regions: "Regions in CZ",
+    stat_regions: "industries",
     stat_projects: "successful projects",
 
     // Trusted by
     trusted_title: "Partnering with leading institutions",
 
     // Footer
-    footer_desc: `${site.name} is a strategic AI partner for businesses and public administration. The first software company in Czechia to deploy AI chatbots on regional government websites.`,
+    footer_desc: `${site.name} is a strategic AI partner for businesses. We help companies implement AI and automation into everyday processes.`,
     footer_services: "Services",
     footer_references: "References",
     footer_contact: "Contact",
@@ -240,7 +207,7 @@ export const coreTranslations: Record<Language, CoreKeys> = {
     footer_label_city: "City",
     footer_label_country: "Country",
     footer_country_name: "Czech Republic",
-    footer_location: "Ústí nad Labem, Czech Republic",
+    footer_location: "Czech Republic",
     footer_rights: "All rights reserved",
 
     // About

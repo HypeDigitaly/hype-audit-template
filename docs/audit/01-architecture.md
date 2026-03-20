@@ -12,11 +12,12 @@ This document establishes the technical architecture for the `/audit` page, back
 
 1. [Master File Inventory](#master-file-inventory)
 2. [System Overview](#system-overview)
-3. [Dual Architecture Patterns](#dual-architecture-patterns)
-4. [Data Flow Pipeline](#data-flow-pipeline)
-5. [Data Models](#data-models)
-6. [Core Patterns & Conventions](#core-patterns--conventions)
-7. [Technology Stack](#technology-stack)
+3. [Routing & Page Structure](#routing--page-structure)
+4. [Dual Architecture Patterns](#dual-architecture-patterns)
+5. [Data Flow Pipeline](#data-flow-pipeline)
+6. [Data Models](#data-models)
+7. [Core Patterns & Conventions](#core-patterns--conventions)
+8. [Technology Stack](#technology-stack)
 
 ---
 
@@ -26,9 +27,10 @@ This document establishes the technical architecture for the `/audit` page, back
 
 | Path | Lines | Purpose |
 |------|-------|---------|
-| `src/pages/audit.astro` | ~1,800 | Server-rendered audit page with language routing, SEO, hero section, form, process timeline, value props, pricing comparison |
+| `src/pages/index.astro` | ~1,800 | Home page (formerly `/audit`) — Server-rendered audit form with language routing, SEO, hero section, form, process timeline, value props, pricing comparison |
+| `src/pages/audit.astro` | ~50 | **Deprecated** — Now a 301 redirect to `/` for backward compatibility |
 | `src/pages/admin/leads.astro` | ~2,100 | Admin dashboard for viewing leads from all sources (audit, contact, survey, pricing, onboarding) with filtering, sorting, bulk actions |
-| `src/components/sections/AuditRoadmapAnimated.astro` | ~400 | Animated 4-step roadmap component used on audit page |
+| `src/components/sections/AuditRoadmapAnimated.astro` | ~400 | Animated 4-step roadmap component used on home page |
 
 ### Netlify Functions - Audit System
 
@@ -205,7 +207,7 @@ import type { ResearchStep } from '../audit-services/langgraph-agent';
 
 The AI audit system is a **lead generation + background processing platform** that:
 
-1. **Captures** business information through a web form (/audit page)
+1. **Captures** business information through a web form (home page at `/`)
 2. **Researches** company context using AI + web search (LangGraph + Tavily)
 3. **Generates** customized HTML audit reports (structured data → interactive HTML)
 4. **Delivers** reports via email + persistent storage (Netlify Blobs + Resend)
@@ -214,16 +216,17 @@ The AI audit system is a **lead generation + background processing platform** th
 ### Entry Points
 
 **For Users:**
-- GET `/audit` → Web page with form + hero section
-- POST `/api/audit` → Sync handler (immediate response)
-- POST `/api/audit-background` → Async handler (202 Accepted, background processing)
-- GET `/api/audit-status?jobId=xxx` → Poll job progress
+- GET `/` → Home page with audit form + hero section
+- GET `/audit` → **301 redirect** to `/` (backward compatibility)
+- POST `/.netlify/functions/audit` → Sync handler (immediate response)
+- POST `/.netlify/functions/audit-background` → Async handler (202 Accepted, background processing)
+- GET `/.netlify/functions/audit-status?jobId=xxx` → Poll job progress
 - GET `/report/{reportId}` → View stored HTML report
 
 **For Admins:**
 - GET `/admin/leads` → Dashboard with all leads (Audit + Contact + Survey + Pricing + Onboarding)
-- GET `/api/admin-leads` → API endpoint (password-protected)
-- DELETE `/api/admin-leads-delete?id=xxx` → Remove lead
+- GET `/.netlify/functions/admin-leads` → API endpoint (password-protected)
+- DELETE `/.netlify/functions/admin-leads-delete?id=xxx` → Remove lead
 
 ### Dual Execution Paths
 
@@ -240,6 +243,46 @@ Path B: Background Handler (Slow, 15-min timeout)
     → updateJobStatus('completed')
   Frontend polls audit-status every 1.5s to track progress
 ```
+
+---
+
+## Routing & Page Structure
+
+### URL Structure (v2 Generalization)
+
+The template uses a **white-label URL structure** with the audit form moved to the home page:
+
+| Route | Status | Purpose | Files |
+|-------|--------|---------|-------|
+| `/` | **Live** | Home page with audit form, hero, roadmap, CTAs | `src/pages/index.astro` |
+| `/audit` | **Deprecated (301)** | Redirect to `/` for backward compatibility | `src/pages/audit.astro` |
+| `/report/{reportId}` | **Live** | View/print generated audit report | `netlify/functions/audit-report.ts` |
+| `/admin/leads` | **Live** | Password-protected admin dashboard | `src/pages/admin/leads.astro` |
+| `/privacy-policy` | **Live** | Privacy & GDPR compliance | `src/pages/privacy-policy.astro` |
+
+### Configuration-Driven Navigation
+
+All page content is now **configuration-driven** via `config.json`:
+
+| Config Section | Used For | Files |
+|---|---|---|
+| `company.*` | Page headers, footers, legal info | Navigation, Footer, email templates |
+| `domain.*` | Site URL, report URLs, CORS origin | Audit handlers, email links |
+| `branding.*` | Logo, favicon, primary/accent colors | Global CSS tokens, components |
+| `contact.*` | Company address, phone, email | Footer, contact forms |
+| `team[]` | Team member info, calendar links | CTA sections, email signatures |
+| `social.*` | LinkedIn, Instagram, Facebook, Google Reviews | Footer, social sharing |
+| `notifications.*` | Recipient emails, sender email/name | Audit email handlers |
+| `content.*` | Hero section copy, pricing tiers, CTAs | Home page sections (optional) |
+| `auditForm.*` | Form field visibility, pain point options | Audit form configuration (optional) |
+| `nav.*` | Navigation links, menu items | Top navbar (optional) |
+| `llm.*` | Model selection, temperature, token limits | LLM agent configuration |
+| `prompt.*` | System identity, tone, focus areas | Prompt generation |
+| `search.*` | Query types, max queries | LangGraph search executor |
+| `report.*` | Section ordering, CTA customization | Report generator |
+| `email.*` | Email template customization | Email handlers |
+| `analytics.*` | GA4, Segment, Mixpanel IDs | Analytics tracking |
+| `seo.*` | Meta descriptions, OG tags | Meta tag generation |
 
 ---
 

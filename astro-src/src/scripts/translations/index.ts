@@ -7,19 +7,10 @@
 
 import type { Language } from './types';
 import { coreTranslations, type CoreKeys } from './core';
-import { landingTranslations, type LandingKeys } from './landing';
-import { servicePagesTranslations, type ServicePagesKeys } from './service-pages';
-import { chatbotTranslations, type ChatbotKeys } from './chatbot';
-import { contactTranslations, type ContactKeys } from './contact';
-import { consultTranslations, type ConsultKeys } from './consult';
-import { dataprepTranslations, type DataprepKeys } from './dataprep';
 import { auditTranslations, type AuditKeys } from './audit';
 import { surveyTranslations, type SurveyKeys } from './survey';
-import { blogTranslations, type BlogKeys } from './blog';
 import { legalTranslations, type LegalKeys } from './legal';
 import { miscTranslations, type MiscKeys } from './misc';
-import { onboardingTranslations, type OnboardingKeys } from './onboarding';
-import { pricingTranslations, type PricingKeys } from './pricing';
 
 // Re-export the Language type
 export type { Language } from './types';
@@ -30,19 +21,10 @@ export type { Language } from './types';
  */
 export interface TranslationKeys extends
   CoreKeys,
-  LandingKeys,
-  ServicePagesKeys,
-  ChatbotKeys,
-  ContactKeys,
-  ConsultKeys,
-  DataprepKeys,
   AuditKeys,
   SurveyKeys,
-  BlogKeys,
   LegalKeys,
-  MiscKeys,
-  OnboardingKeys,
-  PricingKeys {
+  MiscKeys {
   // Index signature for dynamic key access (legacy support)
   [key: string]: string;
 }
@@ -53,19 +35,10 @@ export interface TranslationKeys extends
 function mergeTranslations(lang: Language): TranslationKeys {
   return {
     ...coreTranslations[lang],
-    ...landingTranslations[lang],
-    ...servicePagesTranslations[lang],
-    ...chatbotTranslations[lang],
-    ...contactTranslations[lang],
-    ...consultTranslations[lang],
-    ...dataprepTranslations[lang],
     ...auditTranslations[lang],
     ...surveyTranslations[lang],
-    ...blogTranslations[lang],
     ...legalTranslations[lang],
     ...miscTranslations[lang],
-    ...onboardingTranslations[lang],
-    ...pricingTranslations[lang],
   } as TranslationKeys;
 }
 

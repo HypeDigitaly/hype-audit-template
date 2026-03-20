@@ -43,6 +43,39 @@ git --version           # Should be v2.30 or higher
 
 ---
 
+## Config Schema Overview
+
+The template now uses a **hierarchical configuration schema** (extends from ~33 to ~120+ fields):
+
+**Configuration Sections (10 main areas):**
+1. **company** — Legal name, industry, description, contact info (7 fields)
+2. **domain** — URLs, CORS origin (3 fields)
+3. **branding** — Logo, favicon, primary/accent colors (4 fields)
+4. **contact** — Street, city, postal code, country, maps embed (7 fields)
+5. **team[]** — Team members with names, titles, emails, calendar links (5 fields × N members)
+6. **social** — LinkedIn, Instagram, Facebook, Google Reviews (4 fields)
+7. **notifications** — Email recipients, sender email/name (3 fields)
+8. **content** — Hero copy, CTA text, pricing tiers (optional, 10+ fields)
+9. **auditForm** — Form field options, visibility toggles, pain points (optional, 15+ fields)
+10. **nav** — Navigation menu items, link customization (optional, 5+ fields)
+11. **llm** — Model selection, temperature, token limits, timeout (8 fields)
+12. **prompt** — System identity, tone, focus areas, brand mentions, custom instructions (5+ fields)
+13. **search** — Query customization, max results, disabled search types (4+ fields)
+14. **report** — Section ordering, CTA customization, quadrant distribution (10+ fields)
+15. **email** — Email template customization, template URLs (8+ fields)
+16. **analytics** — GA4, Segment, Mixpanel IDs (4 fields)
+17. **seo** — Meta descriptions, OG tags, canonical URLs (6+ fields)
+
+**Total Fields:** 120+ (all optional except core identity fields)
+
+All fields are **validated at runtime** with:
+- Type checking
+- Format validation (hex colors, URLs, emails, regex patterns)
+- Prompt injection blocklist
+- Character validation
+
+---
+
 ## Environment Variables - Audit & Admin Scoped
 
 ### Variable Reference Table

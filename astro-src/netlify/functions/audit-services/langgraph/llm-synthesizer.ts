@@ -15,59 +15,43 @@ import {
 } from '../json-parser-utils';
 
 // =============================================================================
-// LLM SYNTHESIS
+// SYSTEM MESSAGE BUILDER
 // =============================================================================
 
+/** Default style paragraph used when no tone override is configured */
+const DEFAULT_STYLE_PARAGRAPH =
+  'TEMPERATURE GUIDANCE: Be creative and varied in your language. Don\'t repeat the same phrases across different opportunities. Each description should feel fresh and specifically crafted.';
+
+/** Map config tone values to concrete writing instructions */
+const TONE_MAP: Record<string, string> = {
+  professional: DEFAULT_STYLE_PARAGRAPH,
+  conversational:
+    'STYLE GUIDANCE: Write in a warm, approachable style as if speaking directly to the reader. Use everyday language, short sentences, and a friendly voice. Make the reader feel like they are having a helpful conversation with a knowledgeable colleague.',
+  technical:
+    'STYLE GUIDANCE: Write in a precise, data-driven style using industry terminology. Favor concrete metrics, technical specifications, and structured argumentation. Assume the reader has domain expertise.',
+  consultative:
+    'STYLE GUIDANCE: Write as a trusted advisor offering strategic counsel. Balance authority with empathy, frame recommendations as options with trade-offs, and reference industry best practices to build credibility.',
+};
+
 /**
- * Synthesize structured report using LLM with retry logic and model fallback
- *
- * Features:
- * - Primary and fallback model configurations
- * - Automatic retry on failure
- * - JSON extraction and validation
- * - Truncation detection
+ * Build the system message, injecting optional systemIdentity and tone
+ * from clientConfig.prompt while preserving backward compatibility.
  */
-export async function synthesizeStructuredReport(
-  prompt: string,
-  openrouterApiKey: string,
-  formData: AuditFormInputs
-): Promise<SynthesisResult> {
-  console.log('[Agent] ========================================');
-  console.log('[Agent] Synthesizing structured report with LLM');
-  console.log(`[Agent] Prompt length: ${prompt.length} characters`);
+function buildSystemMessage(): string {
+  const systemIdentity = clientConfig.prompt?.systemIdentity;
+  const tone = clientConfig.prompt?.tone;
 
-  let lastError: Error | null = null;
-  let usedFallbackModel = false;
+  // Identity clause — only appended when defined
+  const identityClause = systemIdentity
+    ? ` working on behalf of ${systemIdentity}`
+    : '';
 
-  // Try each model configuration
-  for (let configIndex = 0; configIndex < MODEL_CONFIGS.length; configIndex++) {
-    const config = MODEL_CONFIGS[configIndex];
-    console.log(`[Agent] ========================================`);
-    console.log(`[Agent] Attempt ${configIndex + 1}/${MODEL_CONFIGS.length}: ${config.name}`);
+  // Choose the style paragraph: tone overrides the default completely
+  const styleParagraph = tone
+    ? (TONE_MAP[tone] ?? DEFAULT_STYLE_PARAGRAPH)
+    : DEFAULT_STYLE_PARAGRAPH;
 
-    for (let retry = 0; retry <= config.maxRetries; retry++) {
-      if (retry > 0) {
-        console.log(`[Agent] Retry ${retry}/${config.maxRetries} for ${config.name}`);
-      }
-
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openrouterApiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': clientConfig.siteUrl,
-            'X-Title': `${clientConfig.company.name} AI Deep Research Agent v3`
-          },
-          body: JSON.stringify({
-            models: config.models,
-            messages: [
-              {
-                role: 'system',
-                content: `You are an expert AI auditor, CREATIVE COPYWRITER, and PERSONALIZATION SPECIALIST. Your output must be:
+  return `You are an expert AI auditor, CREATIVE COPYWRITER, and PERSONALIZATION SPECIALIST${identityClause}. Your output must be:
 1. ONLY valid JSON, directly parseable by JSON.parse()
 2. 100% ORIGINAL and UNIQUELY TAILORED to this specific company
 3. COMPELLING and SALES-ORIENTED - you are helping sell AI consulting services
@@ -88,16 +72,92 @@ CRITICAL REQUIREMENTS:
 - Use the company name naturally throughout
 - Generic, template-like, or recycled output is STRICTLY FORBIDDEN
 
-TEMPERATURE GUIDANCE: Be creative and varied in your language. Don't repeat the same phrases across different opportunities. Each description should feel fresh and specifically crafted.
+${styleParagraph}
 
-Ensure the JSON is complete and not truncated.`
+Ensure the JSON is complete and not truncated.`;
+}
+
+// =============================================================================
+// LLM SYNTHESIS
+// =============================================================================
+
+/**
+ * Synthesize structured report using LLM with retry logic and model fallback
+ *
+ * Features:
+ * - Primary and fallback model configurations
+ * - Automatic retry on failure
+ * - JSON extraction and validation
+ * - Truncation detection
+ * - Config-driven max_tokens, timeout, systemIdentity, and tone
+ */
+export async function synthesizeStructuredReport(
+  prompt: string,
+  openrouterApiKey: string,
+  formData: AuditFormInputs
+): Promise<SynthesisResult> {
+  console.log('[Agent] ========================================');
+  console.log('[Agent] Synthesizing structured report with LLM');
+  console.log(`[Agent] Prompt length: ${prompt.length} characters`);
+
+  let lastError: Error | null = null;
+  let usedFallbackModel = false;
+
+  // Calculate per-attempt timeout to stay within the total budget
+  const totalTimeout = clientConfig.llm.timeout;
+  const totalAttemptsAcrossAll = MODEL_CONFIGS.reduce(
+    (sum, c) => sum + c.maxRetries + 1,
+    0,
+  );
+  const perAttemptTimeout = Math.floor(totalTimeout / totalAttemptsAcrossAll);
+
+  // Per-config maxTokens: primary (index 0) uses primary.maxTokens, fallback uses fallback.maxTokens
+  const maxTokensByConfig = [
+    clientConfig.llm.primary.maxTokens,
+    clientConfig.llm.fallback.maxTokens,
+  ];
+
+  // Try each model configuration
+  for (let configIndex = 0; configIndex < MODEL_CONFIGS.length; configIndex++) {
+    const config = MODEL_CONFIGS[configIndex];
+    console.log(`[Agent] ========================================`);
+    console.log(`[Agent] Attempt ${configIndex + 1}/${MODEL_CONFIGS.length}: ${config.name}`);
+
+    const maxTokens = maxTokensByConfig[configIndex] ?? maxTokensByConfig[0];
+
+    for (let retry = 0; retry <= config.maxRetries; retry++) {
+      if (retry > 0) {
+        console.log(`[Agent] Retry ${retry}/${config.maxRetries} for ${config.name}`);
+      }
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), perAttemptTimeout);
+
+        // Build the system message with optional systemIdentity and tone
+        const systemMessage = buildSystemMessage();
+
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openrouterApiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': clientConfig.siteUrl,
+            'X-Title': `${clientConfig.company.name} AI Deep Research Agent v3`
+          },
+          body: JSON.stringify({
+            models: config.models,
+            messages: [
+              {
+                role: 'system',
+                content: systemMessage,
               },
               {
                 role: 'user',
                 content: prompt
               }
             ],
-            max_tokens: 32000, // Increased to 32K to prevent any truncation
+            max_tokens: maxTokens,
             temperature: config.temperature
           }),
           signal: controller.signal

@@ -3,7 +3,7 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
-import { getEnhancedTechCategoryLabel, escapeHtmlAttr } from '../utils';
+import { getEnhancedTechCategoryLabel, escapeHtml, escapeHtmlAttr } from '../utils';
 
 export function generateTechnologiesSection(data: AuditReportData, t: Translations): string {
   if (!data.detectedTechnologies || data.detectedTechnologies.length === 0) {
@@ -44,9 +44,9 @@ export function generateTechnologiesSection(data: AuditReportData, t: Translatio
     <div class="tech-card">
       <div class="tech-icon">${getCategoryIcon(tech.category)}</div>
       <div class="tech-info">
-        <h4>${tech.name}</h4>
-        <span class="tech-category tooltip-term"${tooltipAttr}>${categoryLabel.label}</span>
-        ${tech.description ? `<p>${tech.description}</p>` : ''}
+        <h4>${escapeHtml(tech.name)}</h4>
+        <span class="tech-category tooltip-term"${tooltipAttr}>${escapeHtml(categoryLabel.label)}</span>
+        ${tech.description ? `<p>${escapeHtml(tech.description)}</p>` : ''}
       </div>
       <span class="tech-confidence ${getConfidenceClass(tech.confidence)}">${getConfidenceLabel(tech.confidence)}</span>
     </div>

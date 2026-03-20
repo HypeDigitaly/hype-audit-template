@@ -59,6 +59,58 @@ This allows consumers to import from either location:
 
 ## HTML Report Generation
 
+### Configuration-Driven Report Settings
+
+**File:** `config.json` (new v2 feature)
+
+Report generation is now **configurable** via config.json:
+
+```json
+{
+  "report": {
+    "sections": {
+      "opportunities": true,
+      "roi": true,
+      "timeline": true,
+      "risks": true,
+      "tools": true,
+      "questions": true,
+      "technologies": true
+    },
+    "sectionOrder": [
+      "header",
+      "company",
+      "summary",
+      "opportunities",
+      "matrix",
+      "roi",
+      "questions",
+      "technologies",
+      "apps",
+      "benchmark",
+      "timeline",
+      "risks",
+      "tools",
+      "cta",
+      "footer"
+    ],
+    "cta": {
+      "title": "Ready to Transform Your Business?",
+      "text": "Schedule a free consultation with our AI experts",
+      "buttonText": "Book Your Strategy Call",
+      "buttonLink": "https://cal.com/your-cal-link"
+    },
+    "opportunitiesPerPage": 12,
+    "quadrantDistribution": {
+      "quick_win": "dynamic",  // or specific count
+      "big_swing": "dynamic",
+      "nice_to_have": "dynamic",
+      "deprioritize": "dynamic"
+    }
+  }
+}
+```
+
 ### Parent Files
 
 #### `html-report/generator.ts`
@@ -69,11 +121,12 @@ This allows consumers to import from either location:
 **Returns:** Complete HTML5 document (self-contained, single file)
 
 **Key behaviors:**
-- Reads `AuditReportData` input
+- Reads `AuditReportData` input and config settings
 - Loads translations via `getTranslations(data.language)`
 - Loads CSS via `getStyles(data.companyBranding)` with smart color selection
 - Loads inline JavaScript via `getScripts(data)` for interactive features
-- Calls all 15 section generators in order
+- **Security:** All section outputs sanitized with `escapeHtml()`, `escapeHtmlAttr()`, `sanitizeUrl()`
+- Calls section generators in order defined by `config.report.sectionOrder`
 - Assembles into single HTML document with:
   - `<!DOCTYPE html>` + language attributes
   - Meta tags: `noindex, nofollow` (temporary/preview document)
@@ -81,6 +134,7 @@ This allows consumers to import from either location:
   - Inlined `<script>` block (vanilla JS, no framework)
 
 **Section order in document:**
+Determined by `config.report.sectionOrder`. Default:
 1. Header (logo, dates, action buttons)
 2. Company profile card
 3. Executive summary (benefits overview)
@@ -94,9 +148,8 @@ This allows consumers to import from either location:
 11. Implementation timeline
 12. Risk assessment
 13. Tools recommendations
-14. Intro/closing statement
-15. CTA section
-16. Footer
+14. CTA section (customizable via config)
+15. Footer
 
 #### `html-report/index.ts`
 **Purpose:** Public API exports

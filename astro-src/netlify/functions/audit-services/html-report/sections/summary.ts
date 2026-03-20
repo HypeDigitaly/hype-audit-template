@@ -3,7 +3,7 @@
 // =============================================================================
 
 import type { AuditReportData, Translations, OpportunityBenefit, BenefitType } from '../types';
-import { getEnhancedBenefitLabel, escapeHtmlAttr } from '../utils';
+import { getEnhancedBenefitLabel, escapeHtml, escapeHtmlAttr } from '../utils';
 import {
   detectBusinessType,
   getBusinessTypeMetrics,
@@ -132,9 +132,9 @@ export function generateExecutiveSummarySection(data: AuditReportData, t: Transl
     <section class="section executive-summary-section">
       <h2 class="section-title">${headline}</h2>
       <div class="exec-intro">
-        <p>${summary.introText}</p>
+        <p>${escapeHtml(summary.introText)}</p>
       </div>
-      <p class="exec-disclaimer">${summary.disclaimer}</p>
+      <p class="exec-disclaimer">${escapeHtml(summary.disclaimer)}</p>
     </section>
   `;
 }

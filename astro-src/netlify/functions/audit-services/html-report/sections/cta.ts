@@ -3,39 +3,59 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
+import { escapeHtml, escapeHtmlAttr, sanitizeUrl } from '../utils';
 import { clientConfig } from '../../../_config/client';
 
 export function generateCTASection(data: AuditReportData, t: Translations): string {
-  const reviewsText = data.language === 'cs' ? 'Naše Google recenze' : 'Our Google Reviews';
+  const lang = data.language;
 
-  return `
-    <section class="section cta-section">
-      <h2>${t.ctaTitle}</h2>
-      <p>${t.ctaSubtitle}</p>
-      <a href="${clientConfig.primaryContact.calendarUrl || ''}" target="_blank" class="btn btn-white" style="display: inline-flex; margin: 0 auto;">
-        📅 ${t.ctaButton}
-      </a>
+  // ---------------------------------------------------------------------------
+  // CTA copy — prefer config overrides, fall back to translation strings.
+  // config.report.cta fields are bilingual { cs, en }; select by report language.
+  // ---------------------------------------------------------------------------
+  const ctaConfig = clientConfig.report.cta;
+  const ctaTitle      = (ctaConfig?.title      ? ctaConfig.title[lang]      : null) ?? t.ctaTitle;
+  const ctaSubtitle   = (ctaConfig?.subtitle   ? ctaConfig.subtitle[lang]   : null) ?? t.ctaSubtitle;
+  const ctaButtonText = (ctaConfig?.buttonText ? ctaConfig.buttonText[lang] : null) ?? t.ctaButton;
+  const ctaButtonUrl  = ctaConfig?.buttonUrl ?? clientConfig.primaryContact.calendarUrl ?? '';
 
-      <div class="cta-contact-info cta-contact-3col">
-        <div class="cta-contact-col">
-          <strong>${clientConfig.primaryContact.name}</strong><br>
-          ${clientConfig.primaryContact.title}<br>
-          <a href="mailto:${clientConfig.primaryContact.email}" style="color: rgba(255,255,255,0.9);">${clientConfig.primaryContact.email}</a><br>
-          <a href="tel:${clientConfig.primaryContact.phone.replace(/\s/g, '')}" style="color: rgba(255,255,255,0.9);">${clientConfig.primaryContact.phone}</a>
-        </div>
-        <div class="cta-contact-col cta-contact-center">
-          <a href="https://share.google/TSK90V06h2slFwrgC" target="_blank" class="cta-reviews-btn">
+  // ---------------------------------------------------------------------------
+  // Google Reviews — only render the link when a URL is configured.
+  // ---------------------------------------------------------------------------
+  const googleReviewsUrl = clientConfig.social?.googleReviews;
+  const reviewsText = lang === 'cs' ? 'Naše Google recenze' : 'Our Google Reviews';
+  const googleReviewsHtml = googleReviewsUrl
+    ? `<a href="${escapeHtmlAttr(sanitizeUrl(googleReviewsUrl))}" target="_blank" class="cta-reviews-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="color: #FBBC04;">
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
             </svg>
             ${reviewsText}
-          </a>
+          </a>`
+    : '';
+
+  return `
+    <section class="section cta-section">
+      <h2>${escapeHtml(ctaTitle)}</h2>
+      <p>${escapeHtml(ctaSubtitle)}</p>
+      <a href="${escapeHtmlAttr(sanitizeUrl(ctaButtonUrl))}" target="_blank" class="btn btn-white" style="display: inline-flex; margin: 0 auto;">
+        ${escapeHtml(ctaButtonText)}
+      </a>
+
+      <div class="cta-contact-info cta-contact-3col">
+        <div class="cta-contact-col">
+          <strong>${escapeHtml(clientConfig.primaryContact.name)}</strong><br>
+          ${escapeHtml(clientConfig.primaryContact.title)}<br>
+          <a href="mailto:${escapeHtmlAttr(clientConfig.primaryContact.email)}" style="color: rgba(255,255,255,0.9);">${escapeHtml(clientConfig.primaryContact.email)}</a><br>
+          ${clientConfig.primaryContact.phone ? `<a href="tel:${escapeHtmlAttr(clientConfig.primaryContact.phone.replace(/\s/g, ''))}" style="color: rgba(255,255,255,0.9);">${escapeHtml(clientConfig.primaryContact.phone)}</a>` : ''}
+        </div>
+        <div class="cta-contact-col cta-contact-center">
+          ${googleReviewsHtml}
         </div>
         <div class="cta-contact-col cta-contact-right">
-          <strong>${clientConfig.company.legalName}</strong><br>
-          ${clientConfig.contact.street}<br>
-          ${clientConfig.contact.city}, ${clientConfig.contact.postalCode}<br>
-          ${clientConfig.contact.country}
+          <strong>${escapeHtml(clientConfig.company.legalName)}</strong><br>
+          ${escapeHtml(clientConfig.contact.street)}<br>
+          ${escapeHtml(clientConfig.contact.city)}, ${escapeHtml(clientConfig.contact.postalCode)}<br>
+          ${escapeHtml(clientConfig.contact.country)}
         </div>
       </div>
     </section>

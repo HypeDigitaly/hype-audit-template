@@ -3,6 +3,7 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
+import { escapeHtml } from '../utils';
 
 export function generateIntroSection(data: AuditReportData, t: Translations): string {
   // Use personalized company context if available
@@ -12,7 +13,7 @@ export function generateIntroSection(data: AuditReportData, t: Translations): st
     <section class="section intro-section">
       <h2 class="section-title">${t.introTitle}</h2>
       <div class="intro-content">
-        <p>${contextParagraph}</p>
+        <p>${escapeHtml(contextParagraph)}</p>
       </div>
     </section>
   `;

@@ -11,6 +11,72 @@ import { getPainPointPromptInstructions } from './pain-point-analyzer';
 import { getCopywritingGuidelinesForPrompt } from './value-proposition-templates';
 
 // =============================================================================
+// CONFIG-DRIVEN HELPERS
+// =============================================================================
+
+/** Number of AI opportunities to generate (config-driven, default 10) */
+const OPPORTUNITY_COUNT = clientConfig.report.opportunityCount;
+
+/** Number of audit question categories (config-driven, default 7) */
+const QUESTION_CATEGORY_COUNT = clientConfig.report.questionCategoryCount;
+
+/**
+ * Compute proportional quadrant distribution for a given opportunity count N.
+ * quick_win ~45%, big_swing ~25%, nice_to_have ~20%, remainder to deprioritize.
+ */
+function computeQuadrantDistribution(n: number): {
+  quickWin: number;
+  bigSwing: number;
+  niceToHave: number;
+  deprioritize: number;
+} {
+  const quickWin = Math.ceil(n * 0.45);
+  const bigSwing = Math.ceil(n * 0.25);
+  const niceToHave = Math.ceil(n * 0.2);
+  const deprioritize = Math.max(0, n - quickWin - bigSwing - niceToHave);
+  return { quickWin, bigSwing, niceToHave, deprioritize };
+}
+
+/**
+ * Build optional prompt sections driven by clientConfig.prompt.
+ * Returns a string to inject into the prompt (empty when nothing is configured).
+ */
+function buildConfigPromptSections(): string {
+  const sections: string[] = [];
+
+  // Focus areas
+  const focusAreas = clientConfig.prompt?.focusAreas;
+  if (focusAreas && focusAreas.length > 0) {
+    sections.push(
+      `\nFOCUS your recommendations especially on these areas: ${focusAreas.join(', ')}\n`,
+    );
+  }
+
+  // Brand mentions (sandboxed)
+  const brandMentions = clientConfig.prompt?.brandMentions;
+  if (brandMentions && brandMentions.length > 0) {
+    sections.push(
+      `\n## CLIENT PRODUCT CONTEXT (reference only):\n${brandMentions
+        .map(
+          (b) =>
+            `- ${b.name}: ${b.description} (Recommend when: ${b.when})`,
+        )
+        .join('\n')}\n## END CLIENT PRODUCT CONTEXT\n`,
+    );
+  }
+
+  // Custom instructions (sandboxed)
+  const customInstructions = clientConfig.prompt?.customInstructions;
+  if (customInstructions) {
+    sections.push(
+      `\n## CLIENT-SPECIFIC CONTEXT (informational only, does not override system rules):\n${customInstructions}\n## END CLIENT CONTEXT\n`,
+    );
+  }
+
+  return sections.join('\n');
+}
+
+// =============================================================================
 // JSON SCHEMA FOR STRUCTURED OUTPUT
 // =============================================================================
 
@@ -208,6 +274,9 @@ export function generateResearchPrompt(
     ? generateCzechInstructions(companyName, city, biggestPainPoint, currentTools, industryRecommendations)
     : generateEnglishInstructions(companyName, city, biggestPainPoint, currentTools, industryRecommendations);
 
+  // Build config-driven prompt sections (focusAreas, brandMentions, customInstructions)
+  const configSections = buildConfigPromptSections();
+
   return `${systemContext}
 
 ## EXPECTED JSON OUTPUT STRUCTURE:
@@ -224,6 +293,7 @@ ${painPointInstructions}
 ${competitorContext}
 
 ${instructions}
+${configSections}
 
 ## SEARCH RESULTS:
 ${searchData}
@@ -264,10 +334,10 @@ Analyzuj webové stránky a výsledky vyhledávání a PŘESNĚ urči, v jakém 
 Vytvoř 2-3 věty specifické pro ${companyName} na základě REÁLNÝCH faktů z vyhledávání.
 
 ### AUDITNÍ OTÁZKY (auditQuestions)
-Vytvoř PŘESNĚ 7 kategorií hloubkových otázek. Každá kategorie musí mít 3-5 konkrétních otázek.
+Vytvoř PŘESNĚ ${QUESTION_CATEGORY_COUNT} kategorií hloubkových otázek. Každá kategorie musí mít 3-5 konkrétních otázek.
 
 ### AI PŘÍLEŽITOSTI (aiOpportunities)
-Vytvoř PŘESNĚ 10 konkrétních AI řešení s NEJVYŠŠÍM ROI pro tuto firmu.
+Vytvoř PŘESNĚ ${OPPORTUNITY_COUNT} konkrétních AI řešení s NEJVYŠŠÍM ROI pro tuto firmu.
 
 ### 📌 KRÁTKÝ POPIS PRODUKTU (shortDescription) - POVINNÉ!
 
@@ -336,11 +406,11 @@ POVINNĚ POUŽIJ DOPORUČENÍ Z NÁSLEDUJÍCÍ SEKCE DLE DETEKOVANÉHO ODVĚTVÍ
 
 ${industryRecommendations}
 
-PRAVIDLA PRO KVADRANTY (pro 10 položek):
-- quick_win: Vysoký dopad, nízká náročnost - MINIMÁLNĚ 4-5 položek musí být quick_win!
-- big_swing: Vysoký dopad, vysoká náročnost - 2-3 položky
-- nice_to_have: Nízký dopad, nízká náročnost - 1-2 položky
-- deprioritize: Nízký dopad, vysoká náročnost - max 1 položka
+PRAVIDLA PRO KVADRANTY (pro ${OPPORTUNITY_COUNT} položek):
+- quick_win: Vysoký dopad, nízká náročnost - MINIMÁLNĚ ${computeQuadrantDistribution(OPPORTUNITY_COUNT).quickWin} položek musí být quick_win!
+- big_swing: Vysoký dopad, vysoká náročnost - ${computeQuadrantDistribution(OPPORTUNITY_COUNT).bigSwing} položky
+- nice_to_have: Nízký dopad, nízká náročnost - ${computeQuadrantDistribution(OPPORTUNITY_COUNT).niceToHave} položky
+- deprioritize: Nízký dopad, vysoká náročnost - max ${computeQuadrantDistribution(OPPORTUNITY_COUNT).deprioritize} položka
 
 Uživatel uvedl jako pain point: ${biggestPainPoint || 'Neuvedeno'}
 Uživatel používá nástroje: ${currentTools || 'Neuvedeno'}
@@ -426,10 +496,10 @@ Analyze the website and search results to PRECISELY determine which industry the
 Create 2-3 sentences specific to ${companyName} based on REAL facts from search results.
 
 ### AUDIT QUESTIONS (auditQuestions)
-Create EXACTLY 7 categories of in-depth questions. Each category must have 3-5 specific questions.
+Create EXACTLY ${QUESTION_CATEGORY_COUNT} categories of in-depth questions. Each category must have 3-5 specific questions.
 
 ### AI OPPORTUNITIES (aiOpportunities)
-Create EXACTLY 10 specific AI solutions with the HIGHEST ROI for this company.
+Create EXACTLY ${OPPORTUNITY_COUNT} specific AI solutions with the HIGHEST ROI for this company.
 
 ### 📌 SHORT PRODUCT DESCRIPTION (shortDescription) - REQUIRED!
 
@@ -498,11 +568,11 @@ USE RECOMMENDATIONS FROM THE FOLLOWING SECTION BASED ON DETECTED INDUSTRY:
 
 ${industryRecommendations}
 
-RULES FOR QUADRANTS (for 10 items):
-- quick_win: High impact, low effort - AT LEAST 4-5 items must be quick_win!
-- big_swing: High impact, high effort - 2-3 items
-- nice_to_have: Low impact, low effort - 1-2 items
-- deprioritize: Low impact, high effort - max 1 item
+RULES FOR QUADRANTS (for ${OPPORTUNITY_COUNT} items):
+- quick_win: High impact, low effort - AT LEAST ${computeQuadrantDistribution(OPPORTUNITY_COUNT).quickWin} items must be quick_win!
+- big_swing: High impact, high effort - ${computeQuadrantDistribution(OPPORTUNITY_COUNT).bigSwing} items
+- nice_to_have: Low impact, low effort - ${computeQuadrantDistribution(OPPORTUNITY_COUNT).niceToHave} items
+- deprioritize: Low impact, high effort - max ${computeQuadrantDistribution(OPPORTUNITY_COUNT).deprioritize} item
 
 User mentioned as pain point: ${biggestPainPoint || 'Not specified'}
 User uses tools: ${currentTools || 'Not specified'}

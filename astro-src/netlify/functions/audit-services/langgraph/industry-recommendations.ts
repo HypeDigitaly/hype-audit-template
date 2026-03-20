@@ -2,6 +2,32 @@
 // INDUSTRY RECOMMENDATIONS - Industry-specific AI recommendations for prompts
 // =============================================================================
 
+import { clientConfig } from '../../_config/client';
+
+/**
+ * Build a sandboxed brand-mentions section from clientConfig.prompt.brandMentions.
+ * Returns an empty string when no brand mentions are configured.
+ */
+function buildBrandMentionsSection(language: 'cs' | 'en'): string {
+  const brandMentions = clientConfig.prompt?.brandMentions;
+  if (!brandMentions || brandMentions.length === 0) return '';
+
+  const header =
+    language === 'cs'
+      ? '## KLIENTSKÉ PRODUKTY (reference pro doporučení):'
+      : '## CLIENT PRODUCT CONTEXT (reference only):';
+  const footer =
+    language === 'cs'
+      ? '## KONEC KLIENTSKÝCH PRODUKTŮ'
+      : '## END CLIENT PRODUCT CONTEXT';
+
+  const lines = brandMentions.map(
+    (b) => `- ${b.name}: ${b.description} (Recommend when: ${b.when})`,
+  );
+
+  return `\n\n${header}\n${lines.join('\n')}\n${footer}`;
+}
+
 /**
  * Get industry-specific AI recommendations for the LLM prompt
  * This is a large string template used in the research prompt
@@ -224,7 +250,7 @@ Doporuč pro KAŽDOU firmu s dokumentací, interními procesy, nebo potřebou be
 - **AI Lead kvalifikace:** Scoring poptávek dle vážnosti záměru
 - **Virtual tours chatbot:** Odpovídá na dotazy během prohlídky
 - **Investment calculator:** AI kalkulačka návratnosti
-- **Market intelligence:** Sledování konkurenčních projektů`;
+- **Market intelligence:** Sledování konkurenčních projektů${buildBrandMentionsSection(language)}`;
   }
 
   return `
@@ -443,5 +469,5 @@ Recommend for EVERY business with documentation, internal processes, or need for
 - **AI Lead Qualification:** Scoring inquiries by intent seriousness
 - **Virtual Tours Chatbot:** Answers questions during tours
 - **Investment Calculator:** AI ROI calculator
-- **Market Intelligence:** Monitoring competing projects`;
+- **Market Intelligence:** Monitoring competing projects${buildBrandMentionsSection(language)}`;
 }

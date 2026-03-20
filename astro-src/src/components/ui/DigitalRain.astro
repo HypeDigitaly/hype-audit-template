@@ -16,3 +16,23 @@ const { variant = 'default' } = Astro.props;
     ))}
   </div>
 </div>
+
+<style>
+  /*
+   * Override particle color for the default (teal) variant using the design
+   * token so it tracks --color-primary instead of a hardcoded hex value.
+   * The gold variant keeps its own hardcoded gold color defined in global.css.
+   */
+  .digital-rain:not(.digital-rain--gold) .rain-particle {
+    background: var(--color-primary);
+    box-shadow: 0 0 6px 1px rgba(var(--color-primary-rgb) / 0.8);
+  }
+
+  .digital-rain:not(.digital-rain--gold) .rain-particle:nth-child(odd) {
+    box-shadow: 0 0 8px 2px rgba(var(--color-primary-rgb) / 0.9);
+  }
+
+  .digital-rain:not(.digital-rain--gold) .rain-particle:nth-child(3n) {
+    box-shadow: 0 0 4px 1px rgba(var(--color-primary-rgb) / 0.6);
+  }
+</style>

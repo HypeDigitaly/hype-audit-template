@@ -3,11 +3,14 @@
 // =============================================================================
 
 import type { AuditReportData } from './types';
+import { clientConfig } from '../../_config/client';
+import { sanitizeColor } from './utils';
 
 export function getScripts(data: AuditReportData): string {
   const currency = data.language === 'cs' ? 'Kč' : '$';
   const weeksPerMonth = 4.33;
   const monthsPerYear = 12;
+  const primaryColor = sanitizeColor(data.companyBranding?.primaryColor) || clientConfig.brand.primaryColor;
 
   return `
     const oppCheckboxes = document.querySelectorAll('.opp-checkbox');
@@ -266,8 +269,8 @@ export function getScripts(data: AuditReportData): string {
       }));
 
       const gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
-      gradient.addColorStop(0, 'rgba(0,163,154,0.2)');
-      gradient.addColorStop(1, 'rgba(0,163,154,0)');
+      gradient.addColorStop(0, '${primaryColor}33');
+      gradient.addColorStop(1, '${primaryColor}00');
 
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
@@ -294,13 +297,13 @@ export function getScripts(data: AuditReportData): string {
       ctx.fillStyle = gradient;
       ctx.fill(fillPath);
 
-      ctx.strokeStyle = '#00A39A';
+      ctx.strokeStyle = '${primaryColor}';
       ctx.lineWidth = 3;
       ctx.stroke();
 
       // Points
       points.forEach((p, i) => {
-        ctx.fillStyle = '#00A39A';
+        ctx.fillStyle = '${primaryColor}';
         ctx.beginPath();
         ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
         ctx.fill();

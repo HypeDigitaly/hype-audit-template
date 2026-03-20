@@ -3,7 +3,7 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
-import { getEnhancedRiskCategoryLabel, escapeHtmlAttr } from '../utils';
+import { getEnhancedRiskCategoryLabel, escapeHtml, escapeHtmlAttr } from '../utils';
 
 export function generateRiskSection(data: AuditReportData, t: Translations): string {
   if (!data.riskAssessment || data.riskAssessment.length === 0) {
@@ -32,8 +32,10 @@ export function generateRiskSection(data: AuditReportData, t: Translations): str
     return icons[category] || '⚠️';
   };
 
+  const VALID_SEVERITIES = new Set(['low', 'medium', 'high']);
   const getSeverityClass = (severity: string): string => {
-    return `severity-${severity}`;
+    const safe = VALID_SEVERITIES.has(severity) ? severity : 'medium';
+    return `severity-${safe}`;
   };
 
   const risksHTML = data.riskAssessment.map(risk => {
@@ -46,14 +48,14 @@ export function generateRiskSection(data: AuditReportData, t: Translations): str
       <div class="risk-header">
         <span class="risk-icon">${getCategoryIcon(risk.category)}</span>
         <div class="risk-title-group">
-          <h4>${risk.title}</h4>
-          <span class="risk-category tooltip-term"${tooltipAttr}>${categoryInfo.label || getCategoryLabel(risk.category)}</span>
+          <h4>${escapeHtml(risk.title)}</h4>
+          <span class="risk-category tooltip-term"${tooltipAttr}>${escapeHtml(categoryInfo.label || getCategoryLabel(risk.category))}</span>
         </div>
         <span class="severity-badge">${risk.severity === 'low' ? t.low : risk.severity === 'medium' ? t.medium : t.high}</span>
       </div>
-      <p class="risk-description">${risk.description}</p>
+      <p class="risk-description">${escapeHtml(risk.description)}</p>
       <div class="risk-mitigation">
-        <strong>${t.riskMitigation}:</strong> ${risk.mitigation}
+        <strong>${t.riskMitigation}:</strong> ${escapeHtml(risk.mitigation)}
       </div>
     </div>
   `;}).join('');

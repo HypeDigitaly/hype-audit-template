@@ -38,13 +38,13 @@ const currentPath = Astro.url.pathname;
 const cleanPath = canonicalPath || currentPath.replace(/\/$/, '') || '/';
 
 // Build canonical URL (Czech = clean URL, English = with ?lang=en)
-const canonicalUrl = lang === 'en' 
+const canonicalUrl = lang === 'en'
   ? `${SITE_URL}${cleanPath}?lang=en`
   : `${SITE_URL}${cleanPath}`;
 
 // Build hreflang URLs
 const csUrl = `${SITE_URL}${cleanPath}`;
-const enUrl = `${SITE_URL}${cleanPath}${cleanPath === '/' ? '?lang=en' : '?lang=en'}`;
+const enUrl = `${SITE_URL}${cleanPath}?lang=en`;
 
 // Build OG URL (use provided or canonical)
 const finalOgUrl = ogUrl || canonicalUrl;
@@ -55,7 +55,29 @@ const fullOgImage = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage
 // Organization JSON-LD (only on homepage or if not article)
 const isHomepage = cleanPath === '/' || cleanPath === '';
 
-// Organization structured data
+// ---------------------------------------------------------------------------
+// Derived values for Organization JSON-LD
+// ---------------------------------------------------------------------------
+
+const founderName = site.seo?.founder?.name || site.team?.[0]?.name || site.name;
+const founderTitle = site.seo?.founder?.title || site.team?.[0]?.title || '';
+const founderUrl = site.seo?.founder?.linkedinUrl || site.team?.[0]?.email || '';
+
+const geoCoordinates = site.seo?.geoCoordinates;
+const slogan = site.seo?.slogan?.[lang];
+const knowsAbout = site.seo?.knowsAbout ?? [];
+const foundingDate = site.seo?.foundingDate || '';
+const employeeCount = site.seo?.employeeCount || '';
+
+// Build sameAs array — only include keys that exist in the schema
+const sameAs = [
+  site.social?.linkedin,
+  site.social?.instagram,
+  site.social?.facebook,
+  site.social?.googleReviews,
+].filter((v): v is string => Boolean(v));
+
+// Conditionally composed Organization schema — omit undefined/empty fields
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -78,11 +100,13 @@ const organizationSchema = {
     "postalCode": site.address.postalCode,
     "addressCountry": "CZ"
   },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": 50.661664,
-    "longitude": 14.040413
-  },
+  ...(geoCoordinates ? {
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": geoCoordinates.latitude,
+      "longitude": geoCoordinates.longitude
+    }
+  } : {}),
   "contactPoint": [
     {
       "@type": "ContactPoint",
@@ -92,33 +116,22 @@ const organizationSchema = {
       "availableLanguage": ["Czech", "English"]
     }
   ],
-  "sameAs": [
-    site.social.linkedin || '',
-    site.social.instagram || '',
-    site.social.facebook || '',
-    site.social.youtube || ''
-  ].filter(Boolean),
+  ...(sameAs.length > 0 ? { "sameAs": sameAs } : {}),
   "founder": {
     "@type": "Person",
-    "name": "Pavel Čermák",
-    "jobTitle": "CEO & CTO",
-    "url": "https://www.linkedin.com/in/cermakai/"
+    "name": founderName,
+    ...(founderTitle ? { "jobTitle": founderTitle } : {}),
+    ...(founderUrl ? { "url": founderUrl } : {})
   },
-  "foundingDate": "2022",
-  "numberOfEmployees": {
-    "@type": "QuantitativeValue",
-    "minValue": 2,
-    "maxValue": 10
-  },
-  "slogan": lang === 'cs' ? "První AI agentura v ČR" : "First AI Agency in Czech Republic",
-  "knowsAbout": [
-    "Artificial Intelligence",
-    "AI Chatbots",
-    "Voicebots",
-    "RAG Systems",
-    "AI Automation",
-    "Machine Learning"
-  ],
+  ...(foundingDate ? { "foundingDate": foundingDate } : {}),
+  ...(employeeCount ? {
+    "numberOfEmployees": {
+      "@type": "QuantitativeValue",
+      "description": employeeCount
+    }
+  } : {}),
+  ...(slogan ? { "slogan": slogan } : {}),
+  ...(knowsAbout.length > 0 ? { "knowsAbout": knowsAbout } : {}),
   "areaServed": {
     "@type": "Country",
     "name": "Czech Republic"
@@ -138,6 +151,9 @@ const websiteSchema = {
   },
   "inLanguage": lang === 'cs' ? "cs-CZ" : "en-US"
 };
+
+// Author link — only rendered when a founder LinkedIn URL is configured
+const authorLinkUrl = site.seo?.founder?.linkedinUrl || '';
 ---
 
 <!DOCTYPE html>
@@ -147,24 +163,24 @@ const websiteSchema = {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title}</title>
   <meta name="description" content={description}>
-  
+
   <!-- Robots -->
   <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"}>
   <meta name="googlebot" content={noindex ? "noindex, nofollow" : "index, follow"}>
-  
+
   <!-- Author & Publisher -->
   <meta name="author" content={site.legalName}>
   <meta name="publisher" content={site.name}>
-  <link rel="author" href="https://www.linkedin.com/in/cermakai/">
-  
+  {authorLinkUrl && <link rel="author" href={authorLinkUrl}>}
+
   <!-- Canonical URL -->
   <link rel="canonical" href={canonicalUrl}>
-  
+
   <!-- Hreflang for Multilingual SEO -->
   <link rel="alternate" hreflang="cs" href={csUrl}>
   <link rel="alternate" hreflang="en" href={enUrl}>
   <link rel="alternate" hreflang="x-default" href={csUrl}>
-  
+
   <!-- Open Graph -->
   <meta property="og:type" content={articleMeta ? "article" : "website"}>
   <meta property="og:site_name" content={site.name}>
@@ -176,7 +192,7 @@ const websiteSchema = {
   <meta property="og:url" content={finalOgUrl}>
   <meta property="og:locale" content={lang === 'cs' ? "cs_CZ" : "en_US"}>
   <meta property="og:locale:alternate" content={lang === 'cs' ? "en_US" : "cs_CZ"}>
-  
+
   {articleMeta && (
     <>
       {articleMeta.publishedTime && <meta property="article:published_time" content={articleMeta.publishedTime} />}
@@ -186,53 +202,53 @@ const websiteSchema = {
       {articleMeta.tags && articleMeta.tags.map(tag => <meta property="article:tag" content={tag} />)}
     </>
   )}
-  
+
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content={title}>
   <meta name="twitter:description" content={description}>
   <meta name="twitter:image" content={fullOgImage}>
   <meta name="twitter:image:alt" content={title}>
-  
+
   <!-- Favicon -->
-  <link rel="icon" href="/assets/images/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.ico">
-  <link rel="apple-touch-icon" href="/assets/images/logo.png">
-  
+  <link rel="icon" href={site.faviconUrl}>
+  <link rel="icon" type="image/png" sizes="32x32" href={site.faviconUrl}>
+  <link rel="apple-touch-icon" href={site.faviconUrl}>
+
   <!-- Preload Critical Hero Assets -->
-  <link rel="preload" href="/assets/images/HD_Color_logo.png" as="image" fetchpriority="high">
+  <link rel="preload" href={site.logoUrl} as="image" fetchpriority="high">
   <link rel="preload" href="/assets/images/logo.png" as="image" media="(min-width: 1024px)" fetchpriority="high">
-  
+
   <!-- Preconnect for Performance - Critical Resources -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://code.iconify.design">
   <link rel="preconnect" href="https://i.ytimg.com">
-  
+
   <!-- DNS Prefetch for Third-Party Resources (lazy-loaded) -->
   <link rel="dns-prefetch" href="https://www.youtube.com">
   <link rel="dns-prefetch" href="https://www.google.com">
   <link rel="dns-prefetch" href="https://app.cal.com">
   <link rel="dns-prefetch" href="https://i.ytimg.com">
-  
+
   <!-- Fonts with optimized loading (Async) -->
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </noscript>
-  
+
   <!-- Preload critical CSS -->
   <link rel="preload" href="/src/styles/global.css" as="style">
-  
+
   <!-- Iconify - Defer loading to prevent blocking -->
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js" defer></script>
-  
+
   <!-- Structured Data: Organization -->
   <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
-  
+
   <!-- Structured Data: WebSite -->
   <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
-  
+
   <!-- Google Consent Mode v2 (Default Denied) -->
   <script is:inline>
     window.dataLayer = window.dataLayer || [];
@@ -249,25 +265,31 @@ const websiteSchema = {
   </script>
 
   <!-- Google Analytics 4 (GA4) - Conditional on Cookie Consent -->
-  <script is:inline type="text/plain" data-cookiecategory="analytics" src="https://www.googletagmanager.com/gtag/js?id=G-Q87Y31XNEB" async></script>
-  <script is:inline type="text/plain" data-cookiecategory="analytics">
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-Q87Y31XNEB', {
-      'anonymize_ip': true,
-      'cookie_flags': 'SameSite=None;Secure'
-    });
-  </script>
+  {site.analytics?.gaId && (
+    <>
+      <script is:inline type="text/plain" data-cookiecategory="analytics" src={`https://www.googletagmanager.com/gtag/js?id=${site.analytics.gaId}`} async></script>
+      <script is:inline type="text/plain" data-cookiecategory="analytics" define:vars={{ gaId: site.analytics.gaId }}>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', gaId, {
+          'anonymize_ip': true,
+          'cookie_flags': 'SameSite=None;Secure'
+        });
+      </script>
+    </>
+  )}
 
   <!-- Microsoft Clarity - Conditional on Cookie Consent -->
-  <script is:inline type="text/plain" data-cookiecategory="analytics">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "ut81mc242l");
-  </script>
+  {site.analytics?.clarityId && (
+    <script is:inline type="text/plain" data-cookiecategory="analytics" define:vars={{ clarityId: site.analytics.clarityId }}>
+      (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", clarityId);
+    </script>
+  )}
 
   <slot name="head" />
 </head>
@@ -276,7 +298,7 @@ const websiteSchema = {
     {lang === 'cs' ? 'Přeskočit na hlavní obsah' : 'Skip to main content'}
   </a>
   <slot />
-  
+
   <!-- Core JavaScript - Optimized -->
   <script>
     // ==================== SCROLL ANIMATIONS ====================
@@ -318,7 +340,7 @@ const websiteSchema = {
         if (!target) return;
 
         const targetPos = getTargetPosition(target);
-        
+
         // Initial scroll
         window.scrollTo({
           top: targetPos,
@@ -349,13 +371,6 @@ const websiteSchema = {
         }
       };
 
-      // Page-specific hash mappings
-      const pageHashMap = {
-        '/priprava-dat': {
-          'priprava-dat': 'ragus'
-        }
-      };
-
       // Normalize paths for comparison
       const normalizePath = (path) => {
         if (!path || path === '/') return '/';
@@ -373,7 +388,7 @@ const websiteSchema = {
 
           const normalizedUrlPath = normalizePath(url.pathname);
           const normalizedCurrentPath = normalizePath(window.location.pathname);
-          
+
           let targetHash = url.hash;
           let shouldIntercept = normalizedUrlPath === normalizedCurrentPath;
 
@@ -382,16 +397,6 @@ const websiteSchema = {
             const hashWithoutPound = targetHash.substring(1);
             if (document.getElementById(hashWithoutPound)) {
               shouldIntercept = true;
-            } else {
-              // Check mappings
-              const mappings = pageHashMap[normalizedCurrentPath];
-              if (mappings && mappings[hashWithoutPound]) {
-                const localId = mappings[hashWithoutPound];
-                if (document.getElementById(localId)) {
-                  targetHash = '#' + localId;
-                  shouldIntercept = true;
-                }
-              }
             }
           }
 
@@ -399,7 +404,7 @@ const websiteSchema = {
             const target = document.querySelector(targetHash);
             if (target) {
               e.preventDefault();
-              
+
               // Close mobile menu
               const mobileMenu = document.getElementById('mobile-menu');
               if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
@@ -425,7 +430,7 @@ const websiteSchema = {
       document.addEventListener('astro:page-load', handleHashOnLoad);
     })();
   </script>
-  
+
   <ScrollButtons lang={lang} />
   <slot name="scripts" />
 </body>

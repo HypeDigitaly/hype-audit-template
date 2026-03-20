@@ -10,8 +10,17 @@
 
 import rawConfig from '../../../../config.json';
 import type { AuditClientConfig } from '../../../../config.schema';
+import { resolveConfig, validateConfig } from '../../../../config.schema';
 
-const config = rawConfig as AuditClientConfig;
+const config = resolveConfig(rawConfig as AuditClientConfig);
+
+const _validationErrors = validateConfig(rawConfig as AuditClientConfig);
+if (_validationErrors.length > 0) {
+  console.warn(
+    '[config] Validation warnings:',
+    _validationErrors.map(e => `${e.field}: ${e.message}`).join('; '),
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Primary contact — first team member, or a fully-typed empty sentinel.
@@ -100,6 +109,24 @@ export const clientConfig = {
 
   // Social (for email footers, report footers)
   social: config.social,
+
+  // LLM / AI provider settings (all fields resolved to production defaults)
+  llm: config.llm,
+
+  // System-prompt customisation (all fields may be undefined when not configured)
+  prompt: config.prompt,
+
+  // Web-search query configuration (maxQueries resolved to default)
+  search: config.search,
+
+  // Audit report rendering configuration (opportunityCount / questionCategoryCount resolved to defaults)
+  report: config.report,
+
+  // Audit submission form (painPoints / tools resolved to defaults; used for backend validation)
+  auditForm: config.auditForm,
+
+  // Transactional email copy overrides (all sub-sections may be undefined when not configured)
+  email: config.email,
 } as const;
 
 export type ClientConfig = typeof clientConfig;

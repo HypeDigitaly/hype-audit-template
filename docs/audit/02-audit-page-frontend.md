@@ -2,14 +2,15 @@
 
 **Last Updated:** March 2026
 **Status:** Complete & Production
-**Page Route:** `/audit`
+**Page Route:** `/` (home page)
+**Old Route:** `/audit` (now 301 redirects to `/`)
 **Rendering:** Server-side rendered (SSR, `prerender=false`)
 
 ---
 
 ## Overview
 
-The audit page (`/audit`) is a high-conversion lead capture funnel that delivers free preliminary AI audits within 5 minutes. It combines:
+The home page (`/`) is a high-conversion lead capture funnel that delivers free preliminary AI audits within 5 minutes. It combines:
 
 1. **Hero + Lead Form** — Immediate value proposition with CTAs
 2. **Interactive Roadmap** — Scroll-animated SVG visualization of audit journey
@@ -25,9 +26,10 @@ The page implements client-side form validation, background job processing with 
 
 | File Path | Purpose | Lines |
 |-----------|---------|-------|
-| `astro-src/src/pages/audit.astro` | Main page component, form handler, polling logic | 1,296 |
+| `astro-src/src/pages/index.astro` | **New** — Main home page component (formerly audit.astro), form handler, polling logic | 1,800 |
+| `astro-src/src/pages/audit.astro` | **Deprecated** — 301 redirect to `/` | ~20 |
 | `astro-src/src/components/sections/AuditRoadmapAnimated.astro` | Scroll-triggered SVG road animation + 4 milestones | 450 |
-| `astro-src/src/scripts/translations/audit.ts` | Bilingual (CS/EN) translation keys for audit content | 336 |
+| `astro-src/src/scripts/translations/audit.ts` | Bilingual (CS/EN) translation keys for home page content | 336 |
 | `astro-src/src/scripts/utm-tracker.ts` | Traffic source attribution (UTM, click IDs, referrer) | 233 |
 | `astro-src/src/layouts/PageLayout.astro` | Wrapper layout with nav, footer, UTM initialization | 314 |
 
@@ -88,16 +90,43 @@ Rendered in `<head>` with `set:html`:
 
 ## Form Data Model
 
-### Visible Form Fields (6 fields)
+### Configuration-Driven Form Fields
 
-| Field Name | Type | Required | HTML Input Type | Placeholder (CS) | Placeholder (EN) | Validation |
-|-----------|------|----------|-----------------|-------------------|-------------------|-----------|
-| `website` | Text | Yes | `text` | `https://vasefirma.cz` | `https://yourcompany.com` | Non-empty string |
-| `email` | Text | Yes | `email` | `vas@email.cz` | `your@email.com` | Valid email format |
-| `companyName` | Text | Yes | `text` | `Vaše firma s.r.o.` | `Your Company Ltd.` | Non-empty string |
-| `city` | Text | Yes | `text` | `Kde sídlíte?` | `Where are you based?` | Non-empty string |
-| `biggestPainPoint` | Checkboxes (multi) | Yes | Checkbox group | — | — | At least 1 selected |
-| `currentTools` | Checkboxes (multi) | No | Checkbox group | — | — | Optional |
+The form fields are **configurable** via `config.json` in the `auditForm` section. All labels, options, and visibility can be customized per deployment:
+
+```json
+{
+  "auditForm": {
+    "painPoints": [
+      { "value": "new_customers", "label_cs": "...", "label_en": "..." },
+      // ... additional pain points (fully configurable)
+    ],
+    "tools": [
+      { "value": "CRM", "label": "CRM" },
+      // ... additional tools (fully configurable)
+    ],
+    "visibility": {
+      "painPoints": true,
+      "tools": true,
+      "city": true,
+      "email": true,
+      "website": true,
+      "companyName": true
+    }
+  }
+}
+```
+
+### Visible Form Fields (6 core fields)
+
+| Field Name | Type | Required | HTML Input Type | Default Placeholder (CS) | Default Placeholder (EN) | Validation | Configurable |
+|-----------|------|----------|-----------------|-------------------|-------------------|-----------|-----------|
+| `website` | Text | Yes | `text` | `https://vasefirma.cz` | `https://yourcompany.com` | Non-empty string | Yes (visibility + label) |
+| `email` | Text | Yes | `email` | `vas@email.cz` | `your@email.com` | Valid email format | Yes (visibility + label) |
+| `companyName` | Text | Yes | `text` | `Vaše firma s.r.o.` | `Your Company Ltd.` | Non-empty string | Yes (visibility + label) |
+| `city` | Text | Yes | `text` | `Kde sídlíte?` | `Where are you based?` | Non-empty string | Yes (visibility + label) |
+| `biggestPainPoint` | Checkboxes (multi) | Yes | Checkbox group | — | — | At least 1 selected | Yes (options, labels, visibility) |
+| `currentTools` | Checkboxes (multi) | No | Checkbox group | — | — | Optional | Yes (options, labels, visibility) |
 
 ### Pain Point Checkbox Options (10 options)
 
@@ -340,6 +369,14 @@ if (backgroundResponse.status === 404) {
     body: JSON.stringify(data),
   });
   // Handle sync response and show success
+  return;
+}
+
+// Check for validation errors
+if (backgroundResponse.status === 400) {
+  const errorData = await backgroundResponse.json();
+  showValidationErrors(errorData.validationErrors || {});
+  isSubmitting = false;
   return;
 }
 

@@ -3,25 +3,95 @@
 // =============================================================================
 
 import type { PDFColors, MatrixQuadrant } from './types';
+import { clientConfig } from '../../_config/client';
 
 // =============================================================================
-// COLOR CONSTANTS - Matching HypeDigitaly branding
+// COLOR UTILITY
 // =============================================================================
+
+/**
+ * Parse a CSS hex color string (3- or 6-digit, with or without leading #)
+ * into an RGB triple. Returns `null` when the string is not a valid hex color.
+ */
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const cleaned = hex.startsWith('#') ? hex.slice(1) : hex;
+  const expanded =
+    cleaned.length === 3
+      ? cleaned
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : cleaned;
+  if (!/^[0-9a-fA-F]{6}$/.test(expanded)) return null;
+  const num = parseInt(expanded, 16);
+  return {
+    r: (num >> 16) & 0xff,
+    g: (num >> 8) & 0xff,
+    b: num & 0xff,
+  };
+}
+
+// =============================================================================
+// COLOR CONSTANTS
+// Primary and accent colors are sourced from clientConfig.brand so that
+// every white-label deployment automatically uses the correct palette.
+// Fallback values are used when the config does not supply a valid hex color.
+// =============================================================================
+
+/** Resolve a config hex color to an RGB triple, or return the fallback RGB. */
+function resolveColor(
+  configHex: string | undefined,
+  fallback: { r: number; g: number; b: number },
+): { r: number; g: number; b: number } {
+  if (!configHex) return fallback;
+  return hexToRgb(configHex) ?? fallback;
+}
+
+// Fallback RGB values (generic blue-teal palette — no brand-specific references).
+const FALLBACK_PRIMARY      = { r: 14,  g: 165, b: 233 }; // #0ea5e9
+const FALLBACK_PRIMARY_LIGHT = { r: 56, g: 189, b: 248 }; // #38bdf8
+const FALLBACK_ACCENT       = { r: 245, g: 158, b: 11  }; // #f59e0b
+
+const configPrimary = resolveColor(clientConfig.brand?.primaryColor, FALLBACK_PRIMARY);
+const configAccent  = resolveColor(clientConfig.brand?.accentColor,  FALLBACK_ACCENT);
+
+/**
+ * Derive a "light" variant of the primary color by blending it 40% toward
+ * white, giving a consistent light-primary regardless of the chosen brand color.
+ */
+function lightenRgb(
+  color: { r: number; g: number; b: number },
+  factor: number,
+): { r: number; g: number; b: number } {
+  return {
+    r: Math.round(color.r + (255 - color.r) * factor),
+    g: Math.round(color.g + (255 - color.g) * factor),
+    b: Math.round(color.b + (255 - color.b) * factor),
+  };
+}
+
+const configPrimaryLight =
+  resolveColor(clientConfig.brand?.primaryColor, FALLBACK_PRIMARY_LIGHT) === configPrimary
+    ? lightenRgb(configPrimary, 0.4)
+    : FALLBACK_PRIMARY_LIGHT;
 
 export const COLORS: PDFColors = {
-  primary: { r: 0, g: 163, b: 154 },      // #00A39A
-  primaryLight: { r: 0, g: 196, b: 180 }, // #00C4B4
+  primary:      configPrimary,
+  primaryLight: configPrimaryLight,
   orange: { r: 249, g: 115, b: 22 },      // #F97316 (Opportunity Matrix / Quick Wins)
-  blue: { r: 59, g: 130, b: 246 },        // #3B82F6 (Strategic)
-  purple: { r: 168, g: 85, b: 247 },      // #A855F7 (Future)
-  green: { r: 34, g: 197, b: 94 },        // #22C55E (Success)
-  dark: { r: 10, g: 10, b: 10 },          // #0A0A0A
-  darkGray: { r: 40, g: 40, b: 40 },      // #282828
-  text: { r: 229, g: 229, b: 229 },       // #E5E5E5
-  textMuted: { r: 163, g: 163, b: 163 },  // #A3A3A3
+  blue:   { r: 59,  g: 130, b: 246 },     // #3B82F6 (Strategic)
+  purple: { r: 168, g: 85,  b: 247 },     // #A855F7 (Future)
+  green:  { r: 34,  g: 197, b: 94  },     // #22C55E (Success)
+  dark:       { r: 10,  g: 10,  b: 10  }, // #0A0A0A
+  darkGray:   { r: 40,  g: 40,  b: 40  }, // #282828
+  text:       { r: 229, g: 229, b: 229 }, // #E5E5E5
+  textMuted:  { r: 163, g: 163, b: 163 }, // #A3A3A3
   white: { r: 255, g: 255, b: 255 },
-  black: { r: 0, g: 0, b: 0 }
+  black: { r: 0,   g: 0,   b: 0   },
 };
+
+// Re-export accent for consumers that need it directly (e.g., highlight badges).
+export const COLOR_ACCENT = configAccent;
 
 // =============================================================================
 // MATRIX QUADRANT DEFINITIONS

@@ -17,6 +17,7 @@ import {
 } from '../glossary';
 
 import type { BenefitType, CompanyBranding } from './types';
+import { clientConfig } from '../../_config/client';
 
 // =============================================================================
 // ENHANCED LABEL HELPERS - Jargon-free labels with tooltips
@@ -102,6 +103,39 @@ export function escapeHtmlAttr(text: string): string {
     .replace(/>/g, '&gt;');
 }
 
+/**
+ * Escape HTML special characters for safe insertion of dynamic content
+ * into HTML element text nodes or attribute values.
+ * Use this as defense-in-depth for any runtime string rendered into reports.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Sanitize a URL for safe use in href attributes.
+ * Only allows http://, https://, and mailto: protocols.
+ * Returns empty string for dangerous protocols (javascript:, data:, vbscript:, etc.).
+ */
+export function sanitizeUrl(url: string): string {
+  const trimmed = url.trim();
+  // Allow only safe protocols
+  if (/^https?:\/\//i.test(trimmed) || /^mailto:/i.test(trimmed)) {
+    return trimmed;
+  }
+  // Allow protocol-relative or bare domains by prepending https://
+  if (!trimmed.includes(':')) {
+    return `https://${trimmed}`;
+  }
+  // Block everything else (javascript:, data:, vbscript:, etc.)
+  return '';
+}
+
 // =============================================================================
 // COLOR UTILITY FUNCTIONS
 // =============================================================================
@@ -149,11 +183,14 @@ export function isBrowserDefaultColor(color: string | null | undefined): boolean
 }
 
 /**
- * Smart brand color selection with priority logic
- * Priority: accent > link > non-default primary > fallback
- * This avoids using browser default colors like #0000EE
+ * Smart brand color selection with priority logic.
+ * Priority: accent > link > non-default primary > config brand color > generic default
+ * This avoids using browser default colors like #0000EE.
  */
-export function selectBrandColor(branding?: CompanyBranding, fallback: string = '#00A39A'): string {
+export function selectBrandColor(
+  branding?: CompanyBranding,
+  fallback: string = clientConfig.brand?.primaryColor || '#0ea5e9',
+): string {
   if (!branding) return fallback;
 
   // Priority 1: Accent color (most reliable brand indicator from Firecrawl)
@@ -177,7 +214,7 @@ export function selectBrandColor(branding?: CompanyBranding, fallback: string = 
     return bgSanitized;
   }
 
-  // Fallback: HypeDigitaly brand color
+  // Fallback: config brand color or generic blue default
   console.log(`[Branding] Using fallback color: ${fallback}`);
   return fallback;
 }

@@ -17,22 +17,29 @@
 
 ## Executive Summary
 
-HypeDigitaly is a B2B lead-generation and audit platform with serverless Netlify Functions backed by Blobs storage. Security is implemented at multiple layers: constant-time authentication, input validation, rate limiting, security headers, and data sanitization.
+The template is a B2B lead-generation and audit platform with serverless Netlify Functions backed by Blobs storage. Security is implemented at multiple layers:
+
+**Security Layers:**
+1. **Input Validation** — Prompt injection blocklist, URL protocol validation, analytics ID regex
+2. **Output Sanitization** — `escapeHtml()` on ALL report sections, `escapeHtmlAttr()` for attributes, `sanitizeUrl()` for links
+3. **Authentication** — Constant-time password comparison for admin access
+4. **Network** — Security headers (X-Frame-Options, CSP-like headers), restrictive CORS
+5. **Data Protection** — PII sanitization, unguessable report IDs, SSL/TLS enforcement
 
 **Critical Assets Protected:**
-- Admin leads dashboard (password-protected)
-- Lead data (PII: email, company name, etc.)
-- Audit reports (unguessable 12-char IDs)
-- PDF files (base64 encoded, validated on upload)
+- Admin leads dashboard (password-protected, constant-time auth)
+- Lead data (PII: email, company name, etc. — escaped on output)
+- Audit reports (unguessable 12-char IDs, escaped HTML output)
+- Configuration data (validated against schema at runtime)
 
 **Threat Model:**
-- Unauthenticated access to admin dashboard
-- Brute-force submissions (honeypot, rate limits)
-- XSS/HTML injection in lead data
-- CSV formula injection on export
-- Timing-based auth attacks
-- Malformed PDF/CORS abuse
-- Object prototype pollution
+- Prompt injection attacks (blocked with character validation + injection blocklist)
+- XSS/HTML injection in report output (prevented with `escapeHtml()` on all 16 report sections)
+- Unauthenticated access to admin dashboard (blocked with constant-time comparison)
+- Malicious URL protocols (blocked with `sanitizeUrl()` allowlist)
+- Analytics ID injection (validated with regex patterns)
+- CORS abuse (restrictive origin allowlist)
+- Timing-based auth attacks (constant-time comparison)
 
 ---
 
@@ -197,7 +204,175 @@ const corsHeaders = {
 };
 ```
 
-Allows GET/OPTIONS only from `hypedigitaly.ai` frontend. Preflight responses return 204 No Content.
+Allows GET/OPTIONS only from `domain.corsOrigin` config value. Preflight responses return 204 No Content.
+
+---
+
+## Input Validation & Sanitization
+
+### Prompt Injection Defense (New in v2)
+
+**File:** `config.schema.ts` (validateConfig function)
+
+All configuration values are **validated at runtime** to prevent prompt injection:
+
+```typescript
+const INJECTION_BLOCKLIST = [
+  'ignore previous instructions',
+  'system prompt override',
+  'ignore this prompt',
+  'pretend you are',
+  'you are now',
+  'disregard all above'
+];
+
+export function validateConfig(config: any): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  // Check all text fields against injection patterns
+  for (const field of Object.keys(config)) {
+    const value = config[field];
+    if (typeof value === 'string') {
+      for (const pattern of INJECTION_BLOCKLIST) {
+        if (value.toLowerCase().includes(pattern)) {
+          errors.push({
+            field,
+            message: `Suspicious pattern detected: "${pattern}"`
+          });
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+```
+
+**Fields Validated:**
+- `company.description`
+- `company.audience`
+- `prompt.systemIdentity`
+- `prompt.customInstructions`
+- `email.*` (email template text)
+- All user-facing copy
+
+### XSS Prevention in Report Output (New in v2)
+
+**File:** `html-report/sections/*.ts` (all 16 report section generators)
+
+**Implementation:** All report content is **escaped before rendering**:
+
+```typescript
+import { escapeHtml, escapeHtmlAttr, sanitizeUrl } from '../utils';
+
+// In every section generator
+export function generateOpportunitiesSection(data: AuditReportData): string {
+  const escaped = {
+    title: escapeHtml(data.title),
+    description: escapeHtml(data.description),
+    url: sanitizeUrl(data.url),
+    buttonTitle: escapeHtmlAttr(data.buttonTitle)
+  };
+
+  return `
+    <h2>${escaped.title}</h2>
+    <p>${escaped.description}</p>
+    <a href="${escaped.url}" title="${escaped.buttonTitle}">Learn More</a>
+  `;
+}
+```
+
+**Three-Level Escaping:**
+
+| Function | Purpose | Use Case |
+|---|---|---|
+| `escapeHtml()` | Escapes `<`, `>`, `&`, `"`, `'` | Text content, paragraph text |
+| `escapeHtmlAttr()` | Escapes for HTML attributes only | `title`, `alt`, `data-*` attributes |
+| `sanitizeUrl()` | Validates protocol + removes `javascript:` | `href`, `src` attributes |
+
+**Applied to All Report Sections:**
+1. Header (company name, dates)
+2. Company profile (description, city)
+3. Opportunities (titles, descriptions)
+4. ROI calculator (user input via sliders)
+5. Questions (category names, question text)
+6. Technologies (detected tools)
+7. App integrations (tool names, descriptions)
+8. Industry benchmark (metric names)
+9. Timeline (phase names, descriptions)
+10. Risks (risk descriptions, mitigation)
+11. Tools (tool names, URLs)
+12. CTA section (customizable text, button labels)
+13. Footer (company legal name, links)
+14. All dynamic content from LLM output
+
+### URL Protocol Validation (New in v2)
+
+**File:** `utils.ts` (sanitizeUrl function)
+
+Only safe protocols allowed:
+
+```typescript
+const ALLOWED_PROTOCOLS = ['http://', 'https://', 'mailto:', 'tel:'];
+
+export function sanitizeUrl(url: string | undefined): string {
+  if (!url) return '#';
+  const trimmed = url.trim().toLowerCase();
+
+  // Block javascript:, data:, vbscript:, etc.
+  if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:')) {
+    return '#';  // Fallback to safe hash
+  }
+
+  // Only allow whitelisted protocols
+  for (const protocol of ALLOWED_PROTOCOLS) {
+    if (trimmed.startsWith(protocol)) return url;
+  }
+
+  // Default: assume relative or safe URL
+  return url.startsWith('/') ? url : '#';
+}
+```
+
+### Analytics ID Validation (New in v2)
+
+**File:** `config.schema.ts`
+
+Analytics IDs are validated with strict regex patterns:
+
+```typescript
+const ANALYTICS_PATTERNS = {
+  ga4: /^G-[A-Z0-9]{10}$/,           // Google Analytics 4
+  segment: /^[A-Za-z0-9]{40}$/,      // Segment Write Key
+  mixpanel: /^[a-f0-9]{32}$/,        // Mixpanel Project Token
+  gtm: /^GTM-[A-Z0-9]{6,7}$/         // Google Tag Manager
+};
+
+export function validateAnalyticsIds(config: any): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  if (config.analytics?.ga4Id && !ANALYTICS_PATTERNS.ga4.test(config.analytics.ga4Id)) {
+    errors.push({ field: 'analytics.ga4Id', message: 'Invalid GA4 ID format' });
+  }
+
+  // ... other validations
+
+  return errors;
+}
+```
+
+---
+
+## Rate Limiting
+
+**Status:** Not implemented in v2 (recommended for future release)
+
+**Recommended Implementation:**
+- Netlify rate limiting addon (~$25/month)
+- Cloudflare rate limiting (if using Cloudflare nameservers)
+- Custom middleware with Redis (beyond scope of Netlify-only deployment)
+
+Current mitigation: Admin password is strong, audit form allows rapid submission (expected behavior for UX).
 
 **Pricing Lead API** (`POST /.netlify/functions/pricing-lead`):
 

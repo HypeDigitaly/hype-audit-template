@@ -41,37 +41,6 @@ export interface MiscKeys {
   rec_storage_item_4: string;
   rec_ai_act_title: string;
   rec_ai_act_text: string;
-
-  // RAGus.ai Section
-  ragus_label: string;
-  ragus_badge: string;
-  ragus_tagline: string;
-  ragus_headline_1: string;
-  ragus_headline_2: string;
-  ragus_desc: string;
-  ragus_cta: string;
-  ragus_feature_1: string;
-  ragus_feature_2: string;
-  ragus_feature_3: string;
-  ragus_feature_4: string;
-  ragus_target_1: string;
-  ragus_target_2: string;
-  ragus_target_3: string;
-  ragus_target_4: string;
-
-  // Voiceflow Partner Section
-  vf_badge: string;
-  vf_headline: string;
-  vf_desc: string;
-  vf_feature_1: string;
-  vf_feature_2: string;
-  vf_feature_3: string;
-  vf_cta: string;
-  voiceflow_badge: string;
-  voiceflow_title: string;
-  voiceflow_desc: string;
-  voiceflow_cta: string;
-  voiceflow_label: string;
 }
 
 export const miscTranslations: Record<Language, MiscKeys> = {
@@ -115,37 +84,6 @@ export const miscTranslations: Record<Language, MiscKeys> = {
     rec_storage_item_4: "ID uživatele (unikátní ID)",
     rec_ai_act_title: "Upozornění na interakci s AI (AI Act)",
     rec_ai_act_text: "Dle legislativy AI Act je povinné zajistit, aby byl uživatel před interakcí s AI o tomto transparentně informován. V rámci užívání chatbotu tedy vždy musí být před konverzací s AI o tomto dopředu upozorněno. Toto v chatbotu musí vždy být jasně a zřetelně uvedeno.",
-
-    // RAGus.ai Section
-    ragus_label: "ADMINISTRAČNÍ PANEL",
-    ragus_badge: "Administrační panel",
-    ragus_tagline: "RAG-as-a-Service platforma pro AI agentury a enterprise týmy",
-    ragus_headline_1: "Čistá a strukturovaná data",
-    ragus_headline_2: "— základ úspěšné AI",
-    ragus_desc: "Kvalitní AI asistent je jen tak dobrý, jak dobrá jsou data, která mu dáte. <a href=\"https://ragus.ai\" target=\"_blank\" class=\"text-orange-400 hover:text-orange-300 transition-colors font-medium\">RAGus.ai</a> je náš vlastní administrační panel, který slouží jako centrální mozek pro všechny vaše AI produkty. Stará se o to, aby vaše znalostní báze byla vždy aktuální, přehledná a bez chyb.",
-    ragus_cta: "Zjistit více",
-    ragus_feature_1: "99% přesnost díky vyčištěným datům",
-    ragus_feature_2: "Centrální správa všech AI produktů na jednom místě",
-    ragus_feature_3: "Automatická synchronizace vaší znalostní báze",
-    ragus_feature_4: "Efektivní monitoring a dohled nad 'mozkem' AI",
-    ragus_target_1: "Administrační panel",
-    ragus_target_2: "Správa a trénování AI",
-    ragus_target_3: "Monitorování konverzací",
-    ragus_target_4: "Zadávání zpětné vazby",
-
-    // Voiceflow Partner Section
-    vf_badge: "Certifikovaný partner",
-    vf_headline: "Voiceflow Certified Expert",
-    vf_desc: "Voiceflow je jedna z našich hlavních oblíbených platforem pro tvorbu AI agentů a konverzačních flows. Jako certifikovaný expert vám pomůžeme vytvořit špičková řešení.",
-    vf_feature_1: "Pokročilá konverzační logika",
-    vf_feature_2: "Integrace s enterprise systémy",
-    vf_feature_3: "Multiplatformní nasazení",
-    vf_cta: "Začít s Voiceflow",
-    voiceflow_badge: "Certifikovaný partner",
-    voiceflow_title: "Voiceflow Certified Expert",
-    voiceflow_desc: "Voiceflow je jedna z našich hlavních oblíbených platforem pro tvorbu AI agentů a konverzačních flows. Jako certifikovaný expert vám pomůžeme vytvořit špičková řešení.",
-    voiceflow_cta: "Zkusit Voiceflow",
-    voiceflow_label: "Certifikovaný partner",
   },
   en: {
     // Error 404 Page
@@ -187,36 +125,5 @@ export const miscTranslations: Record<Language, MiscKeys> = {
     rec_storage_item_4: "User ID (unique identifier)",
     rec_ai_act_title: "AI Interaction Disclosure (AI Act)",
     rec_ai_act_text: "Under the AI Act legislation, it is mandatory to ensure that the user is transparently informed before interacting with AI. Therefore, when using the chatbot, there must always be a clear and visible notice before the conversation with AI. This must always be clearly and prominently stated in the chatbot.",
-
-    // RAGus.ai Section
-    ragus_label: "ADMIN PANEL",
-    ragus_badge: "Admin panel",
-    ragus_tagline: "RAG-as-a-Service platform for AI agencies and enterprise teams",
-    ragus_headline_1: "Clean and Structured Data",
-    ragus_headline_2: "— the Core of Successful AI",
-    ragus_desc: "A quality AI assistant is only as good as the data you feed it. <a href=\"https://ragus.ai\" target=\"_blank\" class=\"text-orange-400 hover:text-orange-300 transition-colors font-medium\">RAGus.ai</a> is our proprietary admin panel that serves as the central brain for all your AI products. It ensures your knowledge base is always up-to-date, clear, and accurate.",
-    ragus_cta: "Learn more",
-    ragus_feature_1: "99% accuracy through cleaned data",
-    ragus_feature_2: "Central management of all AI products in one place",
-    ragus_feature_3: "Automated knowledge base synchronization",
-    ragus_feature_4: "Efficient monitoring and oversight of the AI 'brain'",
-    ragus_target_1: "Admin panel",
-    ragus_target_2: "AI Management & Training",
-    ragus_target_3: "Conversation Monitoring",
-    ragus_target_4: "Feedback Entry",
-
-    // Voiceflow Partner Section
-    vf_badge: "Certified Partner",
-    vf_headline: "Voiceflow Certified Expert",
-    vf_desc: "Voiceflow is one of our main favorite platforms for building AI agents and conversational flows. As a certified expert, we will help you create top-tier solutions.",
-    vf_feature_1: "Advanced conversational logic",
-    vf_feature_2: "Enterprise system integration",
-    vf_feature_3: "Multi-platform deployment",
-    vf_cta: "Get started with Voiceflow",
-    voiceflow_badge: "Certified Partner",
-    voiceflow_title: "Voiceflow Certified Expert",
-    voiceflow_desc: "Voiceflow is one of our main favorite platforms for building AI agents and conversational flows. As a certified expert, we will help you create top-tier solutions.",
-    voiceflow_cta: "Try Voiceflow",
-    voiceflow_label: "Certified Partner",
   },
 };

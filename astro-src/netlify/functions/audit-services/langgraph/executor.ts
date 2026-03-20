@@ -17,6 +17,7 @@ import { generateQuerySets } from './query-generator';
 import { generateResearchPrompt } from './prompt-generator';
 import { synthesizeStructuredReport } from './llm-synthesizer';
 import { generateFallbackBenefitsSummary } from './fallback-report';
+import { clientConfig } from '../../_config/client';
 
 // =============================================================================
 // SEARCH EXECUTION
@@ -36,15 +37,54 @@ export async function executeSearchesWithProgress(
   const domain = extractDomain(formData.website);
   const isCzech = formData.language === 'cs';
 
-  // Define search tasks in order for progress tracking
-  const searchTasks: SearchTask[] = [
-    { query: querySets.generic[0], type: 'generic', domain: null, step: 'search_company_info' },
-    { query: querySets.generic[1], type: 'generic', domain: null, step: 'search_company_news' },
-    { query: querySets.domainSpecific[0], type: domain ? 'domain-specific' : 'generic', domain, step: 'search_website' },
-    { query: querySets.technology[0], type: 'technology', domain: null, step: 'search_technologies' },
-    { query: querySets.apps[0], type: 'apps', domain: null, step: 'search_company_apps' },
-    { query: querySets.aiTools[0], type: 'ai-tools', domain: null, step: 'search_ai_tools' },
-  ];
+  // Read disabled query types for filtering
+  const disabledTypes = clientConfig.search?.disabledQueryTypes ?? [];
+  // Defensive: ensure at least generic or domainSpecific remains
+  const safeDisabled = (
+    disabledTypes.includes('generic') && disabledTypes.includes('domainSpecific')
+  )
+    ? disabledTypes.filter((t) => t !== 'generic')
+    : disabledTypes;
+
+  // Map query set keys to SearchTask type slugs used in TavilySearchResult
+  const typeMapping: Record<string, SearchTask['type']> = {
+    generic: 'generic',
+    domainSpecific: 'domain-specific',
+    technology: 'technology',
+    apps: 'apps',
+    aiTools: 'ai-tools',
+  };
+
+  // Map query set keys to their default progress step
+  const stepMapping: Record<string, SearchTask['step']> = {
+    generic_0: 'search_company_info',
+    generic_1: 'search_company_news',
+    domainSpecific_0: 'search_website',
+    technology_0: 'search_technologies',
+    apps_0: 'search_company_apps',
+    aiTools_0: 'search_ai_tools',
+  };
+
+  // Build tasks from the (already config-filtered) query sets
+  const searchTasks: SearchTask[] = [];
+
+  const addTasksForKey = (key: keyof typeof querySets, querySetType: string) => {
+    const queries = querySets[key];
+    for (let i = 0; i < queries.length; i++) {
+      const stepKey = `${key}_${i}`;
+      const step = stepMapping[stepKey] ?? 'search_company_info'; // fallback step for additional queries
+      const taskType = typeMapping[querySetType] ?? 'generic';
+      const taskDomain = key === 'domainSpecific' ? domain : null;
+      searchTasks.push({ query: queries[i], type: taskType, domain: taskDomain, step });
+    }
+  };
+
+  // Add tasks in order (query generator already filters disabled types)
+  if (!safeDisabled.includes('generic')) addTasksForKey('generic', 'generic');
+  if (!safeDisabled.includes('domainSpecific')) addTasksForKey('domainSpecific', 'domainSpecific');
+  if (!safeDisabled.includes('technology')) addTasksForKey('technology', 'technology');
+  if (!safeDisabled.includes('apps')) addTasksForKey('apps', 'apps');
+  if (!safeDisabled.includes('aiTools')) addTasksForKey('aiTools', 'aiTools');
 
   console.log(`[Agent] Executing ${searchTasks.length} Tavily searches with progress tracking...`);
   if (domain) {

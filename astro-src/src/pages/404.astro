@@ -90,23 +90,6 @@ const t = translations[lang];
         </button>
       </div>
       
-      <!-- Helpful Links -->
-      <div class="mt-12 pt-8 border-t border-neutral-800 animate-on-scroll [animation:animationIn_0.6s_ease-out_0.6s_both]">
-        <p class="text-neutral-500 text-sm mb-4" id="helpful-text">
-          {lang === 'cs' ? 'Možná hledáte:' : 'You might be looking for:'}
-        </p>
-        <div class="flex flex-wrap justify-center gap-3">
-          <a href="/chatbot" class="text-primary hover:text-primary/80 transition-colors text-sm">AI Chatbot</a>
-          <span class="text-neutral-700">•</span>
-          <a href="/priprava-dat" class="text-primary hover:text-primary/80 transition-colors text-sm">RAGus.ai</a>
-          <span class="text-neutral-700">•</span>
-          <a href="/konzultace" class="text-primary hover:text-primary/80 transition-colors text-sm" id="consulting-link">
-            {lang === 'cs' ? 'Konzultace' : 'Consulting'}
-          </a>
-          <span class="text-neutral-700">•</span>
-          <a href="/blog" class="text-primary hover:text-primary/80 transition-colors text-sm">Blog</a>
-        </div>
-      </div>
     </div>
   </main>
   
@@ -125,9 +108,7 @@ const t = translations[lang];
       seconds: "vteřin",
       click_here: "klikněte zde pro okamžité přesměrování",
       back_home: "Zpět na úvodní stránku",
-      back: "Zpět",
-      helpful: "Možná hledáte:",
-      consulting: "Konzultace"
+      back: "Zpět"
     },
     en: {
       headline: "Page Not Found",
@@ -138,9 +119,7 @@ const t = translations[lang];
       seconds: "seconds",
       click_here: "click here for immediate redirect",
       back_home: "Back to Homepage",
-      back: "Go Back",
-      helpful: "You might be looking for:",
-      consulting: "Consulting"
+      back: "Go Back"
     }
   };
 
@@ -181,8 +160,6 @@ const t = translations[lang];
       document.getElementById('subheadline')!.textContent = texts.subheadline;
       document.getElementById('home-btn-text')!.textContent = texts.back_home;
       document.getElementById('back-btn-text')!.textContent = texts.back;
-      document.getElementById('helpful-text')!.textContent = texts.helpful;
-      document.getElementById('consulting-link')!.textContent = texts.consulting;
       
       // Show the language URL notice
       const notice = document.getElementById('lang-url-notice');
@@ -202,22 +179,6 @@ const t = translations[lang];
         instantRedirect.textContent = texts.click_here;
         instantRedirect.href = correctUrl;
         homeLink.href = correctUrl;
-        
-        // Update helpful links for English
-        if (lang === 'en') {
-          document.querySelectorAll('[href="/chatbot"]').forEach(el => {
-            (el as HTMLAnchorElement).href = '/chatbot?lang=en';
-          });
-          document.querySelectorAll('[href="/priprava-dat"]').forEach(el => {
-            (el as HTMLAnchorElement).href = '/priprava-dat?lang=en';
-          });
-          document.querySelectorAll('[href="/konzultace"]').forEach(el => {
-            (el as HTMLAnchorElement).href = '/konzultace?lang=en';
-          });
-          document.querySelectorAll('[href="/blog"]').forEach(el => {
-            (el as HTMLAnchorElement).href = '/blog?lang=en';
-          });
-        }
         
         // Start countdown
         let countdown = 5;

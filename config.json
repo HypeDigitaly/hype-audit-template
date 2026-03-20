@@ -1,5 +1,5 @@
 {
-  "_comment": "Audit Template Configuration — copy this file to config.json, fill in all fields, then run /setup-audit. Fields ending in _comment are documentation only and are stripped at runtime.",
+  "_comment": "Audit Template Configuration — fill in all required fields, then run /setup-audit. Fields ending in _comment are documentation only and are stripped at runtime.",
 
   "company": {
     "_comment": "Company identity — used in headings, meta tags, email copy, and report footers.",
@@ -28,7 +28,7 @@
   },
 
   "contact": {
-    "_comment": "Primary contact details shown in the footer and email templates. Only email is required; all other fields are optional.",
+    "_comment": "Primary contact details shown in the footer and email templates. Only email is required; all other fields are optional. mapsEmbedUrl must be a Google Maps embed URL.",
     "email": "",
     "phone": "",
     "street": "",
@@ -62,5 +62,83 @@
     "recipients": [],
     "fromEmail": "",
     "fromName": ""
+  },
+
+  "analytics": {
+    "_comment": "Tracking IDs — omit or leave blank any service you do not use. Analytics tags are only rendered when the ID is non-empty.",
+    "gaId": "",
+    "clarityId": "",
+    "facebookPixel": "",
+    "gtmContainerId": ""
+  },
+
+  "seo": {
+    "_comment": "Structured-data enhancements. All fields are optional.",
+    "foundingDate": "",
+    "employeeCount": "",
+    "knowsAbout": []
+  },
+
+  "auditForm": {
+    "_comment": "Audit form configuration. painPoints and tools default to the built-in lists when omitted.",
+    "allowCustomPainPoint": true,
+    "allowCustomTool": true,
+    "showCity": true,
+    "showTools": true,
+    "showPainPoints": true
+  },
+
+  "nav": {
+    "_comment": "Navigation bar configuration.",
+    "ctaButton": {
+      "text": { "cs": "", "en": "" },
+      "href": ""
+    }
+  },
+
+  "llm": {
+    "_comment": "LLM provider settings. Defaults are production-ready; only override if you need specific models or limits.",
+    "primary": {
+      "models": [],
+      "temperature": 0.7,
+      "maxTokens": 32000,
+      "maxRetries": 1
+    },
+    "fallback": {
+      "models": [],
+      "temperature": 0.6,
+      "maxTokens": 32000,
+      "maxRetries": 1
+    },
+    "timeout": 30000
+  },
+
+  "prompt": {
+    "_comment": "System-prompt customisation. All fields are optional. customInstructions is appended to the system prompt and sanitised for prompt injection.",
+    "systemIdentity": "",
+    "industryContext": "",
+    "focusAreas": [],
+    "tone": "professional"
+  },
+
+  "search": {
+    "_comment": "Web-search query configuration. maxQueries controls the total query budget (1–12).",
+    "maxQueries": 6,
+    "disabledQueryTypes": [],
+    "additionalQueries": []
+  },
+
+  "report": {
+    "_comment": "Report rendering configuration.",
+    "opportunityCount": 10,
+    "questionCategoryCount": 7,
+    "sections": {
+      "order": [],
+      "disabled": []
+    }
+  },
+
+  "email": {
+    "_comment": "Transactional email copy overrides. All fields are optional — defaults come from the email templates."
   }
 }

@@ -3,6 +3,7 @@
 // =============================================================================
 
 import type { ResearchStep, ModelConfig } from './types';
+import { clientConfig } from '../../_config/client';
 
 // =============================================================================
 // RESEARCH STEP CONFIGURATION
@@ -24,26 +25,47 @@ export const RESEARCH_STEPS: Record<ResearchStep, { progress: number; messageCs:
 };
 
 // =============================================================================
-// MODEL CONFIGURATIONS
+// MODEL CONFIGURATIONS (config-driven with backward-compatible defaults)
 // =============================================================================
 
-/**
- * Model configurations for LLM synthesis (primary + fallback)
- */
-export const MODEL_CONFIGS: ModelConfig[] = [
-  {
-    name: 'Primary',
-    models: ['google/gemini-3-flash-preview', 'google/gemini-3-pro-preview', 'anthropic/claude-sonnet-4.5'],
-    temperature: 0.7, // Higher temperature for creative, varied, personalized output
-    maxRetries: 1
-  },
-  {
-    name: 'Fallback (Claude)',
-    models: ['anthropic/claude-sonnet-4.5', 'anthropic/claude-3.5-sonnet', 'google/gemini-3-flash-preview'],
-    temperature: 0.6, // Slightly lower but still creative for structured output
-    maxRetries: 1
-  }
+/** Default models used when clientConfig provides an empty array or no override */
+const DEFAULT_PRIMARY_MODELS = [
+  'google/gemini-3-flash-preview',
+  'google/gemini-3-pro-preview',
+  'anthropic/claude-sonnet-4.5',
 ];
+
+const DEFAULT_FALLBACK_MODELS = [
+  'anthropic/claude-sonnet-4.5',
+  'anthropic/claude-3.5-sonnet',
+  'google/gemini-3-flash-preview',
+];
+
+/**
+ * Model configurations for LLM synthesis (primary + fallback).
+ * Reads from clientConfig.llm with safe fallbacks to hardcoded defaults.
+ */
+function buildModelConfigs(): ModelConfig[] {
+  const primary = clientConfig.llm.primary;
+  const fallback = clientConfig.llm.fallback;
+
+  return [
+    {
+      name: 'Primary',
+      models: primary.models.length > 0 ? [...primary.models] : DEFAULT_PRIMARY_MODELS,
+      temperature: primary.temperature,
+      maxRetries: primary.maxRetries,
+    },
+    {
+      name: 'Fallback',
+      models: fallback.models.length > 0 ? [...fallback.models] : DEFAULT_FALLBACK_MODELS,
+      temperature: fallback.temperature,
+      maxRetries: fallback.maxRetries,
+    },
+  ];
+}
+
+export const MODEL_CONFIGS: ModelConfig[] = buildModelConfigs();
 
 // =============================================================================
 // UTILITY FUNCTIONS

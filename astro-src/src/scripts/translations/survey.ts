@@ -213,7 +213,7 @@ export interface SurveyKeys {
 export const surveyTranslations: Record<Language, SurveyKeys> = {
   cs: {
     // Meta
-    survey_meta_title: "Growth Club: AI ve firmě | HypeDigitaly",
+    survey_meta_title: "Growth Club: AI ve firmě | AI Audit",
     survey_meta_desc: "Rezervujte si místo na Growth Club — AI ve firmě: Implementace v praxi & podnikatelský networking. 28. března 2026.",
 
     // Hero
@@ -225,7 +225,7 @@ export const surveyTranslations: Record<Language, SurveyKeys> = {
 
     // Form header
     survey_form_title: "Vyplňte formulář a rezervujte si místo na Growth Club AI event (28.03. 15:00 – 19:00)",
-    survey_form_desc: "Uvidíte, jak AI nahradí práci, za kterou dnes platíte zaměstnancům. Pavel Čermák Vám ukáže konkrétní příklady z různých oborů — které procesy jdou automatizovat a kolik času a peněz ušetříte. Na základě Vašich odpovědí připravíme ukázky přesně pro Váš byznys.",
+    survey_form_desc: "Uvidíte, jak AI nahradí práci, za kterou dnes platíte zaměstnancům. Ukážeme Vám konkrétní příklady z různých oborů — které procesy jdou automatizovat a kolik času a peněz ušetříte. Na základě Vašich odpovědí připravíme ukázky přesně pro Váš byznys.",
     survey_form_personalization_note: "Podle Vašich odpovědí připravíme program na míru — uvidíte konkrétní příklady pro Váš obor a Vaše výzvy, ne jen obecné řeči.",
     survey_form_industry_other_placeholder: "Upřesněte Váš obor...",
     survey_form_industry_other_required: "Upřesněte prosím Váš obor",
@@ -282,7 +282,7 @@ export const surveyTranslations: Record<Language, SurveyKeys> = {
 
     // Primary pain point
     survey_form_primary_pain_point: "Co Vás trápí nejvíc? Tohle chcete na eventu vyřešit:",
-    survey_form_primary_pain_point_desc: "Pavel na to připraví ukázku přímo pro Vás",
+    survey_form_primary_pain_point_desc: "Na to připravíme ukázku přímo pro Vás",
 
     // AI maturity
     survey_form_ai_maturity: "Jaké máte zkušenosti s AI?",
@@ -384,10 +384,10 @@ export const surveyTranslations: Record<Language, SurveyKeys> = {
     survey_form_success_cta: "Zpět na hlavní stránku",
     survey_form_success_cta_url: "/",
     survey_success_speaker_heading: "O přednášejícím",
-    survey_success_speaker_name: "Pavel Čermák",
-    survey_success_speaker_title: "Ředitel HypeDigitaly s.r.o.",
-    survey_success_speaker_bio: "Podnikatel, který od roku 2022 pomáhá firmám ušetřit peníze a čas díky AI. Založil HypeDigitaly — první AI agenturu v Česku. Dnes 5 z 13 krajů ČR používá jeho řešení. 30+ AI agentů v produkci s reálnými výsledky.",
-    survey_success_speaker_booking_cta: "Zarezervovat konzultaci s Pavlem",
+    survey_success_speaker_name: "Přednášející",
+    survey_success_speaker_title: "AI konzultant",
+    survey_success_speaker_bio: "Odborník na AI automatizaci a implementaci, který pomáhá firmám ušetřit čas a peníze. 30+ AI agentů v produkci s reálnými výsledky.",
+    survey_success_speaker_booking_cta: "Zarezervovat konzultaci",
     survey_success_event_date: "28. března 2026",
 
     // Error states
@@ -422,7 +422,7 @@ export const surveyTranslations: Record<Language, SurveyKeys> = {
   },
   en: {
     // Meta
-    survey_meta_title: "Growth Club: AI in Business | HypeDigitaly",
+    survey_meta_title: "Growth Club: AI in Business | AI Audit",
     survey_meta_desc: "Reserve your spot at the exclusive Growth Club event — AI in Business: Implementation in Practice & Business Networking. March 28, 2026.",
 
     // Hero
@@ -434,7 +434,7 @@ export const surveyTranslations: Record<Language, SurveyKeys> = {
 
     // Form header
     survey_form_title: "Fill out the form and reserve your spot at the Growth Club AI event (28.03. 15:00 – 19:00)",
-    survey_form_desc: "Pavel Čermák (CEO of HypeDigitaly s.r.o.) will present practical examples of how AI automates business processes — from customer communication to admin work. Based on your answers, we'll tailor the program for your business.",
+    survey_form_desc: "Our AI expert will present practical examples of how AI automates business processes — from customer communication to admin work. Based on your answers, we'll tailor the program for your business.",
     survey_form_personalization_note: "Based on your answers, we will tailor the event content and program to deliver maximum value specifically for your business and a personalized experience.",
     survey_form_industry_other_placeholder: "Specify your industry...",
     survey_form_industry_other_required: "Please specify your industry",
@@ -491,7 +491,7 @@ export const surveyTranslations: Record<Language, SurveyKeys> = {
 
     // Primary pain point
     survey_form_primary_pain_point: "Which challenge do you want to see solved at the event?",
-    survey_form_primary_pain_point_desc: "Pavel will prepare a custom demo just for you",
+    survey_form_primary_pain_point_desc: "We will prepare a custom demo just for you",
 
     // AI maturity
     survey_form_ai_maturity: "What's your experience with AI?",
@@ -593,10 +593,10 @@ export const surveyTranslations: Record<Language, SurveyKeys> = {
     survey_form_success_cta: "Back to homepage",
     survey_form_success_cta_url: "/",
     survey_success_speaker_heading: "About the speaker",
-    survey_success_speaker_name: "Pavel Čermák",
-    survey_success_speaker_title: "CEO of HypeDigitaly s.r.o.",
-    survey_success_speaker_bio: "AI entrepreneur from the Czech Republic. In 2022, he founded the first AI agency HypeDigitaly, which deployed an AI assistant for a regional government website. Today, 5 out of 13 Czech regions use AI agents built by his company. He has built 30+ agents in the government niche with 90%+ RAG accuracy in production.",
-    survey_success_speaker_booking_cta: "Book a consultation with Pavel",
+    survey_success_speaker_name: "Speaker",
+    survey_success_speaker_title: "AI Consultant",
+    survey_success_speaker_bio: "AI automation and implementation expert helping businesses save time and money. 30+ AI agents in production with real-world results.",
+    survey_success_speaker_booking_cta: "Book a consultation",
     survey_success_event_date: "March 28, 2026",
 
     // Error states

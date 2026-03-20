@@ -68,12 +68,12 @@ const SITE_URL = site.url;
     }
     .login-box input:focus {
       outline: none;
-      border-color: #00A39A;
+      border-color: var(--color-primary);
     }
     .login-box button {
       width: 100%;
       padding: 0.75rem 1rem;
-      background: #00A39A;
+      background: var(--color-primary);
       border: none;
       border-radius: 0.5rem;
       color: white;
@@ -135,10 +135,10 @@ const SITE_URL = site.url;
       border: none;
     }
     .btn-primary {
-      background: #00A39A;
+      background: var(--color-primary);
       color: white;
     }
-    .btn-primary:hover { background: #00b8ad; }
+    .btn-primary:hover { background: var(--color-primary); filter: brightness(1.12); }
     .btn-secondary {
       background: #f3f4f6;
       color: #374151;
@@ -189,12 +189,12 @@ const SITE_URL = site.url;
       color: #111827;
     }
     .stat-card.audit .value { color: #f97316; }
-    .stat-card.contact .value { color: #00A39A; }
+    .stat-card.contact .value { color: var(--color-primary); }
     .stat-card.survey .value { color: #8b5cf6; }
     .stat-card.gc-event .stat-value { color: #D4A017; }
     .stat-card.active-tab {
-      border-color: #00A39A;
-      box-shadow: 0 0 0 2px rgba(0,163,154,0.2);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb) / 0.2);
     }
     .stat-card .stat-label {
       font-size: 0.75rem;
@@ -244,7 +244,7 @@ const SITE_URL = site.url;
     .filter-group input:focus,
     .filter-group select:focus {
       outline: none;
-      border-color: #00A39A;
+      border-color: var(--color-primary);
     }
     .search-input {
       min-width: 250px !important;
@@ -300,8 +300,8 @@ const SITE_URL = site.url;
       color: #f97316;
     }
     .badge-contact {
-      background: rgba(0,163,154,0.1);
-      color: #00A39A;
+      background: rgba(var(--color-primary-rgb) / 0.1);
+      color: var(--color-primary);
     }
     .badge-survey {
       background: rgba(139, 92, 246, 0.2);
@@ -313,7 +313,7 @@ const SITE_URL = site.url;
     }
     .stat-card.pricing .stat-value { color: #ec4899; }
     .link {
-      color: #00A39A;
+      color: var(--color-primary);
       text-decoration: none;
     }
     .link:hover {
@@ -481,7 +481,7 @@ const SITE_URL = site.url;
       pointer-events: none;
     }
     .gc-freetext-author { font-size: 0.75rem; color: #6b7280; font-style: normal; margin-top: 0.375rem; }
-    .gc-freetext-toggle { color: #00A39A; cursor: pointer; font-size: 0.8125rem; border: none; background: #f3f4f6; padding: 0.375rem 0.875rem; border-radius: 9999px; font-weight: 500; margin-top: 0.5rem; }
+    .gc-freetext-toggle { color: var(--color-primary); cursor: pointer; font-size: 0.8125rem; border: none; background: #f3f4f6; padding: 0.375rem 0.875rem; border-radius: 9999px; font-weight: 500; margin-top: 0.5rem; }
     .gc-conditional-note { font-size: 0.75rem; color: #9ca3af; margin-top: 0.75rem; font-style: italic; }
 
     /* Section badge (circular letter) */
@@ -526,7 +526,7 @@ const SITE_URL = site.url;
     @media (max-width: 640px) { .gc-question-grid-2col { grid-template-columns: 1fr; } }
 
     /* Canvas focus indicator */
-    canvas:focus-visible { outline: 3px solid #00A39A; outline-offset: 3px; }
+    canvas:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
 
     .gc-empty-field { text-align: center; color: #9ca3af; padding: 2rem; font-size: 0.875rem; }
 
@@ -601,7 +601,7 @@ const SITE_URL = site.url;
       min-width: 180px;
     }
     .qv-form-selector select:focus {
-      border-color: #00A39A;
+      border-color: var(--color-primary);
     }
     #question-view-panel {
       max-width: 860px;
@@ -640,7 +640,7 @@ const SITE_URL = site.url;
     .gc-freetext-toggle:focus-visible,
     .view-toggle-btn:focus-visible,
     .qv-form-selector select:focus-visible {
-      outline: 2px solid #00A39A;
+      outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
 
@@ -1642,7 +1642,7 @@ const SITE_URL = site.url;
         // ------------------------------------------------------------------
         'contact': {
           label: 'Kontakt',
-          color: '#00A39A',
+          color: getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#00A39A',
           leadFilter: function(lead) {
             return lead.source === 'contact';
           },
@@ -2315,7 +2315,7 @@ const SITE_URL = site.url;
         var ctx = document.getElementById(canvasId);
         if (!ctx) return;
 
-        var chartColor = qDef.color || '#00A39A';
+        var chartColor = qDef.color || getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#00A39A';
 
         qvChartInstances[instanceKey] = new Chart(ctx, {
           type: 'bar',
@@ -2393,7 +2393,8 @@ const SITE_URL = site.url;
         if (!ctx) return;
 
         // Color palette for doughnut segments
-        var palette  = ['#ef4444', '#D4A017', '#00A39A', '#6b7280', '#8b5cf6', '#f97316', '#3b82f6', '#22d3ee'];
+        var _primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#00A39A';
+        var palette  = ['#ef4444', '#D4A017', _primaryColor, '#6b7280', '#8b5cf6', '#f97316', '#3b82f6', '#22d3ee'];
         var bgColors = labels.map(function(_, i) { return palette[i % palette.length]; });
 
         // Fix wrapper height for doughnut (needs more room for the legend)
@@ -2532,7 +2533,7 @@ const SITE_URL = site.url;
         var html = '<div class="gc-respondent-panel__header">';
         html += '<span class="gc-respondent-panel__title">' + escapeHtml(label) + '</span>';
         html += '<span class="gc-respondent-panel__count">' + countText + '</span>';
-        html += '<button class="gc-respondent-panel__close" onclick="(function(btn){var p=btn.closest(\'.gc-respondent-panel\');if(p){p.style.display=\'none\';p.removeAttribute(\'data-active-label\');}})(this)" aria-label="Zavřít">&times;</button>';
+        html += '<button class="gc-respondent-panel__close" onclick="(function(btn){var p=btn.closest(\'.gc-respondent-panel\');if(p){p.style.display=\'none\';p.removeAttribute(\'data-active-label\');}})(this)" aria-label="Close">&times;</button>';
         html += '</div>';
         html += '<ul class="gc-respondent-list">';
 

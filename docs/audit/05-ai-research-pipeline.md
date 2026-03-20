@@ -30,10 +30,11 @@ The AI research pipeline is a sophisticated system that conducts **comprehensive
 
 ### Key Features
 
-- **9-step research pipeline** with real-time progress tracking
-- **Tavily web search integration** for company research
+- **9-step research pipeline** with real-time progress tracking (configuration-driven)
+- **Tavily web search integration** for company research (configurable search types and limits)
 - **Firecrawl branding extraction** (optional) for company logos/colors
-- **LLM-powered analysis** with model cascade (primary + fallback models)
+- **LLM-powered analysis** with configurable model selection and parameters
+- **Prompt customization** (system identity, tone, focus areas, brand mentions)
 - **Jina AI search** for website content extraction
 - **JSON parser** with 4-layer fallback extraction strategy
 - **Field validator** with AI-powered form validation
@@ -1068,9 +1069,44 @@ Imports come from **shared utilities**, not from modular `langgraph/` folder.
 
 ## Model Cascade & LLM Configuration
 
-### Primary Model Configuration
+### Configuration-Driven LLM Settings
+
+**File:** `config.json` (new v2 feature)
+
+All LLM parameters are now **fully configurable** via config.json:
+
+```json
+{
+  "llm": {
+    "primaryModel": "google/gemini-3-flash-preview",
+    "fallbackModels": [
+      "google/gemini-3-pro-preview",
+      "anthropic/claude-sonnet-4.5"
+    ],
+    "temperature": 0.7,
+    "maxTokens": 32000,
+    "timeout": 30000
+  },
+  "prompt": {
+    "systemIdentity": "You are a professional AI consultant...",
+    "tone": "professional",
+    "focusAreas": ["automation", "efficiency", "cost-reduction"],
+    "brandMentions": ["Company Name"],
+    "customInstructions": "Additional context..."
+  },
+  "search": {
+    "additionalQueries": ["custom search 1", "custom search 2"],
+    "maxQueries": 6,
+    "disabledQueryTypes": ["ai-tools"]  // Disable specific search types
+  }
+}
+```
+
+### Primary Model Configuration (Hard-Coded Defaults)
 
 **File:** `langgraph/config.ts`
+
+These defaults are used if config.json doesn't override them:
 
 ```typescript
 export const MODEL_CONFIGS: ModelConfig[] = [
@@ -1096,6 +1132,51 @@ export const MODEL_CONFIGS: ModelConfig[] = [
   }
 ];
 ```
+
+### Prompt Customization
+
+**File:** `config.json` (llm.prompt section)
+
+The system prompt can be customized to reflect:
+
+| Config Field | Purpose | Example |
+|---|---|---|
+| `systemIdentity` | Model's role and expertise | "You are an expert AI strategist for manufacturing..." |
+| `tone` | Writing style | "professional", "casual", "technical", "sales-focused" |
+| `focusAreas` | What to emphasize in recommendations | `["automation", "cost-reduction", "customer-experience"]` |
+| `brandMentions` | Brand names to incorporate | `["Acme Corp", "our platform"]` |
+| `customInstructions` | Additional context or constraints | "Always mention ROI in dollars, not hours..." |
+
+**Implementation:** Used in `prompt-generator.ts` when building the research synthesis prompt.
+
+### Search Configuration
+
+**File:** `config.json` (search section)
+
+Control which searches run and what additional queries are used:
+
+```json
+{
+  "search": {
+    "additionalQueries": [
+      "best practices in ${industry}",
+      "AI trends for ${industry} in 2026"
+    ],
+    "maxQueries": 6,
+    "disabledQueryTypes": [],  // Can disable: ["ai-tools", "apps", "technology"]
+    "searchDepth": "advanced",
+    "resultsPerSearch": 5
+  }
+}
+```
+
+| Config Field | Type | Default | Purpose |
+|---|---|---|---|
+| `additionalQueries` | string[] | `[]` | Extra search queries to run beyond the standard 6 |
+| `maxQueries` | number | 6 | Total number of searches to execute |
+| `disabledQueryTypes` | string[] | `[]` | Query types to skip (e.g., `"ai-tools"`) |
+| `searchDepth` | string | `"advanced"` | Tavily search depth ("basic" or "advanced") |
+| `resultsPerSearch` | number | 5 | Results per Tavily search request |
 
 ### Model Selection Logic
 

@@ -10,8 +10,17 @@
 
 import rawConfig from '../../../config.json';
 import type { AuditClientConfig } from '../../../config.schema';
+import { resolveConfig, validateConfig } from '../../../config.schema';
 
-const config = rawConfig as AuditClientConfig;
+const config = resolveConfig(rawConfig as AuditClientConfig);
+
+const _validationErrors = validateConfig(rawConfig as AuditClientConfig);
+if (_validationErrors.length > 0) {
+  console.warn(
+    '[config] Validation warnings:',
+    _validationErrors.map(e => `${e.field}: ${e.message}`).join('; '),
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Primary contact — first team member, or a fully-typed empty sentinel.
@@ -85,6 +94,25 @@ export const site = {
   // Legal identifiers
   ico: config.company.ico || '',
   dic: config.company.dic || '',
+
+  // Analytics tracking IDs (all fields may be undefined when not configured)
+  analytics: config.analytics,
+
+  // SEO & structured-data enhancements (all fields may be undefined when not configured)
+  seo: config.seo,
+
+  // Page content overrides (section exists; individual fields may be undefined)
+  content: config.content,
+
+  // Audit submission form configuration (all fields resolved to defaults)
+  auditForm: config.auditForm,
+
+  // Navigation configuration (ctaButton may be undefined when not configured)
+  nav: config.nav,
+
+  // Transactional email copy overrides (all sub-sections may be undefined when not configured)
+  // Named `emailConfig` to avoid collision with the top-level `email` contact address field.
+  emailConfig: config.email,
 } as const;
 
 export type Site = typeof site;

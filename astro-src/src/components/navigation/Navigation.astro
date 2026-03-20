@@ -20,37 +20,9 @@ const href = (path: string) => getLocalizedHref(path, lang);
   <nav class="flex md:gap-6 bg-neutral-950/90 w-full h-14 max-w-7xl border-white/10 border mr-auto ml-auto pr-3 pl-6 shadow-lg backdrop-blur-xl gap-x-4 gap-y-4 items-center justify-between rounded-lg">
     <div class="flex items-center gap-2">
       <a href={href("/")} class="flex items-center gap-2">
-        <!-- Mobile: Square icon logo -->
-        <img src="/assets/images/HD_Color_logo.png" alt={site.name} width="36" height="36" class="h-9 w-auto lg:hidden" fetchpriority="high" loading="eager">
-        <!-- Desktop: Full text logo -->
-        <img src="/assets/images/logo.png" alt={site.name} width="180" height="32" class="h-8 w-auto hidden lg:block" fetchpriority="high" loading="eager">
+        <img src={site.logoUrl} alt={site.name} width="180" height="32" class="h-8 w-auto" fetchpriority="high" loading="eager">
       </a>
     </div>
-
-    {!simple && !ultraMinimal && (
-      <div class="hidden lg:flex items-center gap-5 text-sm font-medium text-neutral-400 whitespace-nowrap">
-        <a href={href("/sluzby")} class="hover:text-white transition-colors">{t.nav_services}</a>
-        <a href={href("/audit")} class="relative group hover:text-white transition-colors">
-          <span class="relative">
-            {t.nav_audit}
-            <span class="absolute -top-5 -right-8 px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full shadow-lg shadow-orange-500/30 pulse-badge whitespace-nowrap">
-              {t.nav_audit_badge}
-            </span>
-          </span>
-        </a>
-        <a href={href("/#reference")} class="hover:text-white transition-colors">{t.nav_cases}</a>
-        <a href={href("/blog")} class="hover:text-white transition-colors">{t.nav_case_studies}</a>
-        <a href={href("/hypelead")} class="relative group hover:text-white transition-colors">
-          <span class="relative">
-            {t.service_sales_title}
-            <span class="absolute -top-5 -right-14 px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full shadow-lg shadow-orange-500/30 pulse-badge whitespace-nowrap">
-              Nejoblíbenější
-            </span>
-          </span>
-        </a>
-        <a href={href("/kontakt")} class="hover:text-white transition-colors">{t.nav_contact}</a>
-      </div>
-    )}
 
     <div class="flex items-center gap-3 text-sm font-medium">
       {!ultraMinimal && (
@@ -88,7 +60,7 @@ const href = (path: string) => getLocalizedHref(path, lang);
       )}
 
       <!-- CTA Button (always rendered) -->
-      <a href={ctaUrl || href("/kontakt")} target={ctaUrl ? "_blank" : undefined} class="nav-cta-button hover:bg-white/10 transition-all flex text-sm font-medium text-neutral-200 bg-gradient-to-b from-primary/30 via-primary/10 to-primary/20 px-4 py-2 shadow-[0px_1px_0px_0px_rgba(0,163,154,0.3)_inset] gap-x-2 items-center rounded-lg relative overflow-hidden whitespace-nowrap" style="--border-gradient: linear-gradient(180deg, rgba(0, 163, 154, 0.5), rgba(0, 163, 154, 0), rgba(0, 163, 154, 0.2)); --border-radius-before: 8px">
+      <a href={ctaUrl || site.nav?.ctaButton?.href || href('#audit-form-container')} target={ctaUrl ? "_blank" : undefined} class="nav-cta-button hover:bg-white/10 transition-all flex text-sm font-medium text-neutral-200 bg-gradient-to-b from-primary/30 via-primary/10 to-primary/20 px-4 py-2 shadow-[0px_1px_0px_0px_rgba(0,163,154,0.3)_inset] gap-x-2 items-center rounded-lg relative overflow-hidden whitespace-nowrap" style="--border-gradient: linear-gradient(180deg, rgba(0, 163, 154, 0.5), rgba(0, 163, 154, 0), rgba(0, 163, 154, 0.2)); --border-radius-before: 8px">
         <!-- Floating bubbles -->
         <span class="nav-bubbles-wrapper">
           <span class="nav-bubble"></span>
@@ -100,7 +72,7 @@ const href = (path: string) => getLocalizedHref(path, lang);
           <span class="nav-bubble"></span>
           <span class="nav-bubble"></span>
         </span>
-        <span class="text-xs font-semibold tracking-tight relative z-10">{t.nav_cta}</span>
+        <span class="text-xs font-semibold tracking-tight relative z-10">{site.nav?.ctaButton?.text?.[lang] || t.nav_cta}</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary relative z-10" aria-hidden="true">
           <path d="M5 12h14"></path>
           <path d="m12 5 7 7-7 7"></path>

@@ -3,20 +3,20 @@
 
   "company": {
     "_comment": "Company identity — used in headings, meta tags, email copy, and report footers.",
-    "name": "",
-    "legalName": "",
-    "description": "",
-    "industry": "",
-    "audience": "",
-    "ico": "",
-    "dic": ""
+    "name": "Acme Corp",
+    "legalName": "Acme Corp s.r.o.",
+    "description": "AI-powered B2B lead generation for Czech manufacturers",
+    "industry": "SaaS",
+    "audience": "B2B founders",
+    "ico": "12345678",
+    "dic": "CZ12345678"
   },
 
   "domain": {
     "_comment": "URLs — siteUrl is required. reportBaseUrl and corsOrigin are derived from siteUrl automatically if left empty.",
-    "siteUrl": "https://",
-    "reportBaseUrl": "",
-    "corsOrigin": ""
+    "siteUrl": "https://audit.client.com",
+    "reportBaseUrl": "https://audit.client.com/report",
+    "corsOrigin": "https://audit.client.com"
   },
 
   "branding": {
@@ -28,39 +28,286 @@
   },
 
   "contact": {
-    "_comment": "Primary contact details shown in the footer and email templates. Only email is required; all other fields are optional.",
-    "email": "",
-    "phone": "",
-    "street": "",
-    "city": "",
-    "postalCode": "",
+    "_comment": "Primary contact details shown in the footer and email templates. Only email is required. mapsEmbedUrl must start with https://www.google.com/maps/embed or https://google.com/maps/embed.",
+    "email": "info@client.com",
+    "phone": "+420 123 456 789",
+    "street": "Václavské náměstí 1",
+    "city": "Praha",
+    "postalCode": "110 00",
     "country": "Česká republika",
-    "mapsEmbedUrl": ""
+    "mapsEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!..."
   },
 
   "team": [
     {
       "_comment": "Add one object per team member. At least one entry is required. calendarUrl accepts any booking link (cal.com, Calendly, etc.).",
-      "name": "",
-      "title": "",
-      "email": "",
-      "phone": "",
-      "calendarUrl": ""
+      "name": "Jan Novák",
+      "title": "CEO & Growth Strategist",
+      "email": "jan.novak@client.com",
+      "phone": "+420 987 654 321",
+      "calendarUrl": "https://cal.com/jan-novak"
     }
   ],
 
   "social": {
     "_comment": "All social links are optional. Provide full URLs including https://.",
-    "linkedin": "",
-    "instagram": "",
-    "facebook": "",
-    "googleReviews": ""
+    "linkedin": "https://linkedin.com/company/acme-corp",
+    "instagram": "https://instagram.com/acmecorp",
+    "facebook": "https://facebook.com/acmecorp",
+    "googleReviews": "https://g.page/r/acmecorp/review"
   },
 
   "notifications": {
     "_comment": "Email notification settings. recipients receives a copy of every new lead. fromEmail must be a sender address verified in your Resend account.",
-    "recipients": [],
-    "fromEmail": "",
-    "fromName": ""
+    "recipients": ["sales@client.com"],
+    "fromEmail": "noreply@mail.client.com",
+    "fromName": "Acme Corp Audit"
+  },
+
+  "analytics": {
+    "_comment": "Tracking IDs — omit or leave blank any service you do not use. Tags are only rendered when the ID is non-empty. gaId: G-XXXXXXXXXX format. clarityId: 8–14 lowercase alphanumeric. facebookPixel: 12–16 digits. gtmContainerId: GTM-XXXXXXX format.",
+    "gaId": "G-ABCDEF1234",
+    "clarityId": "abc12345de",
+    "facebookPixel": "1234567890123456",
+    "gtmContainerId": "GTM-ABC1234"
+  },
+
+  "seo": {
+    "_comment": "Optional structured-data enhancements for JSON-LD / schema.org. All fields are optional.",
+    "founder": {
+      "name": "Jan Novák",
+      "title": "CEO",
+      "linkedinUrl": "https://linkedin.com/in/jan-novak"
+    },
+    "foundingDate": "2018-01-01",
+    "employeeCount": "11-50",
+    "slogan": {
+      "cs": "Váš obchodní partner pro AI automatizaci",
+      "en": "Your AI automation business partner"
+    },
+    "geoCoordinates": {
+      "latitude": 50.0755,
+      "longitude": 14.4378
+    },
+    "knowsAbout": [
+      "B2B lead generation",
+      "Marketing automation",
+      "CRM implementation",
+      "AI integration"
+    ]
+  },
+
+  "content": {
+    "_comment": "Page copy overrides. All fields are optional — the translation files serve as fallbacks. Every text field is a bilingual object { cs, en }.",
+
+    "hero": {
+      "badge": { "cs": "AI Audit zdarma", "en": "Free AI Audit" },
+      "headline1": { "cs": "Zjistěte, kde ztrácíte", "en": "Discover where you lose" },
+      "headline2": { "cs": "zákazníky a čas", "en": "customers and time" },
+      "subheadline": {
+        "cs": "Bezplatný 15minutový AI audit odhalí vaše největší příležitosti.",
+        "en": "A free 15-minute AI audit reveals your biggest opportunities."
+      },
+      "stats": [
+        { "icon": "clock", "text": { "cs": "15 minut", "en": "15 minutes" } },
+        { "icon": "zap",   "text": { "cs": "Okamžité výsledky", "en": "Instant results" } }
+      ],
+      "trustBadges": [
+        { "icon": "shield-check", "text": { "cs": "GDPR compliant", "en": "GDPR compliant" } }
+      ]
+    },
+
+    "form": {
+      "title":              { "cs": "Získejte bezplatný audit",      "en": "Get your free audit" },
+      "description":        { "cs": "Vyplňte formulář za 2 minuty.", "en": "Fill in the form in 2 minutes." },
+      "submitButton":       { "cs": "Spustit audit",                 "en": "Start audit" },
+      "successTitle":       { "cs": "Hotovo!",                       "en": "Done!" },
+      "successDescription": { "cs": "Zpráva vám dorazí do 24 hodin.","en": "Your report will arrive within 24 hours." },
+      "errorMessage":       { "cs": "Něco se pokazilo.",             "en": "Something went wrong." }
+    },
+
+    "value": {
+      "sectionTitle":    { "cs": "Co zjistíte",    "en": "What you will learn" },
+      "sectionSubtitle": { "cs": "Tři klíčové oblasti", "en": "Three key areas" },
+      "items": [
+        {
+          "icon": "target",
+          "title":       { "cs": "Akvizice",    "en": "Acquisition" },
+          "description": { "cs": "Kde ztrácíte leady", "en": "Where you lose leads" }
+        }
+      ]
+    },
+
+    "pricing": {
+      "sectionTitle":    { "cs": "Ceník",      "en": "Pricing" },
+      "sectionSubtitle": { "cs": "Transparentní ceny", "en": "Transparent pricing" },
+      "currency": "CZK",
+      "tiers": [
+        {
+          "name":        { "cs": "Základní",   "en": "Basic" },
+          "description": { "cs": "Pro začátek", "en": "To get started" },
+          "price":       { "cs": "Zdarma",      "en": "Free" },
+          "priceDetail": { "cs": "navždy",      "en": "forever" },
+          "ctaText":     { "cs": "Začít",       "en": "Start" },
+          "ctaUrl":      "https://audit.client.com/#audit",
+          "featured":    false,
+          "features": [
+            { "text": { "cs": "AI audit report", "en": "AI audit report" }, "included": true }
+          ]
+        }
+      ]
+    },
+
+    "process": {
+      "sectionTitle":    { "cs": "Jak to funguje", "en": "How it works" },
+      "sectionSubtitle": { "cs": "Tři jednoduché kroky", "en": "Three simple steps" },
+      "steps": [
+        {
+          "title":       { "cs": "Vyplňte formulář", "en": "Fill in the form" },
+          "description": { "cs": "2 minuty vašeho času", "en": "2 minutes of your time" },
+          "features": [
+            { "cs": "Žádná registrace", "en": "No registration" }
+          ]
+        }
+      ]
+    },
+
+    "finalCta": {
+      "title":      { "cs": "Připraveni začít?",     "en": "Ready to start?" },
+      "description":{ "cs": "Získejte audit zdarma.", "en": "Get your audit for free." },
+      "buttonText": { "cs": "Spustit audit",         "en": "Start audit" }
+    }
+  },
+
+  "auditForm": {
+    "_comment": "Audit form configuration. Omit painPoints/tools to use the built-in defaults. The built-in painPoints are: new_customers, automate_outreach, inbound_leads, speed_to_lead, automate_communication, boring_admin, tool_juggling, ai_integration, marketing_materials, social_media. Built-in tools: microsoft_office, google_workspace, chatgpt_ai, crm, erp, slack_teams.",
+    "allowCustomPainPoint": true,
+    "allowCustomTool": true,
+    "showCity": true,
+    "showTools": true,
+    "showPainPoints": true,
+    "painPoints": [
+      { "value": "new_customers",          "label": { "cs": "Získávání nových zákazníků",         "en": "Acquiring new customers" } },
+      { "value": "automate_outreach",      "label": { "cs": "Automatizace oslovování",            "en": "Automating outreach" } },
+      { "value": "inbound_leads",          "label": { "cs": "Příchozí poptávky a leady",          "en": "Inbound leads & inquiries" } },
+      { "value": "speed_to_lead",          "label": { "cs": "Rychlost reakce na leady",           "en": "Speed to lead" } },
+      { "value": "automate_communication", "label": { "cs": "Automatizace komunikace",            "en": "Automating communication" } },
+      { "value": "boring_admin",           "label": { "cs": "Opakující se administrativní úkoly", "en": "Repetitive admin tasks" } },
+      { "value": "tool_juggling",          "label": { "cs": "Příliš mnoho nástrojů a systémů",    "en": "Too many tools & systems" } },
+      { "value": "ai_integration",         "label": { "cs": "Integrace AI do procesů",           "en": "Integrating AI into processes" } },
+      { "value": "marketing_materials",    "label": { "cs": "Tvorba marketingových materiálů",    "en": "Creating marketing materials" } },
+      { "value": "social_media",           "label": { "cs": "Správa sociálních sítí",             "en": "Managing social media" } }
+    ],
+    "tools": [
+      { "value": "microsoft_office",  "label": "Microsoft Office 365" },
+      { "value": "google_workspace",  "label": "Google Workspace" },
+      { "value": "chatgpt_ai",        "label": "ChatGPT / AI nástroje" },
+      { "value": "crm",               "label": "CRM systém" },
+      { "value": "erp",               "label": "ERP systém" },
+      { "value": "slack_teams",       "label": "Slack / Microsoft Teams" }
+    ]
+  },
+
+  "nav": {
+    "_comment": "Navigation bar configuration. ctaButton.href can be a relative path or absolute URL.",
+    "ctaButton": {
+      "text": { "cs": "Získat audit", "en": "Get audit" },
+      "href": "/#audit"
+    }
+  },
+
+  "llm": {
+    "_comment": "LLM provider settings. primary is used for the main audit generation; fallback is used when primary models are unavailable. temperature: 0.0–1.0. maxTokens: 16000–64000. timeout: 10000–60000 ms.",
+    "primary": {
+      "models": [
+        "google/gemini-3-flash-preview",
+        "google/gemini-3-pro-preview",
+        "anthropic/claude-sonnet-4.5"
+      ],
+      "temperature": 0.7,
+      "maxTokens": 32000,
+      "maxRetries": 1
+    },
+    "fallback": {
+      "models": [
+        "anthropic/claude-sonnet-4.5",
+        "anthropic/claude-3.5-sonnet"
+      ],
+      "temperature": 0.6,
+      "maxTokens": 32000,
+      "maxRetries": 1
+    },
+    "timeout": 30000
+  },
+
+  "prompt": {
+    "_comment": "System-prompt customisation. systemIdentity: max 100 chars, safe characters only. customInstructions: max 2000 chars, sanitised for prompt injection. Blocked terms: ignore, override, forget, system:, role:, assistant:, user:, |im_, [INST, <<SYS, RESPOND, OUTPUT:, lines starting with ## or #, ignoruj, zapomen, prepis.",
+    "systemIdentity": "Acme Corp AI Audit Assistant",
+    "industryContext": "B2B SaaS targeting Czech manufacturers with 10–200 employees.",
+    "focusAreas": ["lead generation", "CRM automation", "email outreach"],
+    "tone": "consultative",
+    "brandMentions": [
+      {
+        "name": "AcmeFlow",
+        "description": "Our proprietary CRM automation platform.",
+        "when": "When discussing CRM or sales pipeline automation."
+      }
+    ],
+    "customInstructions": "Always reference ROI in Czech crowns (CZK) when citing financial impact."
+  },
+
+  "search": {
+    "_comment": "Web-search query configuration. maxQueries: 1–12. additionalQueries: each max 200 chars, no OR/AND/site:/inurl:/filetype: operators. At least one of 'generic' or 'domainSpecific' must NOT be in disabledQueryTypes.",
+    "maxQueries": 6,
+    "disabledQueryTypes": [],
+    "additionalQueries": [
+      {
+        "query": "Czech B2B SaaS lead generation trends 2024",
+        "type": "industry",
+        "step": "research"
+      }
+    ],
+    "industryKeywords": {
+      "saas":          "SaaS / Software",
+      "manufacturing": "Manufacturing",
+      "ecommerce":     "E-commerce"
+    }
+  },
+
+  "report": {
+    "_comment": "Report rendering configuration. opportunityCount: 3–20. questionCategoryCount: 3–10. sections.disabled cannot include 'header' or 'footer'.",
+    "opportunityCount": 10,
+    "questionCategoryCount": 7,
+    "sections": {
+      "order": ["header", "summary", "opportunities", "questions", "pricing", "footer"],
+      "disabled": []
+    },
+    "cta": {
+      "title":      { "cs": "Chcete implementovat doporučení?", "en": "Want to implement the recommendations?" },
+      "subtitle":   { "cs": "Rezervujte si bezplatnou konzultaci.", "en": "Book a free consultation." },
+      "buttonText": { "cs": "Rezervovat konzultaci",             "en": "Book consultation" },
+      "buttonUrl":  "https://cal.com/jan-novak"
+    }
+  },
+
+  "email": {
+    "_comment": "Transactional email copy overrides. All fields are optional — defaults come from the email templates. All text fields are bilingual { cs, en }.",
+    "leadConfirm": {
+      "subject":  { "cs": "Váš AI audit je na cestě",           "en": "Your AI audit is on its way" },
+      "greeting": { "cs": "Dobrý den",                         "en": "Hello" },
+      "intro":    { "cs": "Děkujeme za vyplnění auditu.",       "en": "Thank you for completing the audit." },
+      "closing":  { "cs": "S pozdravem, tým Acme Corp",         "en": "Best regards, the Acme Corp team" }
+    },
+    "reportDelivery": {
+      "subject":  { "cs": "Váš audit je připraven",             "en": "Your audit is ready" },
+      "greeting": { "cs": "Dobrý den",                         "en": "Hello" },
+      "intro":    { "cs": "Váš personalizovaný audit je hotov.", "en": "Your personalised audit is complete." },
+      "ctaText":  { "cs": "Zobrazit audit",                    "en": "View audit" },
+      "closing":  { "cs": "S pozdravem, tým Acme Corp",         "en": "Best regards, the Acme Corp team" }
+    },
+    "teamNotification": {
+      "subject": { "cs": "Nový lead: {name} ({company})", "en": "New lead: {name} ({company})" },
+      "intro":   { "cs": "Přišla nová poptávka.",         "en": "A new inquiry has arrived." }
+    }
   }
 }

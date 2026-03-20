@@ -197,13 +197,13 @@ function generateErrorPage(errorType: string, lang: 'cs' | 'en'): string {
     a {
       display: inline-block;
       padding: 12px 24px;
-      background: #00A39A;
+      background: ${clientConfig.brand.primaryColor};
       color: white;
       text-decoration: none;
       border-radius: 8px;
       font-weight: 600;
     }
-    a:hover { background: #008f87; }
+    a:hover { opacity: 0.88; }
   </style>
 </head>
 <body>
@@ -272,13 +272,13 @@ function generateExpiredPage(lang: 'cs' | 'en'): string {
     a {
       display: inline-block;
       padding: 12px 24px;
-      background: #00A39A;
+      background: ${clientConfig.brand.primaryColor};
       color: white;
       text-decoration: none;
       border-radius: 8px;
       font-weight: 600;
     }
-    a:hover { background: #008f87; }
+    a:hover { opacity: 0.88; }
     a.secondary {
       background: transparent;
       border: 1px solid rgba(255,255,255,0.2);

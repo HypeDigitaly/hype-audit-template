@@ -19,6 +19,8 @@ const calendarId = `footer-cal-${Math.random().toString(36).substring(7)}`;
 
 // Strip https://cal.com/ prefix from calendarUrl so Cal.com embed gets only the path
 const calendarPath = (site.primaryContact.calendarUrl || '').replace(/^https?:\/\/cal\.com\//, '');
+
+const primaryColor = site.primaryColor;
 ---
 
 {/* Contact Section with Calendar - Before Footer */}
@@ -73,14 +75,18 @@ const calendarPath = (site.primaryContact.calendarUrl || '').replace(/^https?:\/
             <iconify-icon icon="solar:letter-bold" class="text-primary"></iconify-icon>
             <span>{site.email}</span>
           </a>
-          <a href={`tel:${site.phone.replace(/\s/g, '')}`} class="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-300 hover:text-white hover:border-white/20 transition-colors">
-            <iconify-icon icon="solar:phone-bold" class="text-primary"></iconify-icon>
-            <span>{site.phone}</span>
-          </a>
-          <a href={site.social.linkedin || ''} target="_blank" class="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-300 hover:text-white hover:border-white/20 transition-colors">
-            <iconify-icon icon="mdi:linkedin" class="text-primary"></iconify-icon>
-            <span>LinkedIn</span>
-          </a>
+          {site.phone && (
+            <a href={`tel:${site.phone.replace(/\s/g, '')}`} class="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-300 hover:text-white hover:border-white/20 transition-colors">
+              <iconify-icon icon="solar:phone-bold" class="text-primary"></iconify-icon>
+              <span>{site.phone}</span>
+            </a>
+          )}
+          {site.social?.linkedin && (
+            <a href={site.social.linkedin} target="_blank" class="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-300 hover:text-white hover:border-white/20 transition-colors">
+              <iconify-icon icon="mdi:linkedin" class="text-primary"></iconify-icon>
+              <span>LinkedIn</span>
+            </a>
+          )}
         </div>
         
         <!-- Trust badges -->
@@ -102,7 +108,7 @@ const calendarPath = (site.primaryContact.calendarUrl || '').replace(/^https?:\/
     </div>
   </section>
 
-  <script is:inline define:vars={{ calendarId, calendarPath }}>
+  <script is:inline define:vars={{ calendarId, calendarPath, primaryColor }}>
     // Lazy-load Cal.com embed using Intersection Observer
     (function() {
       const calContainer = document.getElementById(calendarId);
@@ -151,7 +157,7 @@ const calendarPath = (site.primaryContact.calendarUrl || '').replace(/^https?:\/
             config: {"layout":"month_view","theme":"light"},
             calLink: calendarPath,
           });
-          Cal.ns[nsName]("ui", {"theme":"light","cssVarsPerTheme":{"light":{"cal-brand":"#00A39A"}},"hideEventTypeDetails":false,"layout":"month_view"});
+          Cal.ns[nsName]("ui", {"theme":"light","cssVarsPerTheme":{"light":{"cal-brand":primaryColor}},"hideEventTypeDetails":false,"layout":"month_view"});
         }
       }, {
         rootMargin: '50px' // Start loading 50px before it becomes visible
@@ -171,7 +177,7 @@ const calendarPath = (site.primaryContact.calendarUrl || '').replace(/^https?:\/
           <!-- Brand & Socials -->
           <div class="p-8 md:p-12 md:border-r border-white/5">
             <a href={href("/")} class="flex items-center gap-2 mb-6">
-              <img src="/assets/images/logo.png" alt={site.name} width="225" height="40" class="h-10">
+              <img src={site.logoUrl} alt={site.name} width="225" height="40" class="h-10">
             </a>
             <p class="text-neutral-400 text-sm leading-relaxed mb-8">
               {t.footer_desc}
@@ -269,14 +275,9 @@ const calendarPath = (site.primaryContact.calendarUrl || '').replace(/^https?:\/
         </div>
 
         <!-- Navigation -->
-        <div class="grid grid-cols-2 md:grid-cols-7 border-b border-white/5 text-sm">
-          <a href={href("/sluzby")} class="px-6 py-6 border-r border-b md:border-b-0 border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_services}</a>
-          <a href={href("/#reference")} class="px-6 py-6 border-r border-b md:border-b-0 border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_references}</a>
-          <a href={href("/blog")} class="px-6 py-6 border-r border-b md:border-b-0 border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.nav_case_studies}</a>
-          <a href={href("/#priprava-dat")} class="px-6 py-6 border-r border-b md:border-b-0 border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">RAGus.ai</a>
-          <a href={href("/kontakt")} class="px-6 py-6 border-r border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_contact}</a>
-          <a href={href("/privacy-policy")} class="px-6 py-6 border-r border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_privacy}</a>
-          <a href={href("/recommendation")} class="px-6 py-6 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_recommendation}</a>
+        <div class="grid grid-cols-2 border-b border-white/5 text-sm">
+          <a href={href("/")} class="px-6 py-6 border-r border-white/5 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{lang === 'cs' ? 'Domů' : 'Home'}</a>
+          <a href={href("/privacy-policy")} class="px-6 py-6 text-neutral-300 hover:text-white hover:bg-white/[0.02] transition-colors">{t.footer_privacy}</a>
         </div>
       </>
     )}

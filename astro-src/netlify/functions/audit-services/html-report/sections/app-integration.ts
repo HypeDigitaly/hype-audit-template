@@ -3,7 +3,7 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
-import { getEnhancedImplementationTypeLabel, escapeHtmlAttr } from '../utils';
+import { getEnhancedImplementationTypeLabel, escapeHtml, escapeHtmlAttr } from '../utils';
 
 export function generateAppIntegrationSection(data: AuditReportData, t: Translations): string {
   if (!data.appIntegrationOpportunities || data.appIntegrationOpportunities.length === 0) {
@@ -44,12 +44,12 @@ export function generateAppIntegrationSection(data: AuditReportData, t: Translat
     <div class="integration-card">
       <div class="integration-header">
         <span class="integration-icon tooltip-term"${typeTooltipAttr}>${getTypeIcon(opp.implementationType)}</span>
-        <h4>${opp.title}</h4>
+        <h4>${escapeHtml(opp.title)}</h4>
         ${getEffortBadge(opp.estimatedEffort)}
       </div>
-      <p class="integration-desc">${opp.description}</p>
+      <p class="integration-desc">${escapeHtml(opp.description)}</p>
       <div class="integration-impact">
-        <strong>${impactLabel}</strong> ${opp.potentialImpact}
+        <strong>${impactLabel}</strong> ${escapeHtml(opp.potentialImpact)}
       </div>
     </div>
   `;}).join('');
@@ -60,7 +60,7 @@ export function generateAppIntegrationSection(data: AuditReportData, t: Translat
       <div class="app-details-icon">📱</div>
       <div class="app-details-content">
         <h4>${data.language === 'cs' ? 'Vaše aplikace' : 'Your Application'}</h4>
-        <p>${data.ownApplicationDetails}</p>
+        <p>${escapeHtml(data.ownApplicationDetails)}</p>
       </div>
     </div>
   ` : '';

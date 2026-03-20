@@ -322,10 +322,13 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
     // 3. SEND CONFIRMATION TO USER
     // Must await in serverless environments to prevent premature termination
-    // Subject is bilingual based on user's language preference
+    // Subject is bilingual based on user's language preference.
+    // Uses clientConfig.email overrides when configured, otherwise falls back to defaults.
+    const defaultConfirmationSubjectEn = `Confirmation: Your inquiry to ${clientConfig.company.name} has been received`;
+    const defaultConfirmationSubjectCs = `Potvrzení: Vaše poptávka pro ${clientConfig.company.name} byla přijata`;
     const confirmationSubject = lang === 'en'
-      ? `Confirmation: Your inquiry to ${clientConfig.company.name} has been received`
-      : `Potvrzení: Vaše poptávka pro ${clientConfig.company.name} byla přijata`;
+      ? clientConfig.email?.leadConfirm?.subject?.en || defaultConfirmationSubjectEn
+      : clientConfig.email?.leadConfirm?.subject?.cs || defaultConfirmationSubjectCs;
 
     try {
       const confirmationHtml = generateConfirmationEmailHTML(formData);

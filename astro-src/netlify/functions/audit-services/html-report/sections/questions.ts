@@ -3,13 +3,14 @@
 // =============================================================================
 
 import type { AuditReportData, Translations } from '../types';
+import { escapeHtml } from '../utils';
 
 export function generateQuestionsSection(data: AuditReportData, t: Translations): string {
   const questionsHTML = data.auditQuestions.map(category => `
     <div class="question-category">
-      <h3>${category.icon ? `<span class="cat-icon">${category.icon}</span> ` : ''}${category.category}</h3>
+      <h3>${category.icon ? `<span class="cat-icon">${escapeHtml(category.icon)}</span> ` : ''}${escapeHtml(category.category)}</h3>
       <ul>
-        ${category.questions.map(q => `<li>${q}</li>`).join('')}
+        ${category.questions.map(q => `<li>${escapeHtml(q)}</li>`).join('')}
       </ul>
     </div>
   `).join('');

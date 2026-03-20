@@ -1,7 +1,7 @@
 // =============================================================================
 // PRICING CALCULATOR EMAIL TEMPLATES - Netlify Function Utils
 // =============================================================================
-// Email templates for the HypeLead pricing calculator lead capture.
+// Email templates for the pricing calculator lead capture.
 // User confirmation (bilingual CS/EN) + Team notification (Czech).
 // =============================================================================
 
@@ -80,7 +80,7 @@ function divider(): string {
 }
 
 function sectionHeader(title: string): string {
-  return `<h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#00A39A;text-transform:uppercase;letter-spacing:1px;">${title}</h2>`;
+  return `<h2 style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:${clientConfig.brand.primaryColor};text-transform:uppercase;letter-spacing:1px;">${title}</h2>`;
 }
 
 // =============================================================================
@@ -91,11 +91,11 @@ export function generatePricingConfirmationEmailHTML(lead: PricingLeadData, lang
   const r = lead.calculatorResults;
 
   const t = lang === 'en' ? {
-    docTitle: 'Your HypeLead.ai Price Quote',
+    docTitle: `Your Price Quote | ${clientConfig.company.name}`,
     headerTitle: 'Your personalized price quote is ready!',
     headerSub: 'Attached to this email as a PDF',
     greeting: `Hello ${escapeHtml(lead.name.split(' ')[0])},`,
-    body: 'Thank you for your interest in HypeLead.ai! Your personalized price quote is attached to this email as a PDF.',
+    body: `Thank you for your interest in ${clientConfig.company.name}! Your personalized price quote is attached to this email as a PDF.`,
     summaryTitle: 'Quote summary',
     labelPackage: 'Selected package',
     labelMonthly: 'Monthly volume',
@@ -104,11 +104,11 @@ export function generatePricingConfirmationEmailHTML(lead: PricingLeadData, lang
     ctaLine: 'Have questions? Write to us at',
     footerTagline: 'The future is in AI. We are building it.',
   } : {
-    docTitle: 'Vaše cenová nabídka HypeLead.ai',
+    docTitle: `Vaše cenová nabídka | ${clientConfig.company.name}`,
     headerTitle: 'Vaše personalizovaná cenová nabídka je připravena!',
     headerSub: 'Přiložena k tomuto e-mailu jako PDF',
     greeting: `Dobrý den, ${escapeHtml(lead.name.split(' ')[0])},`,
-    body: 'Děkujeme za váš zájem o HypeLead.ai! V příloze najdete vaši personalizovanou cenovou nabídku.',
+    body: `Děkujeme za váš zájem o ${clientConfig.company.name}! V příloze najdete vaši personalizovanou cenovou nabídku.`,
     summaryTitle: 'Shrnutí nabídky',
     labelPackage: 'Vybraný balíček',
     labelMonthly: 'Měsíční objem',
@@ -134,7 +134,7 @@ export function generatePricingConfirmationEmailHTML(lead: PricingLeadData, lang
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#0d3d56 0%,#0a2a3d 100%);padding:32px 40px;text-align:center;border-bottom:1px solid rgba(0,163,154,0.3);">
-              <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#00A39A;letter-spacing:1px;">HypeLead.ai</p>
+              <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:${clientConfig.brand.primaryColor};letter-spacing:1px;">${clientConfig.company.name}</p>
               <h1 style="margin:0;font-size:22px;font-weight:600;color:#ffffff;letter-spacing:-0.5px;">${t.headerTitle}</h1>
               <p style="margin:8px 0 0 0;font-size:14px;color:rgba(255,255,255,0.6);">${t.headerSub}</p>
             </td>
@@ -169,7 +169,7 @@ export function generatePricingConfirmationEmailHTML(lead: PricingLeadData, lang
           <tr>
             <td style="padding:24px 40px 32px 40px;text-align:center;">
               <p style="margin:0 0 8px 0;font-size:14px;color:rgba(255,255,255,0.7);">${t.ctaLine}</p>
-              <a href="mailto:${clientConfig.primaryContact.email}" style="font-size:15px;font-weight:600;color:#00A39A;text-decoration:none;">${clientConfig.primaryContact.email}</a>
+              <a href="mailto:${clientConfig.primaryContact.email}" style="font-size:15px;font-weight:600;color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.primaryContact.email}</a>
             </td>
           </tr>
 
@@ -177,7 +177,7 @@ export function generatePricingConfirmationEmailHTML(lead: PricingLeadData, lang
           <tr>
             <td style="padding:24px 40px;background-color:rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
               <p style="margin:0 0 6px 0;font-size:13px;color:rgba(255,255,255,0.4);">
-                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
               </p>
               <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.3);">${t.footerTagline}</p>
             </td>
@@ -198,7 +198,7 @@ export function generatePricingConfirmationPlainText(lead: PricingLeadData, lang
   if (lang === 'en') {
     return `Hello ${lead.name.split(' ')[0]},
 
-Thank you for your interest in HypeLead.ai! Your personalized price quote is attached to this email as a PDF.
+Thank you for your interest in ${clientConfig.company.name}! Your personalized price quote is attached to this email as a PDF.
 
 QUOTE SUMMARY
 -------------
@@ -215,7 +215,7 @@ ${clientConfig.company.legalName} | ${clientConfig.siteUrl.replace('https://', '
 
   return `Dobrý den, ${lead.name.split(' ')[0]},
 
-Děkujeme za váš zájem o HypeLead.ai! V příloze najdete vaši personalizovanou cenovou nabídku.
+Děkujeme za váš zájem o ${clientConfig.company.name}! V příloze najdete vaši personalizovanou cenovou nabídku.
 
 SHRNUTÍ NABÍDKY
 ---------------
@@ -231,7 +231,9 @@ ${clientConfig.company.legalName} | ${clientConfig.siteUrl.replace('https://', '
 }
 
 export function getPricingConfirmationSubject(lang: 'cs' | 'en'): string {
-  const subject = lang === 'en' ? 'Your HypeLead.ai Price Quote' : 'Vaše cenová nabídka HypeLead.ai';
+  const subject = lang === 'en'
+    ? `Your Price Quote | ${clientConfig.company.name}`
+    : `Vaše cenová nabídka | ${clientConfig.company.name}`;
   return subject.replace(/[\r\n]/g, '');
 }
 
@@ -258,7 +260,7 @@ export function generatePricingNotificationEmailHTML(lead: PricingLeadData): str
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nový zájemce z cenové kalkulačky | HypeLead</title>
+  <title>Nový zájemce z cenové kalkulačky | ${clientConfig.company.name}</title>
 </head>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#0a0a0a;color:#ffffff;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0a0a0a;">
@@ -271,7 +273,7 @@ export function generatePricingNotificationEmailHTML(lead: PricingLeadData): str
             <td style="background:linear-gradient(135deg,#0d3d56 0%,#0a2a3d 100%);padding:32px 40px;text-align:center;border-bottom:1px solid rgba(0,163,154,0.3);">
               <img src="${clientConfig.brand.logoUrl}" alt="${clientConfig.company.name}" width="180" style="display:block;margin:0 auto 16px auto;height:auto;">
               <h1 style="margin:0;font-size:22px;font-weight:600;color:#ffffff;letter-spacing:-0.5px;">Nový zájemce z cenové kalkulačky</h1>
-              <p style="margin:8px 0 0 0;font-size:14px;color:rgba(255,255,255,0.6);">HypeLead.ai &bull; ${submittedDate}</p>
+              <p style="margin:8px 0 0 0;font-size:14px;color:rgba(255,255,255,0.6);">${clientConfig.company.name} &bull; ${submittedDate}</p>
             </td>
           </tr>
 
@@ -281,7 +283,7 @@ export function generatePricingNotificationEmailHTML(lead: PricingLeadData): str
               ${sectionHeader('Kontaktní údaje')}
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 ${infoRow('Jméno', escapeHtml(lead.name))}
-                ${infoRow('E-mail', `<a href="mailto:${escapeHtml(lead.email)}" style="color:#00A39A;text-decoration:none;">${escapeHtml(lead.email)}</a>`)}
+                ${infoRow('E-mail', `<a href="mailto:${escapeHtml(lead.email)}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${escapeHtml(lead.email)}</a>`)}
                 ${infoRow('Firma', escapeHtml(lead.companyName))}
                 ${infoRow('Jazyk', lead.language.toUpperCase())}
                 ${infoRow('Datum', submittedDate)}
@@ -336,8 +338,8 @@ export function generatePricingNotificationEmailHTML(lead: PricingLeadData): str
           <!-- CTA -->
           <tr>
             <td style="padding:16px 40px 32px 40px;text-align:center;">
-              <a href="mailto:${escapeHtml(lead.email)}?subject=Re%3A%20Va%C5%A1e%20cen%C3%A1%20nab%C3%ADdka%20HypeLead.ai"
-                 style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#00A39A 0%,#008f87 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:15px;font-weight:600;box-shadow:0 4px 14px rgba(0,163,154,0.4);">
+              <a href="mailto:${escapeHtml(lead.email)}?subject=Re%3A%20Va%C5%A1e%20cen%C3%A1%20nab%C3%ADdka"
+                 style="display:inline-block;padding:14px 32px;background:${clientConfig.brand.primaryColor};color:#ffffff;text-decoration:none;border-radius:8px;font-size:15px;font-weight:600;">
                 Odpovědět zájemci
               </a>
             </td>
@@ -347,7 +349,7 @@ export function generatePricingNotificationEmailHTML(lead: PricingLeadData): str
           <tr>
             <td style="padding:24px 40px;background-color:rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
               <p style="margin:0 0 6px 0;font-size:13px;color:rgba(255,255,255,0.4);">
-                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:#00A39A;text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
+                ${clientConfig.company.legalName} &bull; <a href="${clientConfig.siteUrl}" style="color:${clientConfig.brand.primaryColor};text-decoration:none;">${clientConfig.siteUrl.replace('https://', '')}</a>
               </p>
               <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.3);">Automaticky odesláno z cenové kalkulačky</p>
             </td>
@@ -372,7 +374,7 @@ export function generatePricingNotificationPlainText(lead: PricingLeadData): str
     ? `\nUTM TRACKING\n------------\n${lead.utmSource ? `Zdroj:   ${lead.utmSource}\n` : ''}${lead.utmMedium ? `Médium:  ${lead.utmMedium}\n` : ''}${lead.utmCampaign ? `Kampaň:  ${lead.utmCampaign}\n` : ''}`
     : '';
 
-  return `NOVÝ ZÁJEMCE Z CENOVÉ KALKULAČKY - HypeLead.ai
+  return `NOVÝ ZÁJEMCE Z CENOVÉ KALKULAČKY - ${clientConfig.company.name}
 ===============================================
 
 KONTAKTNÍ ÚDAJE

@@ -4,6 +4,7 @@
 
 import type { AuditReportData, Translations } from '../types';
 import { clientConfig } from '../../../_config/client';
+import { escapeHtml, escapeHtmlAttr, sanitizeUrl } from '../utils';
 
 export function generateHeader(data: AuditReportData, t: Translations): string {
   const generatedDate = new Date(data.generatedAt).toLocaleDateString(
@@ -16,7 +17,7 @@ export function generateHeader(data: AuditReportData, t: Translations): string {
   let logoAlt = clientConfig.company.name;
 
   if (data.companyBranding) {
-    // Priority: logo → favicon → Google favicon
+    // Priority: logo -> favicon -> Google favicon
     if (data.companyBranding.logo) {
       logoUrl = data.companyBranding.logo;
       logoAlt = data.companyProfile.name;
@@ -28,7 +29,7 @@ export function generateHeader(data: AuditReportData, t: Translations): string {
       try {
         const url = new URL(data.companyProfile.website.startsWith('http') ? data.companyProfile.website : `https://${data.companyProfile.website}`);
         const domain = url.hostname.replace(/^www\./, '');
-        logoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+        logoUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
         logoAlt = data.companyProfile.name;
       } catch {
         // Keep brand logo as final fallback
@@ -36,21 +37,28 @@ export function generateHeader(data: AuditReportData, t: Translations): string {
     }
   }
 
+  // Sanitize URLs for logo src attributes
+  const safeLogoUrl = sanitizeUrl(logoUrl);
+  const safeFallbackLogoUrl = sanitizeUrl(clientConfig.brand.logoUrl);
+  const safeCalendarUrl = clientConfig.primaryContact.calendarUrl
+    ? sanitizeUrl(clientConfig.primaryContact.calendarUrl)
+    : '';
+
   return `
     <header class="report-header">
       <div class="header-inner">
         <div class="header-logo-group">
-          <img src="${logoUrl}"
-               alt="${logoAlt}"
+          <img src="${escapeHtmlAttr(safeLogoUrl)}"
+               alt="${escapeHtmlAttr(logoAlt)}"
                class="logo"
-               onerror="this.onerror=null; this.src='${clientConfig.brand.logoUrl}';">
+               onerror="this.onerror=null; this.src='${escapeHtmlAttr(safeFallbackLogoUrl)}';">
           <div class="header-title-info">
             <h1>${t.preAuditReport}</h1>
-            <span class="meta">${data.companyProfile.name} • ${generatedDate}</span>
+            <span class="meta">${escapeHtml(data.companyProfile.name)} &bull; ${escapeHtml(generatedDate)}</span>
           </div>
         </div>
         <div class="header-actions">
-          <a href="${clientConfig.primaryContact.calendarUrl || ''}" target="_blank" class="btn btn-primary">
+          <a href="${escapeHtmlAttr(safeCalendarUrl)}" target="_blank" class="btn btn-primary">
             📅 ${t.ctaButton}
           </a>
           <button onclick="window.print()" class="btn btn-secondary">

@@ -9,7 +9,14 @@
 
 ## Overview
 
-This document provides a **step-by-step replication guide** for rebuilding the entire `/audit` page, background audit processing system, and `/admin/leads` CRM dashboard from a blank Astro 5.16 project. It covers infrastructure setup, code implementation, testing, and deployment with cross-references to all 11 domain documentation files.
+This document provides a **step-by-step replication guide** for rebuilding the entire home page (audit form), background audit processing system, and `/admin/leads` CRM dashboard from a blank Astro 5.16 project. It covers infrastructure setup, code implementation, testing, and deployment with cross-references to all 12 domain documentation files.
+
+**Key Changes in v2:**
+- Home page (`/`) now contains the audit form (moved from `/audit`)
+- `/audit` is now a 301 redirect for backward compatibility
+- All configuration is **white-label** (no HypeDigitaly branding)
+- All copy, colors, and branding are **configuration-driven** via config.json
+- New config schema with 120+ fields across 10+ sections
 
 **Time to Complete:** 16-24 hours (depending on familiarity with Astro, Netlify, and TypeScript)
 
